@@ -1,0 +1,172 @@
+<p-toast position="top-right"></p-toast>
+
+@if (loading) {
+  <div class="page-container">
+    <div class="sk sk-header"></div>
+    <div class="sk sk-body"></div>
+  </div>
+} @else if (vacante) {
+  <div class="page-container animate-fade-slide">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a routerLink="/egresado/vacantes" class="back-link">
+        <i class="pi pi-arrow-left"></i> Volver a vacantes
+      </a>
+    </div>
+
+    <div class="detalle-grid">
+
+      <!-- Columna izquierda -->
+      <div class="main-col">
+
+        <!-- Empresa card -->
+        <div class="vtx-card empresa-card">
+          <div class="empresa-header">
+            <div class="company-avatar-lg">{{ vacante.empresa_nombre[0] }}</div>
+            <div class="empresa-info">
+              <h1>{{ vacante.puesto }}</h1>
+              <p class="empresa-name">{{ vacante.empresa_nombre }}</p>
+              <div class="empresa-meta">
+                <span><i class="pi pi-map-marker"></i> {{ vacante.ubicacion }}</span>
+                <span><i class="pi pi-briefcase"></i> {{ vacante.modalidad | titlecase }}</span>
+                @if (vacante.zona_norte) {
+                  <span class="badge-activo"><i class="pi pi-map"></i> Zona Norte</span>
+                }
+                @if (vacante.salario_rango) {
+                  <span><i class="pi pi-dollar"></i> {{ vacante.salario_rango }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="vtx-card">
+          <h3>Descripción del puesto</h3>
+          <p class="desc-text">{{ vacante.descripcion }}</p>
+        </div>
+
+        <!-- Radar overlay -->
+        <div class="vtx-card radar-card">
+          <h3>Perfil de competencias</h3>
+          <p class="caption" style="margin-bottom: 20px">
+            Tu perfil (<strong>Mi Perfil</strong>) comparado con el perfil ideal de la vacante (línea punteada)
+          </p>
+
+          @if (egresado?.scores) {
+            <app-spider-chart
+              [egresadoScores]="egresado!.scores!"
+              [idealScores]="vacante.perfil_ideal"
+              maxWidth="100%"
+              [showLegend]="true"
+            ></app-spider-chart>
+          }
+
+          <!-- Dimensión bars -->
+          <div class="dim-bars">
+            @for (dim of DIMS; track dim) {
+              @if (egresado?.scores) {
+                <div class="dim-bar-item">
+                  <div class="dim-bar-header">
+                    <app-dimension-pill [dimension]="dim"></app-dimension-pill>
+                    <div class="bar-scores">
+                      <span [style.color]="scoreColor(egresado!.scores![dim], vacante.perfil_ideal[dim])">
+                        {{ egresado!.scores![dim] }}%
+                      </span>
+                      <span class="bar-sep">/</span>
+                      <span class="ideal-score">{{ vacante.perfil_ideal[dim] }}% ideal</span>
+                    </div>
+                  </div>
+                  <div class="bar-track">
+                    <div
+                      class="bar-fill"
+                      [style.width]="egresado!.scores![dim] + '%'"
+                      [style.background]="scoreColor(egresado!.scores![dim], vacante.perfil_ideal[dim])"
+                    ></div>
+                    <div class="bar-ideal-marker" [style.left]="vacante.perfil_ideal[dim] + '%'"></div>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+
+        <!-- Fortalezas y brechas -->
+        @if (fortalezas.length > 0 || brechas.length > 0) {
+          <div class="vtx-card">
+            <div class="strength-gap-grid">
+              @if (fortalezas.length > 0) {
+                <div class="strength-block">
+                  <p class="label"><i class="pi pi-check-circle" style="color:#03837b"></i> Fortalezas</p>
+                  <div class="pill-list">
+                    @for (dim of fortalezas; track dim) {
+                      <app-dimension-pill [dimension]="dim" [score]="egresado!.scores![dim]"></app-dimension-pill>
+                    }
+                  </div>
+                </div>
+              }
+              @if (brechas.length > 0) {
+                <div class="gap-block">
+                  <p class="label"><i class="pi pi-exclamation-triangle" style="color:#f97316"></i> Áreas de mejora</p>
+                  <div class="pill-list">
+                    @for (dim of brechas; track dim) {
+                      <app-dimension-pill [dimension]="dim" [score]="egresado!.scores![dim]"></app-dimension-pill>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+      </div>
+
+      <!-- Columna derecha: acción -->
+      <div class="side-col">
+        <div class="vtx-card action-card">
+          <div class="match-block">
+            <p class="label">Coincidencia con tu perfil</p>
+            <app-score-circle
+              [score]="coincidencia"
+              color="#03837b"
+              size="100px"
+              [strokeWidth]="9"
+            ></app-score-circle>
+          </div>
+
+          @if (yaPostulado) {
+            <div class="postulado-banner">
+              <i class="pi pi-check-circle"></i>
+              <span>¡Postulación enviada!</span>
+            </div>
+          } @else {
+            <button
+              pButton
+              type="button"
+              label="Postularme"
+              icon="pi pi-send"
+              class="w-full postulate-btn"
+              [loading]="postulando"
+              [disabled]="postulando || !egresado?.evaluaciones_completadas?.length"
+              (click)="postularme()"
+            ></button>
+          }
+
+          @if (egresado && egresado.evaluaciones_completadas.length < 4) {
+            <div class="notice-warn">
+              <i class="pi pi-info-circle"></i>
+              <span>Completa tus 4 evaluaciones para postularte</span>
+            </div>
+          }
+
+          <div class="card-meta">
+            <p class="caption"><i class="pi pi-calendar"></i> Publicado: {{ vacante.fecha_publicacion }}</p>
+            <p class="caption"><i class="pi pi-tag"></i> Área: {{ vacante.area }}</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+}

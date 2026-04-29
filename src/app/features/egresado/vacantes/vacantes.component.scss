@@ -1,0 +1,156 @@
+.results-count {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  white-space: nowrap;
+  align-self: flex-start;
+  margin-top: 8px;
+}
+
+.filters-card {
+  margin-bottom: 24px;
+  padding: 16px 20px;
+}
+
+.filters-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-item { flex: 1; min-width: 180px; }
+.search-filter { flex: 2; min-width: 220px; }
+
+.slider-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  strong { color: var(--color-primary); }
+}
+
+.vacantes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+
+  @media (max-width: 480px) { grid-template-columns: 1fr; }
+}
+
+.vacante-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vac-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.vac-empresa {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.company-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--color-primary-light);
+  border: 1px solid rgba(3,131,123,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.vac-puesto {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vac-empresa-name {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.vac-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vac-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  i { font-size: 11px; }
+}
+
+.vac-salario {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  i { color: var(--color-success); }
+}
+
+.vac-dims {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vac-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  i { font-size: 40px; color: var(--color-text-muted); }
+  h3 { color: var(--color-text-secondary); }
+  p  { color: var(--color-text-muted); font-size: 14px; }
+}
+
+.sk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.sk {
+  background: linear-gradient(90deg, var(--color-border) 25%, var(--color-bg) 50%, var(--color-border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 12px;
+}
+
+.sk-vac-card { height: 220px; }

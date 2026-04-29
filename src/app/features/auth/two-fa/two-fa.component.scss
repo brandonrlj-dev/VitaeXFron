@@ -1,0 +1,104 @@
+.twofa-shell {
+  min-height: 100vh;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 30% 30%, rgba(3,131,123,0.06) 0%, transparent 60%);
+}
+
+.twofa-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--color-surface);
+  border-radius: 20px;
+  padding: 40px 36px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  border: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.card-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: var(--color-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+
+  i {
+    font-size: 28px;
+    color: var(--color-primary);
+  }
+}
+
+.card-header {
+  margin-bottom: 28px;
+
+  h2 { font-size: 1.25rem; margin-bottom: 8px; }
+  p  { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.20);
+  border-radius: 8px;
+  color: #b91c1c;
+  font-size: 13px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.code-field {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.code-input {
+  width: 100% !important;
+  text-align: center !important;
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5em !important;
+  height: 64px !important;
+  border-radius: 12px !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.field-error {
+  font-size: 12px;
+  color: var(--color-danger);
+}
+
+.verify-btn {
+  height: 44px !important;
+  font-weight: 600 !important;
+}
+
+.hint {
+  margin-top: 20px;
+  p { font-size: 12px; color: var(--color-text-secondary); }
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

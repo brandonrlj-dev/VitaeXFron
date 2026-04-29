@@ -1,0 +1,53 @@
+<nav class="navbar">
+  <div class="navbar-brand" [routerLink]="'/' + rol">
+    <div class="brand-mark">
+      <span class="brand-icon">VX</span>
+    </div>
+    <div class="brand-text">
+      <span class="brand-name">Bolsa de Trabajo</span>
+      <span class="brand-sub">UT de la Costa</span>
+    </div>
+  </div>
+
+  <ul class="nav-links">
+    @for (item of navItems; track item.label) {
+      <li>
+        <a
+          class="nav-link"
+          [routerLink]="item.routerLink"
+          routerLinkActive="active"
+        >
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      </li>
+    }
+  </ul>
+
+  <div class="navbar-end">
+    <div class="user-chip">
+      <div class="user-avatar">{{ initialsUsuario }}</div>
+      <span class="user-name">{{ nombreUsuario }}</span>
+    </div>
+    <button class="logout-btn" (click)="logout()" title="Cerrar sesión">
+      <i class="pi pi-sign-out"></i>
+    </button>
+  </div>
+</nav>
+
+<div class="navbar-mobile">
+  <div class="navbar-brand" [routerLink]="'/' + rol">
+    <div class="brand-mark"><span class="brand-icon">VX</span></div>
+    <span class="brand-name">Bolsa de Trabajo UTC</span>
+  </div>
+  <button class="logout-btn" (click)="logout()"><i class="pi pi-sign-out"></i></button>
+</div>
+
+<div class="mobile-tabs">
+  @for (item of navItems.slice(0, 5); track item.label) {
+    <a class="mobile-tab" [routerLink]="item.routerLink" routerLinkActive="active">
+      <i [class]="item.icon"></i>
+      <span>{{ item.label }}</span>
+    </a>
+  }
+</div>

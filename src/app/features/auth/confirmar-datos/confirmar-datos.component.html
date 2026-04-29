@@ -1,0 +1,66 @@
+<div class="confirm-shell">
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando tus datos del SIEst...</p>
+    </div>
+  } @else if (egresado) {
+    <div class="confirm-card animate-scale-in">
+      <div class="card-icon">
+        <i class="pi pi-user-check"></i>
+      </div>
+
+      <div class="card-header">
+        <h2>Confirma tus datos</h2>
+        <p>Encontramos los siguientes datos en el Sistema de Información Estudiantil. Por favor verifica que sean correctos antes de continuar.</p>
+      </div>
+
+      <div class="datos-grid">
+        <div class="dato-item">
+          <span class="dato-label">Nombre completo</span>
+          <span class="dato-valor">{{ nombreCompleto }}</span>
+        </div>
+        <div class="dato-item">
+          <span class="dato-label">Matrícula</span>
+          <span class="dato-valor">{{ egresado.matricula }}</span>
+        </div>
+        <div class="dato-item full">
+          <span class="dato-label">Carrera</span>
+          <span class="dato-valor">{{ egresado.carrera }}</span>
+        </div>
+        <div class="dato-item">
+          <span class="dato-label">Abreviatura</span>
+          <span class="dato-valor">{{ egresado.abreviatura_carrera }}</span>
+        </div>
+        <div class="dato-item">
+          <span class="dato-label">Periodo de egreso</span>
+          <span class="dato-valor">{{ egresado.periodo_egreso }}</span>
+        </div>
+      </div>
+
+      <div class="notice">
+        <i class="pi pi-info-circle"></i>
+        <p>Estos datos provienen directamente del SIEst y son de solo lectura en nuestra plataforma.</p>
+      </div>
+
+      <div class="actions">
+        <button
+          pButton
+          type="button"
+          label="Sí, son mis datos — Continuar"
+          icon="pi pi-check"
+          class="w-full confirm-btn"
+          [loading]="confirming"
+          (click)="confirmar()"
+        ></button>
+        <button
+          pButton
+          type="button"
+          label="Estos no son mis datos"
+          class="p-button-outlined w-full"
+          (click)="noSonMisDatos()"
+        ></button>
+      </div>
+    </div>
+  }
+</div>

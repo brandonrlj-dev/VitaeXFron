@@ -1,0 +1,166 @@
+<div class="page-container animate-fade-slide">
+
+  @if (loading) {
+    <div class="loading-skeleton">
+      <div class="sk sk-title"></div>
+      <div class="sk-row">
+        @for (_ of [1,2,3,4]; track $index) { <div class="sk sk-card"></div> }
+      </div>
+    </div>
+  } @else if (egresado) {
+
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div class="welcome-block">
+        <p class="greeting">Bienvenido de vuelta,</p>
+        <h1>{{ nombreCompleto }}</h1>
+        <div class="meta-chips">
+          <span class="meta-chip">
+            <i class="pi pi-graduation-cap"></i>
+            {{ egresado.abreviatura_carrera }}
+          </span>
+          <span class="meta-chip">
+            <i class="pi pi-calendar"></i>
+            Egreso {{ egresado.periodo_egreso }}
+          </span>
+          <span class="meta-chip">
+            <i class="pi pi-id-card"></i>
+            {{ egresado.matricula }}
+          </span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <a
+          pButton
+          routerLink="/egresado/vacantes"
+          label="Explorar Vacantes"
+          icon="pi pi-briefcase"
+          [class.p-disabled]="!puedePostular"
+          [pTooltip]="puedePostular ? '' : 'Completa las 4 evaluaciones para explorar vacantes'"
+          tooltipPosition="left"
+        ></a>
+      </div>
+    </div>
+
+    <!-- Perfil progress -->
+    <div class="vtx-card completitud-card">
+      <div class="completitud-header">
+        <div>
+          <h3>Completitud del perfil</h3>
+          @if (pendientes > 0) {
+            <p class="caption">
+              Tienes {{ pendientes }} evaluación{{ pendientes > 1 ? 'es' : '' }} pendiente{{ pendientes > 1 ? 's' : '' }} — complétala{{ pendientes > 1 ? 's' : '' }} para postularte a vacantes
+            </p>
+          } @else {
+            <p class="caption success-text">¡Perfil completo! Ya puedes postularte a vacantes.</p>
+          }
+        </div>
+        <div class="completitud-pct">{{ completitud }}%</div>
+      </div>
+      <p-progressBar [value]="completitud" [showValue]="false"></p-progressBar>
+
+      <div class="completitud-steps">
+        <div class="step" [class.done]="egresado.datos_confirmados">
+          <i [class]="egresado.datos_confirmados ? 'pi pi-check-circle' : 'pi pi-circle'"></i>
+          <span>Datos confirmados</span>
+        </div>
+        <div class="step" [class.done]="egresado.evaluaciones_completadas.length === 4">
+          <i [class]="egresado.evaluaciones_completadas.length === 4 ? 'pi pi-check-circle' : 'pi pi-circle'"></i>
+          <span>4 Evaluaciones ({{ egresado.evaluaciones_completadas.length }}/4)</span>
+        </div>
+        <div class="step" [class.done]="!!egresado.cv_url">
+          <i [class]="egresado.cv_url ? 'pi pi-check-circle' : 'pi pi-circle'"></i>
+          <span>CV subido</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Evaluaciones -->
+    <section>
+      <p class="section-title">Centro de Evaluaciones</p>
+      <div class="eval-grid">
+        @for (card of evalCards; track card.dimension) {
+          <div class="eval-card vtx-card" [class.completada]="card.completada" [style.--dim-color]="card.color">
+            <div class="eval-card-top">
+              <div class="eval-icon" [style.background]="card.color + '15'">
+                <i [class]="card.icon" [style.color]="card.color"></i>
+              </div>
+              <span [class]="card.completada ? 'badge-completada' : 'badge-pendiente animate-pulse'">
+                <i [class]="card.completada ? 'pi pi-check' : 'pi pi-clock'"></i>
+                {{ card.completada ? 'Completada' : 'Pendiente' }}
+              </span>
+            </div>
+
+            <div class="eval-card-body">
+              <h3>{{ card.label }}</h3>
+              <p class="caption">{{ card.descripcion }}</p>
+            </div>
+
+            <div class="eval-card-footer">
+              @if (card.completada && card.puntaje !== undefined) {
+                <app-score-circle
+                  [score]="card.puntaje"
+                  [color]="card.color"
+                  size="56px"
+                  [strokeWidth]="6"
+                ></app-score-circle>
+              } @else {
+                <a
+                  pButton
+                  routerLink="/egresado/evaluaciones"
+                  [queryParams]="{dimension: card.dimension}"
+                  label="Iniciar"
+                  icon="pi pi-play"
+                  class="p-button-sm p-button-outlined"
+                ></a>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Spider chart preview -->
+    @if (egresado.scores && egresado.evaluaciones_completadas.length > 0) {
+      <section class="spider-section">
+        <p class="section-title">Tu perfil de competencias</p>
+        <div class="spider-wrapper vtx-card">
+          <div class="spider-info">
+            <h3>Radar de competencias</h3>
+            <p class="caption">Visualización de tus 4 dimensiones de evaluación. Completa todas las pruebas para obtener la lectura completa.</p>
+
+            <div class="dim-pills-col">
+              @for (dim of DIMS; track dim) {
+                @if (egresado.scores) {
+                  <app-dimension-pill
+                    [dimension]="dim"
+                    [score]="egresado.scores[dim]"
+                  ></app-dimension-pill>
+                }
+              }
+            </div>
+
+            <div class="score-total-block">
+              <span class="label">Score global</span>
+              <app-score-circle
+                [score]="scoreTotal"
+                color="#03837b"
+                size="80px"
+                [strokeWidth]="7"
+              ></app-score-circle>
+            </div>
+          </div>
+
+          <div class="spider-chart-col">
+            <app-spider-chart
+              [egresadoScores]="egresado.scores"
+              maxWidth="380px"
+            ></app-spider-chart>
+          </div>
+        </div>
+      </section>
+    }
+
+  }
+</div>

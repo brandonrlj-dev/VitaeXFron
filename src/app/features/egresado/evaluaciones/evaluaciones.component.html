@@ -1,0 +1,122 @@
+<!-- SELECCIÓN DE DIMENSIÓN -->
+@if (fase === 'seleccion') {
+  <div class="page-container animate-fade-slide">
+    <div class="page-header">
+      <div>
+        <h1>Centro de Evaluaciones</h1>
+        <p class="caption">Selecciona la batería de evaluación que deseas completar. El orden recomendado es el que se muestra.</p>
+      </div>
+    </div>
+
+    <div class="dim-selection-grid">
+      @for (dim of DIMS; track dim) {
+        <div
+          class="dim-select-card vtx-card clickable"
+          [style.--dim-color]="DIMENSION_CONFIG[dim].color"
+          (click)="iniciarDimension(dim)"
+        >
+          <div class="dim-sel-icon" [style.background]="DIMENSION_CONFIG[dim].color + '15'">
+            <i [class]="DIMENSION_CONFIG[dim].icon" [style.color]="DIMENSION_CONFIG[dim].color"></i>
+          </div>
+          <h3>{{ DIMENSION_CONFIG[dim].label }}</h3>
+          <p class="caption">{{ DIMENSION_CONFIG[dim].description }}</p>
+          <p class="question-count"><i class="pi pi-list"></i> 5 preguntas</p>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- MODO FOCUS: PRUEBA -->
+@if (fase === 'prueba' && preguntaActual) {
+  <div class="focus-mode animate-fade">
+
+    <!-- Top bar -->
+    <div class="focus-topbar">
+      <div class="focus-dim-badge" [style.background]="config?.color + '20'" [style.color]="config?.color">
+        <i [class]="config?.icon"></i>
+        <span>{{ config?.label }}</span>
+      </div>
+      <div class="focus-progress-wrap">
+        <p-progressBar [value]="progreso" [showValue]="false"></p-progressBar>
+        <span class="progress-text">{{ currentIndex + 1 }} / {{ preguntas.length }}</span>
+      </div>
+    </div>
+
+    <!-- Question card -->
+    <div class="focus-body">
+      <div class="question-card vtx-card animate-scale-in">
+        <div class="q-number">Pregunta {{ currentIndex + 1 }}</div>
+        <h2 class="q-text">{{ preguntaActual.texto }}</h2>
+
+        <div class="options-list">
+          @for (opcion of preguntaActual.opciones; track opcion.id) {
+            <button
+              class="option-btn"
+              [class.selected]="respuestaActual === opcion.id"
+              (click)="seleccionarRespuesta(opcion.id)"
+            >
+              <span class="option-letter">{{ opcion.id.toUpperCase() }}</span>
+              <span class="option-text">{{ opcion.texto }}</span>
+              @if (respuestaActual === opcion.id) {
+                <i class="pi pi-check option-check"></i>
+              }
+            </button>
+          }
+        </div>
+
+        <div class="question-nav">
+          <button
+            pButton
+            type="button"
+            label="Anterior"
+            icon="pi pi-arrow-left"
+            class="p-button-outlined"
+            [disabled]="currentIndex === 0"
+            (click)="anterior()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            [label]="currentIndex === preguntas.length - 1 ? 'Finalizar' : 'Siguiente'"
+            [icon]="currentIndex === preguntas.length - 1 ? 'pi pi-check' : 'pi pi-arrow-right'"
+            iconPos="right"
+            [disabled]="!respuestaActual"
+            (click)="siguiente()"
+          ></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+}
+
+<!-- RESULTADO -->
+@if (fase === 'resultado') {
+  <div class="page-container">
+    <div class="result-card vtx-card animate-scale-in">
+      <div class="result-icon" [style.background]="config?.color + '15'">
+        <i class="pi pi-check-circle" [style.color]="config?.color"></i>
+      </div>
+
+      <h2>¡Evaluación completada!</h2>
+      <p class="caption">Dimensión {{ config?.label }}</p>
+
+      <div class="result-score-wrap">
+        <div class="result-score" [style.color]="config?.color">{{ puntajeObtenido }}</div>
+        <div class="result-score-pct">/ 100</div>
+      </div>
+
+      <p class="result-desc">
+        @if (puntajeObtenido >= 80) { Excelente resultado. Estás en el percentil superior en esta dimensión. }
+        @else if (puntajeObtenido >= 60) { Buen resultado. Tienes una sólida base en esta competencia. }
+        @else { Hay oportunidad de mejora. El equipo de vinculación puede orientarte. }
+      </p>
+
+      <div class="result-actions">
+        <button pButton label="Ir a mi Dashboard" icon="pi pi-home" (click)="irAlDashboard()"></button>
+        <button pButton label="Otra evaluación" icon="pi pi-list" class="p-button-outlined" (click)="otraDimension()"></button>
+      </div>
+    </div>
+  </div>
+}

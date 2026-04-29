@@ -1,0 +1,245 @@
+// Selección de dimensión
+.dim-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.dim-select-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 3px solid var(--dim-color);
+  cursor: pointer;
+
+  &:hover { transform: translateY(-4px); }
+
+  .dim-sel-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    i { font-size: 22px; }
+  }
+
+  h3 { font-size: 1.125rem; }
+
+  .question-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    margin-top: 4px;
+    i { font-size: 11px; }
+  }
+}
+
+// Focus mode
+.focus-mode {
+  min-height: 100vh;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.focus-topbar {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: sticky;
+  top: var(--navbar-height);
+  z-index: 10;
+
+  @media (max-width: 768px) { flex-direction: column; gap: 10px; padding: 12px 16px; }
+}
+
+.focus-dim-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+  i { font-size: 13px; }
+}
+
+.focus-progress-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  p-progressbar { flex: 1; }
+  ::ng-deep .p-progressbar { height: 6px !important; }
+}
+
+.progress-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.focus-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+
+  @media (max-width: 768px) { padding: 20px 16px 100px; align-items: flex-start; }
+}
+
+.question-card {
+  width: 100%;
+  max-width: 680px;
+}
+
+.q-number {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.q-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-dark);
+  line-height: 1.5;
+  margin-bottom: 28px;
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.option-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.15s;
+  width: 100%;
+
+  &:hover {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+  }
+
+  &.selected {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+    .option-letter { background: var(--color-primary); color: white; }
+  }
+}
+
+.option-letter {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  transition: all 0.15s;
+}
+
+.option-text {
+  flex: 1;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+}
+
+.option-check {
+  color: var(--color-primary);
+  font-size: 16px;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.question-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+// Result
+.result-card {
+  max-width: 480px;
+  margin: 60px auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.result-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  i { font-size: 40px; }
+}
+
+.result-score-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.result-score {
+  font-size: 4rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.result-score-pct {
+  font-size: 1.5rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.result-desc {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 360px;
+}
+
+.result-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 8px;
+}

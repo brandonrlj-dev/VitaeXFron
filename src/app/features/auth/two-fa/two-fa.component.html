@@ -1,0 +1,50 @@
+<div class="twofa-shell">
+  <div class="twofa-card animate-scale-in">
+    <div class="card-icon">
+      <i class="pi pi-shield"></i>
+    </div>
+
+    <div class="card-header">
+      <h2>Verificación de dos factores</h2>
+      <p>Ingresa el código de 6 dígitos enviado a tu correo institucional o aplicación autenticadora.</p>
+    </div>
+
+    @if (error) {
+      <div class="error-banner">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>{{ error }}</span>
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="code-field">
+        <input
+          pInputText
+          formControlName="code"
+          maxlength="6"
+          placeholder="000000"
+          class="code-input"
+          autocomplete="one-time-code"
+          inputmode="numeric"
+        />
+        @if (form.get('code')?.invalid && form.get('code')?.touched) {
+          <span class="field-error">Ingresa el código de 6 dígitos</span>
+        }
+      </div>
+
+      <button
+        pButton
+        type="submit"
+        label="Verificar"
+        icon="pi pi-check"
+        class="w-full verify-btn"
+        [loading]="loading"
+        [disabled]="loading"
+      ></button>
+    </form>
+
+    <div class="hint">
+      <p>¿No tienes el código? <button class="link-btn" (click)="usarCodigo()">Usar código demo (123456)</button></p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,76 @@
+<div class="page-container animate-fade-slide">
+
+  <div class="page-header">
+    <div>
+      <h1>Mis Postulaciones</h1>
+      <p class="caption">Historial de todas tus postulaciones enviadas</p>
+    </div>
+    <a pButton routerLink="/egresado/vacantes" label="Explorar más vacantes" icon="pi pi-briefcase" class="p-button-outlined"></a>
+  </div>
+
+  @if (loading) {
+    <div class="sk sk-table"></div>
+  } @else if (postulaciones.length === 0) {
+    <div class="empty-state vtx-card">
+      <i class="pi pi-send"></i>
+      <h3>Aún no tienes postulaciones</h3>
+      <p>Explora las vacantes disponibles y envía tu primera postulación.</p>
+      <a pButton routerLink="/egresado/vacantes" label="Ver vacantes" icon="pi pi-arrow-right" iconPos="right"></a>
+    </div>
+  } @else {
+    <div class="vtx-card table-card">
+      <p-table [value]="postulaciones" [loading]="loading" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Empresa</th>
+            <th>Puesto</th>
+            <th>Coincidencia</th>
+            <th>Fecha</th>
+            <th>Estatus</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-p>
+          <tr>
+            <td>
+              <div class="empresa-cell">
+                <div class="empresa-avatar">{{ p.empresa_nombre[0] }}</div>
+                <span>{{ p.empresa_nombre }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="puesto-text">{{ p.puesto }}</span>
+            </td>
+            <td>
+              <div class="match-cell">
+                <div class="match-bar-track">
+                  <div class="match-bar-fill" [style.width]="p.coincidencia + '%'"></div>
+                </div>
+                <span class="match-pct">{{ p.coincidencia }}%</span>
+              </div>
+            </td>
+            <td>
+              <span class="date-text">{{ p.fecha_postulacion }}</span>
+            </td>
+            <td>
+              <p-tag
+                [value]="estatusLabel(p.estatus)"
+                [severity]="estatusSeverity(p.estatus)"
+              ></p-tag>
+            </td>
+            <td>
+              <a
+                pButton
+                [routerLink]="['/egresado/vacantes', p.vacante_id]"
+                icon="pi pi-eye"
+                class="p-button-text p-button-sm"
+                pTooltip="Ver vacante"
+              ></a>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+
+</div>

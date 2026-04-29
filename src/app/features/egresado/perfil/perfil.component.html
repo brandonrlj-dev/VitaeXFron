@@ -1,0 +1,137 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="page-container animate-fade-slide">
+  <div class="page-header">
+    <h1>Mi Perfil</h1>
+  </div>
+
+  @if (loading) {
+    <div class="sk sk-profile"></div>
+  } @else if (egresado) {
+    <div class="perfil-grid">
+
+      <!-- Datos personales -->
+      <div class="vtx-card">
+        <div class="section-head">
+          <div class="section-icon"><i class="pi pi-user"></i></div>
+          <h3>Datos del SIEst</h3>
+          <span class="readonly-badge"><i class="pi pi-lock"></i> Solo lectura</span>
+        </div>
+
+        <div class="datos-grid">
+          <div class="dato-item">
+            <span class="dato-label">Nombre</span>
+            <span class="dato-valor">{{ egresado.nombre }}</span>
+          </div>
+          <div class="dato-item">
+            <span class="dato-label">Apellido Paterno</span>
+            <span class="dato-valor">{{ egresado.apellido_paterno }}</span>
+          </div>
+          <div class="dato-item">
+            <span class="dato-label">Apellido Materno</span>
+            <span class="dato-valor">{{ egresado.apellido_materno }}</span>
+          </div>
+          <div class="dato-item">
+            <span class="dato-label">Matrícula</span>
+            <span class="dato-valor">{{ egresado.matricula }}</span>
+          </div>
+          <div class="dato-item full">
+            <span class="dato-label">Carrera</span>
+            <span class="dato-valor">{{ egresado.carrera }}</span>
+          </div>
+          <div class="dato-item">
+            <span class="dato-label">Abreviatura</span>
+            <span class="dato-valor">{{ egresado.abreviatura_carrera }}</span>
+          </div>
+          <div class="dato-item">
+            <span class="dato-label">Periodo de egreso</span>
+            <span class="dato-valor">{{ egresado.periodo_egreso }}</span>
+          </div>
+          @if (egresado.email) {
+            <div class="dato-item full">
+              <span class="dato-label">Correo institucional</span>
+              <span class="dato-valor">{{ egresado.email }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="siesta-notice">
+          <i class="pi pi-info-circle"></i>
+          <p>Para actualizar estos datos, comunícate con la Unidad de Control Escolar UTC: <strong>controlescolar&#64;utdelacosta.edu.mx</strong></p>
+        </div>
+      </div>
+
+      <!-- CV y documentos -->
+      <div class="vtx-card">
+        <div class="section-head">
+          <div class="section-icon"><i class="pi pi-file-pdf"></i></div>
+          <h3>Currículum Vitae</h3>
+        </div>
+
+        <div class="cv-section">
+          <p class="caption">Agrega el enlace de tu CV en Google Drive. Asegúrate de que sea visible para cualquier persona con el enlace.</p>
+
+          <div class="cv-input-group">
+            <label class="label">Enlace de Google Drive</label>
+            <input
+              pInputText
+              [(ngModel)]="cvUrl"
+              placeholder="https://drive.google.com/file/d/..."
+              class="w-full"
+            />
+          </div>
+
+          @if (egresado.cv_url) {
+            <div class="cv-current">
+              <i class="pi pi-check-circle"></i>
+              <span>CV cargado</span>
+              <a [href]="egresado.cv_url" target="_blank" class="cv-link">
+                <i class="pi pi-external-link"></i> Ver CV
+              </a>
+            </div>
+          }
+
+          <button
+            pButton
+            type="button"
+            label="Guardar CV"
+            icon="pi pi-save"
+            class="save-cv-btn"
+            [loading]="savingCv"
+            (click)="guardarCV()"
+          ></button>
+        </div>
+      </div>
+
+      <!-- Trayectoria académica -->
+      <div class="vtx-card">
+        <div class="section-head">
+          <div class="section-icon"><i class="pi pi-graduation-cap"></i></div>
+          <h3>Trayectoria Académica</h3>
+        </div>
+
+        <div class="trayectoria-item">
+          <div class="tray-dot"></div>
+          <div>
+            <p class="tray-title">{{ egresado.carrera }}</p>
+            <p class="caption">Universidad Tecnológica de la Costa · Egreso {{ egresado.periodo_egreso }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Certificados -->
+      <div class="vtx-card">
+        <div class="section-head">
+          <div class="section-icon"><i class="pi pi-verified"></i></div>
+          <h3>Certificados y Logros</h3>
+        </div>
+
+        <div class="certs-empty">
+          <i class="pi pi-plus-circle"></i>
+          <p>Aún no has agregado certificados. Próximamente disponible.</p>
+        </div>
+      </div>
+
+    </div>
+  }
+</div>
