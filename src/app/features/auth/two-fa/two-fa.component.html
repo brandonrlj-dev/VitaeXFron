@@ -5,8 +5,11 @@
     </div>
 
     <div class="card-header">
-      <h2>Verificacion de dos factores</h2>
-      <p>Ingresa el codigo de 6 digitos enviado por el proveedor institucional.</p>
+      <h2>Verificación de dos factores</h2>
+      <p>
+        Ingresa el código de 6 dígitos enviado a 
+        <strong class="email-highlight">{{ maskedEmail() || 'tu correo institucional' }}</strong>.
+      </p>
     </div>
 
     @if (error) {
@@ -42,5 +45,20 @@
         [disabled]="loading"
       ></button>
     </form>
+
+    <div class="resend-container">
+      <p>¿No recibiste el código?</p>
+      <button 
+        pButton 
+        type="button" 
+        label="Reenviar código" 
+        class="p-button-text resend-btn"
+        (click)="resendCode()"
+        [loading]="resending"
+        [disabled]="loading || resending"
+      ></button>
+    </div>
   </div>
 </div>
+
+<p-toast position="top-right"></p-toast>

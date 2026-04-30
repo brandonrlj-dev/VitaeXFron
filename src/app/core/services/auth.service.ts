@@ -21,6 +21,7 @@ export class AuthService {
   });
   
   private tempSession: any = null;
+  readonly maskedEmail = signal<string | null>(null);
 
   constructor(private http: HttpClient, private router: Router) {
     this.restoreSession();
@@ -35,8 +36,10 @@ export class AuthService {
       tap(response => {
         if (response.requires_2fa) {
           this.tempSession = response.temp_session;
+          this.maskedEmail.set(response.email_masked || null);
         } else {
           this.saveSession(response.token, response.user);
+          this.maskedEmail.set(null);
         }
       }),
       map(response => ({ 
@@ -63,6 +66,55 @@ export class AuthService {
       }),
       map(() => true),
       catchError(error => toApiError(error, 'Código de seguridad incorrecto'))
+    );
+  }
+
+  resend2FA(): Observable<any> {
+    if (!this.tempSession) {
+      return throwError(() => new Error('No hay una sesión activa.'));
+    }
+
+    return this.http.post<ApiEnvelope<any>>(
+      `${environment.apiUrl}/auth/resend-code`,
+      { session: this.tempSession }
+    ).pipe(
+      map(response => unwrapData(response)),
+      tap(response => {
+        if (response.temp_session) {
+          this.tempSession = response.temp_session;
+        }
+      }),
+      catchError(error => toApiError(error, 'Error al reenviar el código'))
+    );
+  }
+
+  forgotPassword(usuario: string): Observable<any> {
+    return this.http.post<ApiEnvelope<any>>(
+      `${environment.apiUrl}/auth/forgot-password`,
+      { usuario }
+    ).pipe(
+      map(response => unwrapData(response)),
+      catchError(error => toApiError(error, 'Error al procesar la solicitud'))
+    );
+  }
+
+  verifyResetCode(code: string, session: string): Observable<any> {
+    return this.http.post<ApiEnvelope<any>>(
+      `${environment.apiUrl}/auth/verify-reset-code`,
+      { code, session }
+    ).pipe(
+      map(response => unwrapData(response)),
+      catchError(error => toApiError(error, 'Código incorrecto o expirado'))
+    );
+  }
+
+  resetPassword(password: string, token: string): Observable<any> {
+    return this.http.post<ApiEnvelope<any>>(
+      `${environment.apiUrl}/auth/reset-password`,
+      { password, token }
+    ).pipe(
+      map(response => unwrapData(response)),
+      catchError(error => toApiError(error, 'Error al restablecer la contraseña'))
     );
   }
 
