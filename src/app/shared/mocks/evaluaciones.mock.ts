@@ -1,240 +1,136 @@
 import { Pregunta } from '../../core/models';
 
-export const PREGUNTAS_PSICOMETRICA: Pregunta[] = [
-  {
-    id: 'ps1',
-    dimension: 'psicometrica',
-    texto: '¿Cómo reaccionas generalmente cuando te enfrentas a un plazo de entrega muy ajustado?',
-    opciones: [
-      { id: 'a', texto: 'Me organizo inmediatamente y divido el trabajo en partes manejables', valor: 4 },
-      { id: 'b', texto: 'Me estreso pero finalmente encuentro una solución', valor: 3 },
-      { id: 'c', texto: 'Pido ayuda a mis compañeros para distribuir la carga', valor: 2 },
-      { id: 'd', texto: 'Trabajo bajo presión sin mayor planificación', valor: 1 },
-    ],
-  },
-  {
-    id: 'ps2',
-    dimension: 'psicometrica',
-    texto: 'En un equipo de trabajo, ¿qué rol asumes naturalmente?',
-    opciones: [
-      { id: 'a', texto: 'Líder: tomo la iniciativa y coordino al equipo', valor: 4 },
-      { id: 'b', texto: 'Colaborador: apoyo activamente las decisiones del grupo', valor: 3 },
-      { id: 'c', texto: 'Especialista: me enfoco en mis responsabilidades específicas', valor: 2 },
-      { id: 'd', texto: 'Mediador: resuelvo conflictos entre los miembros', valor: 3 },
-    ],
-  },
-  {
-    id: 'ps3',
-    dimension: 'psicometrica',
-    texto: 'Cuando cometes un error significativo en el trabajo, ¿cuál es tu primera reacción?',
-    opciones: [
-      { id: 'a', texto: 'Analizo la causa, tomo responsabilidad y propongo una solución', valor: 4 },
-      { id: 'b', texto: 'Me disculpo con los involucrados y corrijo lo antes posible', valor: 3 },
-      { id: 'c', texto: 'Siento frustración pero me recupero rápido', valor: 2 },
-      { id: 'd', texto: 'Me preocupo mucho y necesito tiempo para retomar el ritmo', valor: 1 },
-    ],
-  },
-  {
-    id: 'ps4',
-    dimension: 'psicometrica',
-    texto: '¿Con qué frecuencia buscas aprender nuevas habilidades fuera de tu área de trabajo?',
-    opciones: [
-      { id: 'a', texto: 'Constantemente: dedico tiempo semanal a aprender algo nuevo', valor: 4 },
-      { id: 'b', texto: 'Con frecuencia: cuando hay oportunidades disponibles', valor: 3 },
-      { id: 'c', texto: 'Ocasionalmente: cuando el trabajo me lo exige', valor: 2 },
-      { id: 'd', texto: 'Rara vez: prefiero dominar lo que ya sé', valor: 1 },
-    ],
-  },
-  {
-    id: 'ps5',
-    dimension: 'psicometrica',
-    texto: 'Ante un cambio importante en los procedimientos de tu trabajo, ¿cómo respondes?',
-    opciones: [
-      { id: 'a', texto: 'Lo acepto con apertura y me adapto con entusiasmo', valor: 4 },
-      { id: 'b', texto: 'Lo acepto aunque al principio me genera incertidumbre', valor: 3 },
-      { id: 'c', texto: 'Lo analizo antes de decidir si lo acepto', valor: 2 },
-      { id: 'd', texto: 'Me resulta difícil cambiar mis rutinas de trabajo', valor: 1 },
-    ],
-  },
+const ESCALA_PSICOMETRICA = [
+  { id: '1', texto: 'Totalmente en desacuerdo', valor: 1 },
+  { id: '2', texto: 'En desacuerdo', valor: 2 },
+  { id: '3', texto: 'Neutral', valor: 3 },
+  { id: '4', texto: 'De acuerdo', valor: 4 },
+  { id: '5', texto: 'Totalmente de acuerdo', valor: 5 },
 ];
 
-export const PREGUNTAS_COGNITIVA: Pregunta[] = [
-  {
-    id: 'cg1',
-    dimension: 'cognitiva',
-    texto: 'Si una serie sigue el patrón: 2, 6, 18, 54, ___. ¿Cuál es el siguiente número?',
-    opciones: [
-      { id: 'a', texto: '108', valor: 1 },
-      { id: 'b', texto: '162', valor: 4 },
-      { id: 'c', texto: '216', valor: 1 },
-      { id: 'd', texto: '144', valor: 1 },
-    ],
-  },
-  {
-    id: 'cg2',
-    dimension: 'cognitiva',
-    texto: 'Un proyecto requiere 8 trabajadores para completarse en 12 días. ¿Cuántos días tardarán 6 trabajadores en completarlo?',
-    opciones: [
-      { id: 'a', texto: '14 días', valor: 1 },
-      { id: 'b', texto: '16 días', valor: 4 },
-      { id: 'c', texto: '18 días', valor: 1 },
-      { id: 'd', texto: '10 días', valor: 1 },
-    ],
-  },
-  {
-    id: 'cg3',
-    dimension: 'cognitiva',
-    texto: '¿Qué figura completa lógicamente la secuencia? ○ △ □ ○ △ ___',
-    opciones: [
-      { id: 'a', texto: '○ (círculo)', valor: 1 },
-      { id: 'b', texto: '△ (triángulo)', valor: 1 },
-      { id: 'c', texto: '□ (cuadrado)', valor: 4 },
-      { id: 'd', texto: '◇ (rombo)', valor: 1 },
-    ],
-  },
-  {
-    id: 'cg4',
-    dimension: 'cognitiva',
-    texto: 'Si todos los programadores conocen Python y María conoce Python, ¿cuál es la conclusión correcta?',
-    opciones: [
-      { id: 'a', texto: 'María es programadora', valor: 1 },
-      { id: 'b', texto: 'María puede ser o no programadora', valor: 4 },
-      { id: 'c', texto: 'María no es programadora', valor: 1 },
-      { id: 'd', texto: 'No se puede determinar nada sobre María', valor: 1 },
-    ],
-  },
-  {
-    id: 'cg5',
-    dimension: 'cognitiva',
-    texto: 'Un servidor procesa 450 solicitudes por minuto. ¿Cuántas solicitudes procesará en 2.5 horas?',
-    opciones: [
-      { id: 'a', texto: '56,250', valor: 1 },
-      { id: 'b', texto: '67,500', valor: 4 },
-      { id: 'c', texto: '45,000', valor: 1 },
-      { id: 'd', texto: '112,500', valor: 1 },
-    ],
-  },
+const ESCALA_COGNITIVA = [
+  { id: '1', texto: 'Muy bajo', valor: 1 },
+  { id: '2', texto: 'Bajo', valor: 2 },
+  { id: '3', texto: 'Medio', valor: 3 },
+  { id: '4', texto: 'Alto', valor: 4 },
+  { id: '5', texto: 'Muy alto', valor: 5 },
 ];
 
-export const PREGUNTAS_TECNICA: Pregunta[] = [
-  {
-    id: 'tc1',
-    dimension: 'tecnica',
-    texto: '¿Cuál de los siguientes es un principio fundamental de la programación orientada a objetos?',
-    opciones: [
-      { id: 'a', texto: 'Compilación estática', valor: 1 },
-      { id: 'b', texto: 'Encapsulamiento', valor: 4 },
-      { id: 'c', texto: 'Tipado dinámico', valor: 1 },
-      { id: 'd', texto: 'Iteración lineal', valor: 1 },
-    ],
-  },
-  {
-    id: 'tc2',
-    dimension: 'tecnica',
-    texto: 'En una base de datos relacional, ¿qué garantiza la normalización en tercera forma normal (3FN)?',
-    opciones: [
-      { id: 'a', texto: 'Eliminar duplicados en todas las columnas', valor: 1 },
-      { id: 'b', texto: 'Que los atributos no clave dependan únicamente de la clave primaria', valor: 4 },
-      { id: 'c', texto: 'Que todas las tablas tengan exactamente una clave foránea', valor: 1 },
-      { id: 'd', texto: 'Minimizar el número de tablas', valor: 1 },
-    ],
-  },
-  {
-    id: 'tc3',
-    dimension: 'tecnica',
-    texto: '¿Cuál es la complejidad temporal del algoritmo de búsqueda binaria?',
-    opciones: [
-      { id: 'a', texto: 'O(n)', valor: 1 },
-      { id: 'b', texto: 'O(n²)', valor: 1 },
-      { id: 'c', texto: 'O(log n)', valor: 4 },
-      { id: 'd', texto: 'O(1)', valor: 1 },
-    ],
-  },
-  {
-    id: 'tc4',
-    dimension: 'tecnica',
-    texto: '¿Qué protocolo se utiliza principalmente para la transferencia segura de datos en la web?',
-    opciones: [
-      { id: 'a', texto: 'FTP', valor: 1 },
-      { id: 'b', texto: 'HTTP', valor: 1 },
-      { id: 'c', texto: 'HTTPS/TLS', valor: 4 },
-      { id: 'd', texto: 'SMTP', valor: 1 },
-    ],
-  },
-  {
-    id: 'tc5',
-    dimension: 'tecnica',
-    texto: 'En el contexto de APIs REST, ¿qué código HTTP indica que un recurso fue creado exitosamente?',
-    opciones: [
-      { id: 'a', texto: '200 OK', valor: 1 },
-      { id: 'b', texto: '201 Created', valor: 4 },
-      { id: 'c', texto: '204 No Content', valor: 1 },
-      { id: 'd', texto: '302 Found', valor: 1 },
-    ],
-  },
+const ESCALA_TECNICA = [
+  { id: '1', texto: 'No lo domino', valor: 1 },
+  { id: '2', texto: 'Nivel bajo', valor: 2 },
+  { id: '3', texto: 'Nivel medio', valor: 3 },
+  { id: '4', texto: 'Nivel alto', valor: 4 },
+  { id: '5', texto: 'Nivel avanzado', valor: 5 },
 ];
 
-export const PREGUNTAS_PROYECTIVA: Pregunta[] = [
-  {
-    id: 'pr1',
-    dimension: 'proyectiva',
-    texto: '¿Dónde te visualizas profesionalmente en los próximos 5 años?',
-    opciones: [
-      { id: 'a', texto: 'Liderando un equipo técnico o un área dentro de una empresa consolidada', valor: 4 },
-      { id: 'b', texto: 'Emprendiendo mi propio negocio o startup tecnológica', valor: 4 },
-      { id: 'c', texto: 'Especializándome con posgrado o certificaciones internacionales', valor: 3 },
-      { id: 'd', texto: 'Aún no tengo una visión clara de mi trayectoria', valor: 1 },
-    ],
-  },
-  {
-    id: 'pr2',
-    dimension: 'proyectiva',
-    texto: '¿Cuál es tu mayor motivación para trabajar?',
-    opciones: [
-      { id: 'a', texto: 'Generar impacto positivo en la comunidad y el entorno', valor: 4 },
-      { id: 'b', texto: 'Crecer profesionalmente y alcanzar reconocimiento', valor: 3 },
-      { id: 'c', texto: 'Obtener estabilidad económica y seguridad laboral', valor: 2 },
-      { id: 'd', texto: 'Cumplir con mis obligaciones cotidianas', valor: 1 },
-    ],
-  },
-  {
-    id: 'pr3',
-    dimension: 'proyectiva',
-    texto: 'Si tuvieras recursos ilimitados, ¿qué problema resolvería tu proyecto ideal?',
-    opciones: [
-      { id: 'a', texto: 'Un problema social o ambiental con tecnología escalable', valor: 4 },
-      { id: 'b', texto: 'Un proceso ineficiente en la industria que conozco', valor: 3 },
-      { id: 'c', texto: 'Crear un producto innovador con potencial de mercado', valor: 3 },
-      { id: 'd', texto: 'Aún no he reflexionado sobre este tipo de proyecto', valor: 1 },
-    ],
-  },
-  {
-    id: 'pr4',
-    dimension: 'proyectiva',
-    texto: '¿Cómo describes tu actitud hacia la mejora continua personal?',
-    opciones: [
-      { id: 'a', texto: 'Fundamental: constantemente busco retroalimentación y formas de mejorar', valor: 4 },
-      { id: 'b', texto: 'Importante: la busco cuando identifico áreas de oportunidad', valor: 3 },
-      { id: 'c', texto: 'Moderada: la aplico cuando me lo exige el trabajo', valor: 2 },
-      { id: 'd', texto: 'Limitada: me siento satisfecho con lo que ya domino', valor: 1 },
-    ],
-  },
-  {
-    id: 'pr5',
-    dimension: 'proyectiva',
-    texto: '¿Qué legado profesional quieres dejar en la región de Nayarit?',
-    opciones: [
-      { id: 'a', texto: 'Contribuir a la transformación digital de empresas locales', valor: 4 },
-      { id: 'b', texto: 'Generar empleos de calidad y desarrollo económico regional', valor: 4 },
-      { id: 'c', texto: 'Ser referente en mi área de especialización en el estado', valor: 3 },
-      { id: 'd', texto: 'No he pensado en un legado específico aún', valor: 1 },
-    ],
-  },
+const ESCALA_SJT = [
+  { id: '1', texto: 'Muy inadecuada', valor: 1 },
+  { id: '2', texto: 'Inadecuada', valor: 2 },
+  { id: '3', texto: 'Regular', valor: 3 },
+  { id: '4', texto: 'Adecuada', valor: 4 },
+  { id: '5', texto: 'Muy adecuada', valor: 5 },
 ];
 
-export const BANCO_PREGUNTAS: Record<string, Pregunta[]> = {
-  psicometrica: PREGUNTAS_PSICOMETRICA,
-  cognitiva:    PREGUNTAS_COGNITIVA,
-  tecnica:      PREGUNTAS_TECNICA,
-  proyectiva:   PREGUNTAS_PROYECTIVA,
+export const BANCO_PREGUNTAS: Record<string, any> = {
+  'Tecnologías de la Información': {
+    psicometrica: [
+      { id: 'ti_ps1', dimension: 'psicometrica', texto: 'Entrego mis actividades en la fecha establecida.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'ti_ps2', dimension: 'psicometrica', texto: 'Reviso cuidadosamente mi trabajo antes de entregarlo.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'ti_ps3', dimension: 'psicometrica', texto: 'Me adapto fácilmente a nuevas herramientas tecnológicas.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'ti_ps4', dimension: 'psicometrica', texto: 'Mantengo la calma cuando un sistema presenta errores.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'ti_ps5', dimension: 'psicometrica', texto: 'Acepto retroalimentación para mejorar mi trabajo.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'ti_ps6', dimension: 'psicometrica', texto: 'Me gusta colaborar con otras personas en proyectos.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'ti_ps7', dimension: 'psicometrica', texto: 'Puedo comunicar mis ideas técnicas de manera clara.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'ti_ps8', dimension: 'psicometrica', texto: 'Me organizo bien cuando tengo varias tareas pendientes.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'ti_ps9', dimension: 'psicometrica', texto: 'Busco soluciones creativas ante problemas técnicos.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'ti_ps10', dimension: 'psicometrica', texto: 'Mantengo una actitud profesional cuando trabajo bajo presión.', opciones: ESCALA_PSICOMETRICA },
+    ],
+    cognitiva: [
+      { id: 'ti_cg1', dimension: 'cognitiva', texto: 'Identifico patrones en problemas lógicos.', opciones: ESCALA_COGNITIVA },
+      { id: 'ti_cg2', dimension: 'cognitiva', texto: 'Puedo resolver problemas nuevos sin recibir instrucciones completas.', opciones: ESCALA_COGNITIVA },
+      { id: 'ti_cg3', dimension: 'cognitiva', texto: 'Comprendo diagramas, tablas o estructuras de información.', opciones: ESCALA_COGNITIVA },
+      { id: 'ti_cg4', dimension: 'cognitiva', texto: 'Aprendo rápidamente el funcionamiento de una nueva plataforma.', opciones: ESCALA_COGNITIVA },
+      { id: 'ti_cg5', dimension: 'cognitiva', texto: 'Puedo analizar varias posibles soluciones antes de decidir.', opciones: ESCALA_COGNITIVA },
+      { id: 'ti_cg6', dimension: 'cognitiva', texto: 'Se me facilita interpretar instrucciones técnicas.', opciones: ESCALA_COGNITIVA },
+      { id: 'ti_cg7', dimension: 'cognitiva', texto: 'Puedo detectar errores en una secuencia de pasos.', opciones: ESCALA_COGNITIVA },
+      { id: 'ti_cg8', dimension: 'cognitiva', texto: 'Comprendo textos técnicos relacionados con software o sistemas.', opciones: ESCALA_COGNITIVA },
+      { id: 'ti_cg9', dimension: 'cognitiva', texto: 'Puedo resolver problemas básicos de lógica matemática.', opciones: ESCALA_COGNITIVA },
+      { id: 'ti_cg10', dimension: 'cognitiva', texto: 'Trabajo bien cuando tengo poco tiempo para resolver un problema.', opciones: ESCALA_COGNITIVA },
+    ],
+    tecnica: [
+      { id: 'ti_tc1', dimension: 'tecnica', texto: 'Programación básica.', opciones: ESCALA_TECNICA },
+      { id: 'ti_tc2', dimension: 'tecnica', texto: 'Desarrollo web.', opciones: ESCALA_TECNICA },
+      { id: 'ti_tc3', dimension: 'tecnica', texto: 'Manejo de bases de datos.', opciones: ESCALA_TECNICA },
+      { id: 'ti_tc4', dimension: 'tecnica', texto: 'Uso de Git o GitHub.', opciones: ESCALA_TECNICA },
+      { id: 'ti_tc5', dimension: 'tecnica', texto: 'Consumo de APIs.', opciones: ESCALA_TECNICA },
+      { id: 'ti_tc6', dimension: 'tecnica', texto: 'Resolución de errores de software.', opciones: ESCALA_TECNICA },
+      { id: 'ti_tc7', dimension: 'tecnica', texto: 'Seguridad informática básica.', opciones: ESCALA_TECNICA },
+      { id: 'ti_tc8', dimension: 'tecnica', texto: 'Diseño de interfaces de usuario.', opciones: ESCALA_TECNICA },
+      { id: 'ti_tc9', dimension: 'tecnica', texto: 'Documentación técnica.', opciones: ESCALA_TECNICA },
+      { id: 'ti_tc10', dimension: 'tecnica', texto: 'Análisis de requerimientos de software.', opciones: ESCALA_TECNICA },
+    ],
+    proyectiva: [
+      { id: 'ti_pr1', dimension: 'proyectiva', texto: 'Si mi código falla antes de una entrega, reviso el error, identifico la causa y documento la solución.', opciones: ESCALA_SJT },
+      { id: 'ti_pr2', dimension: 'proyectiva', texto: 'Si no entiendo un requerimiento, pregunto antes de desarrollar algo incorrecto.', opciones: ESCALA_SJT },
+      { id: 'ti_pr3', dimension: 'proyectiva', texto: 'Si un compañero comete un error en el proyecto, lo apoyo y revisamos juntos la solución.', opciones: ESCALA_SJT },
+      { id: 'ti_pr4', dimension: 'proyectiva', texto: 'Si encuentro una vulnerabilidad en el sistema, la reporto al responsable.', opciones: ESCALA_SJT },
+      { id: 'ti_pr5', dimension: 'proyectiva', texto: 'Si el proyecto se atrasa, ayudo a priorizar las funciones más importantes.', opciones: ESCALA_SJT },
+      { id: 'ti_pr6', dimension: 'proyectiva', texto: 'Si recibo una crítica sobre mi trabajo, la tomo como oportunidad de mejora.', opciones: ESCALA_SJT },
+      { id: 'ti_pr7', dimension: 'proyectiva', texto: 'Si una tarea es urgente, mantengo la calma y organizo los pasos a seguir.', opciones: ESCALA_SJT },
+      { id: 'ti_pr8', dimension: 'proyectiva', texto: 'Si un usuario reporta un problema, escucho, registro el caso y busco una solución.', opciones: ESCALA_SJT },
+      { id: 'ti_pr9', dimension: 'proyectiva', texto: 'Si detecto información sensible expuesta, evito compartirla y aviso al equipo.', opciones: ESCALA_SJT },
+      { id: 'ti_pr10', dimension: 'proyectiva', texto: 'Si tengo dudas sobre una tecnología, investigo antes de improvisar.', opciones: ESCALA_SJT },
+    ],
+  },
+  'Procesos Alimentarios': {
+    psicometrica: [
+      { id: 'pa_ps1', dimension: 'psicometrica', texto: 'Sigo instrucciones de producción con cuidado.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'pa_ps2', dimension: 'psicometrica', texto: 'Mantengo limpia y ordenada mi área de trabajo.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'pa_ps3', dimension: 'psicometrica', texto: 'Cumplo con los tiempos establecidos en mis actividades.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'pa_ps4', dimension: 'psicometrica', texto: 'Me adapto fácilmente a nuevos procesos alimentarios.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'pa_ps5', dimension: 'psicometrica', texto: 'Mantengo la calma cuando hay presión en producción.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'pa_ps6', dimension: 'psicometrica', texto: 'Trabajo bien con otras personas.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'pa_ps7', dimension: 'psicometrica', texto: 'Acepto correcciones para mejorar mi desempeño.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'pa_ps8', dimension: 'psicometrica', texto: 'Respeto las normas de higiene y seguridad.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'pa_ps9', dimension: 'psicometrica', texto: 'Soy cuidadoso al revisar la calidad de un producto.', opciones: ESCALA_PSICOMETRICA },
+      { id: 'pa_ps10', dimension: 'psicometrica', texto: 'Mantengo una actitud responsable al manipular alimentos.', opciones: ESCALA_PSICOMETRICA },
+    ],
+    cognitiva: [
+      { id: 'pa_cg1', dimension: 'cognitiva', texto: 'Comprendo instrucciones técnicas relacionadas con procesos alimentarios.', opciones: ESCALA_COGNITIVA },
+      { id: 'pa_cg2', dimension: 'cognitiva', texto: 'Puedo identificar errores en una secuencia de producción.', opciones: ESCALA_COGNITIVA },
+      { id: 'pa_cg3', dimension: 'cognitiva', texto: 'Se me facilita aprender nuevos procedimientos de trabajo.', opciones: ESCALA_COGNITIVA },
+      { id: 'pa_cg4', dimension: 'cognitiva', texto: 'Puedo analizar la causa de un producto defectuoso.', opciones: ESCALA_COGNITIVA },
+      { id: 'pa_cg5', dimension: 'cognitiva', texto: 'Comprendo tablas de temperatura, tiempo o cantidades.', opciones: ESCALA_COGNITIVA },
+      { id: 'pa_cg6', dimension: 'cognitiva', texto: 'Puedo resolver problemas básicos de cálculo de ingredientes.', opciones: ESCALA_COGNITIVA },
+      { id: 'pa_cg7', dimension: 'cognitiva', texto: 'Identifico patrones en fallas de producción.', opciones: ESCALA_COGNITIVA },
+      { id: 'pa_cg8', dimension: 'cognitiva', texto: 'Puedo tomar decisiones rápidas ante un problema de calidad.', opciones: ESCALA_COGNITIVA },
+      { id: 'pa_cg9', dimension: 'cognitiva', texto: 'Comprendo normas básicas de higiene e inocuidad.', opciones: ESCALA_COGNITIVA },
+      { id: 'pa_cg10', dimension: 'cognitiva', texto: 'Puedo explicar un procedimiento alimentario de forma clara.', opciones: ESCALA_COGNITIVA },
+    ],
+    tecnica: [
+      { id: 'pa_tc1', dimension: 'tecnica', texto: 'Buenas prácticas de higiene.', opciones: ESCALA_TECNICA },
+      { id: 'pa_tc2', dimension: 'tecnica', texto: 'Manejo seguro de alimentos.', opciones: ESCALA_TECNICA },
+      { id: 'pa_tc3', dimension: 'tecnica', texto: 'Control de temperaturas.', opciones: ESCALA_TECNICA },
+      { id: 'pa_tc4', dimension: 'tecnica', texto: 'Limpieza y sanitización de áreas.', opciones: ESCALA_TECNICA },
+      { id: 'pa_tc5', dimension: 'tecnica', texto: 'Uso correcto de equipo de producción.', opciones: ESCALA_TECNICA },
+      { id: 'pa_tc6', dimension: 'tecnica', texto: 'Manejo de materia prima.', opciones: ESCALA_TECNICA },
+      { id: 'pa_tc7', dimension: 'tecnica', texto: 'Control de calidad del producto.', opciones: ESCALA_TECNICA },
+      { id: 'pa_tc8', dimension: 'tecnica', texto: 'Identificación de riesgos de contaminación.', opciones: ESCALA_TECNICA },
+      { id: 'pa_tc9', dimension: 'tecnica', texto: 'Registro de tiempos, cantidades y temperaturas.', opciones: ESCALA_TECNICA },
+      { id: 'pa_tc10', dimension: 'tecnica', texto: 'Elaboración de reportes de producción.', opciones: ESCALA_TECNICA },
+    ],
+    proyectiva: [
+      { id: 'pa_pr1', dimension: 'proyectiva', texto: 'Si un alimento estuvo fuera de temperatura segura, lo reporto y evito usarlo hasta verificar su estado.', opciones: ESCALA_SJT },
+      { id: 'pa_pr2', dimension: 'proyectiva', texto: 'Si un producto tiene olor, color o textura diferente, reviso materia prima, proceso y almacenamiento.', opciones: ESCALA_SJT },
+      { id: 'pa_pr3', dimension: 'proyectiva', texto: 'Si un compañero no sigue una norma de higiene, lo corrijo de forma respetuosa.', opciones: ESCALA_SJT },
+      { id: 'pa_pr4', dimension: 'proyectiva', texto: 'Si una máquina presenta fallas, detengo su uso si representa riesgo y aviso al responsable.', opciones: ESCALA_SJT },
+      { id: 'pa_pr5', dimension: 'proyectiva', texto: 'Si hay mucha merma en una producción, registro el problema y reviso posibles causas.', opciones: ESCALA_SJT },
+      { id: 'pa_pr6', dimension: 'proyectiva', texto: 'Si recibo una corrección sobre mi técnica, la aplico para mejorar la calidad del producto.', opciones: ESCALA_SJT },
+      { id: 'pa_pr7', dimension: 'proyectiva', texto: 'Si falta materia prima, aviso antes de alterar la fórmula o receta.', opciones: ESCALA_SJT },
+      { id: 'pa_pr8', dimension: 'proyectiva', texto: 'Si detecto contaminación cruzada, detengo el proceso y reporto la situación.', opciones: ESCALA_SJT },
+      { id: 'pa_pr9', dimension: 'proyectiva', texto: 'Si hay presión por terminar rápido, mantengo las normas de higiene aunque tome más tiempo.', opciones: ESCALA_SJT },
+      { id: 'pa_pr10', dimension: 'proyectiva', texto: 'Si un lote no cumple con la calidad esperada, evito liberarlo sin autorización.', opciones: ESCALA_SJT },
+    ],
+  }
 };

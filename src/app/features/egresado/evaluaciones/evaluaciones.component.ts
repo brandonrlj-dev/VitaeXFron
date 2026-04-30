@@ -42,7 +42,7 @@ export class EvaluacionesComponent implements OnInit {
     this.egresadoSvc.getEgresadoActual().subscribe(e => {
       this.egresado = e;
       const dim = this.route.snapshot.queryParamMap.get('dimension') as DimensionType | null;
-      if (dim && BANCO_PREGUNTAS[dim] && !this.isCompletada(dim)) {
+      if (dim && !this.isCompletada(dim)) {
         this.iniciarDimension(dim);
       }
     });
@@ -59,7 +59,14 @@ export class EvaluacionesComponent implements OnInit {
   iniciarDimension(dim: DimensionType) {
     if (this.isCompletada(dim)) return;
     this.dimension     = dim;
-    this.preguntas     = BANCO_PREGUNTAS[dim];
+    
+    // Buscar el banco de preguntas por carrera
+    const carreraKey = Object.keys(BANCO_PREGUNTAS).find(k => 
+      this.egresado?.carrera.toLowerCase().includes(k.toLowerCase()) || 
+      k.toLowerCase().includes(this.egresado?.carrera.toLowerCase() || '')
+    ) || 'Tecnologías de la Información'; // Default a TI si no se encuentra
+    
+    this.preguntas     = BANCO_PREGUNTAS[carreraKey][dim];
     this.currentIndex  = 0;
     this.respuestas    = {};
     this.respuestaActual = '';
@@ -96,7 +103,8 @@ export class EvaluacionesComponent implements OnInit {
       return sum + (opcion?.valor ?? 0);
     }, 0);
 
-    const maxPts  = this.preguntas.length * 4;
+    // Puntaje = (Puntos obtenidos / 50) × 100
+    const maxPts  = 50; 
     this.puntajeObtenido = Math.round((total / maxPts) * 100);
     this.fase     = 'resultado';
     this.saving   = true;

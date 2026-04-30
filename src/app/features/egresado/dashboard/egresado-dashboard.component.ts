@@ -80,7 +80,26 @@ export class EgresadoDashboardComponent implements OnInit {
   get scoreTotal(): number {
     const s = this.egresado?.scores;
     if (!s) return 0;
-    return Math.round((s.psicometrica + s.cognitiva + s.tecnica + s.proyectiva) / 4);
+    // Puntaje global = Psicométrica(0.25) + Cognitiva(0.25) + Técnica(0.30) + Proyectiva(0.20)
+    const global = (s.psicometrica * 0.25) + (s.cognitiva * 0.25) + (s.tecnica * 0.30) + (s.proyectiva * 0.20);
+    return Math.round(global);
+  }
+
+  get interpretacion(): string {
+    const s = this.scoreTotal;
+    if (s >= 90) return 'Muy superior';
+    if (s >= 75) return 'Superior';
+    if (s >= 50) return 'Promedio';
+    if (s >= 25) return 'Bajo';
+    return 'Muy bajo';
+  }
+
+  get interpretacionColor(): string {
+    const s = this.scoreTotal;
+    if (s >= 75) return '#0d9488'; // Teal
+    if (s >= 50) return '#3b82f6'; // Blue
+    if (s >= 25) return '#f59e0b'; // Amber
+    return '#ef4444'; // Red
   }
 
   ngOnInit() {
