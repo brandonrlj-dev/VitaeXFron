@@ -6,7 +6,18 @@
       <p class="greeting">Panel de empresa</p>
       <h1>{{ nombreEmpresa }}</h1>
     </div>
-    <a pButton routerLink="/empresa/vacantes" label="Nueva Vacante" icon="pi pi-plus"></a>
+    <div class="header-actions">
+      @if (vacantes.length > 0) {
+        <p-dropdown
+          [(ngModel)]="selectedVacanteId"
+          [options]="vacanteOpciones"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="vacante-select"
+        ></p-dropdown>
+      }
+      <a pButton routerLink="/empresa/vacantes" label="Nueva Vacante" icon="pi pi-plus"></a>
+    </div>
   </div>
 
   <div class="kpi-grid">
@@ -35,7 +46,7 @@
         <i class="pi pi-check-circle" style="color:#8b5cf6"></i>
       </div>
       <div>
-        <div class="metric">3</div>
+        <div class="metric">{{ analiticaVacante.contratados }}</div>
         <p class="caption">Contratados</p>
       </div>
     </div>
@@ -55,13 +66,19 @@
 
   <!-- Candidatos idóneos -->
   <section class="mt-32">
-    <p class="section-title">Candidatos idóneos para tus vacantes</p>
+    <div class="section-heading">
+      <div>
+        <p class="section-title">Candidatos idóneos por vacante</p>
+        <p class="caption">Vacante seleccionada: {{ vacanteSeleccionada?.puesto ?? 'Sin vacantes' }}</p>
+      </div>
+      <span class="badge-activo">Coincidencia ≥ 80%</span>
+    </div>
 
     @if (loading) {
       <div class="sk-list">
         @for (_ of [1,2,3]; track $index) { <div class="sk sk-candidato"></div> }
       </div>
-    } @else if (candidatos.length === 0) {
+    } @else if (candidatosIdoneos.length === 0) {
       <div class="empty-state vtx-card">
         <i class="pi pi-users"></i>
         <h3>Sin candidatos aún</h3>
@@ -69,7 +86,7 @@
       </div>
     } @else {
       <div class="candidatos-list">
-        @for (c of candidatos; track c.egresado.id) {
+        @for (c of candidatosIdoneos; track c.egresado.id) {
           <div class="candidato-card vtx-card animate-fade-slide">
             <div class="candidato-main">
               <div class="candidato-avatar">
@@ -115,6 +132,113 @@
                 class="p-button-outlined p-button-sm"
                 (click)="verPerfilCompleto(c)"
               ></button>
+              <a
+                pButton
+                routerLink="/empresa/comunicacion"
+                [queryParams]="{ candidato: c.egresado.id, vacante: vacanteSeleccionada?.puesto }"
+                label="Contactar"
+                icon="pi pi-send"
+                class="p-button-sm"
+              ></a>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="mt-32">
+    <div class="section-heading">
+      <div>
+        <p class="section-title">Analítica de postulaciones por vacante</p>
+        <p class="caption">Seguimiento de candidatos para cada posición publicada.</p>
+      </div>
+    </div>
+
+    <div class="analytics-card vtx-card">
+      <div class="analytics-grid">
+        <div>
+          <span class="label">Postulaciones</span>
+          <div class="metric">{{ analiticaVacante.total }}</div>
+        </div>
+        <div>
+          <span class="label">En revisión</span>
+          <div class="metric">{{ analiticaVacante.revision }}</div>
+        </div>
+        <div>
+          <span class="label">Entrevistas</span>
+          <div class="metric">{{ analiticaVacante.entrevistas }}</div>
+        </div>
+        <div>
+          <span class="label">Promedio match</span>
+          <div class="metric">{{ analiticaVacante.promedio }}%</div>
+        </div>
+      </div>
+
+      <div class="analytics-table">
+        <div class="analytics-row analytics-head">
+          <span>Vacante</span>
+          <span>Total</span>
+          <span>Revisión</span>
+          <span>Entrevistas</span>
+          <span>Contratados</span>
+          <span>Match</span>
+        </div>
+        @for (row of analiticaPorVacante; track row.vacante.id) {
+          <div class="analytics-row">
+            <span>
+              <strong>{{ row.vacante.puesto }}</strong>
+              <small>{{ row.vacante.activa ? 'Activa' : 'Inactiva' }}</small>
+            </span>
+            <span>{{ row.total }}</span>
+            <span>{{ row.revision }}</span>
+            <span>{{ row.entrevistas }}</span>
+            <span>{{ row.aceptadas }}</span>
+            <span>{{ row.promedio }}%</span>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-32">
+    <div class="section-heading">
+      <div>
+        <p class="section-title">Reporte de egresados UT que laboran en la empresa</p>
+        <p class="caption">Egresados con postulación aceptada por la empresa.</p>
+      </div>
+    </div>
+
+    @if (egresadosLaborando.length === 0) {
+      <div class="empty-state vtx-card compact">
+        <i class="pi pi-id-card"></i>
+        <h3>Sin contrataciones registradas</h3>
+        <p>Cuando una postulación sea aceptada aparecerá en este reporte.</p>
+      </div>
+    } @else {
+      <div class="laborando-list">
+        @for (row of egresadosLaborando; track row.postulacion.id) {
+          <div class="laborando-card vtx-card">
+            <div class="candidato-main">
+              <div class="candidato-avatar">
+                {{ row.egresado.nombre[0] }}{{ row.egresado.apellido_paterno[0] }}
+              </div>
+              <div class="candidato-info">
+                <h3>{{ nombreCompleto(row.egresado) }}</h3>
+                <p class="caption">{{ row.egresado.carrera }}</p>
+              </div>
+            </div>
+            <div>
+              <span class="label">Puesto</span>
+              <p>{{ row.postulacion.puesto }}</p>
+            </div>
+            <div>
+              <span class="label">Ingreso</span>
+              <p>{{ row.postulacion.fecha_postulacion }}</p>
+            </div>
+            <div>
+              <span class="label">Contacto</span>
+              <p>{{ row.egresado.email }}</p>
             </div>
           </div>
         }

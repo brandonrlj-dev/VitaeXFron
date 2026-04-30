@@ -30,7 +30,7 @@ export class VacanteService {
     const total = dims.reduce((sum, dim) => {
       const score = egresadoScores[dim];
       const ideal = perfilIdeal[dim];
-      return sum + Math.min(score / ideal, 1);
+      return sum + (ideal <= 0 ? 1 : Math.min(score / ideal, 1));
     }, 0);
     return Math.round((total / 4) * 100);
   }

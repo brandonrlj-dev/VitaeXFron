@@ -256,6 +256,50 @@
   letter-spacing: 0.01em;
 }
 
+.convenio-callout {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid rgba(3,131,123,0.18);
+  border-radius: 12px;
+  background: var(--color-primary-light);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+
+  @media (max-width: 480px) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+.convenio-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 2px;
+}
+
+.convenio-copy {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.45;
+}
+
+.solicitud-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
 // ─── Demo Credentials ────────────────────────────────────────────────────────
 .demo-section {
   margin-top: 24px;
