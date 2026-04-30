@@ -7,8 +7,7 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { EgresadoService } from '../../../core/services/egresado.service';
-import { ProfilePhotoService } from '../../../core/services/profile-photo.service';
-import { InputTextareaModule } from 'primeng/inputtextarea';
+import { AuthService } from '../../../core/services/auth.service';
 import { DialogModule } from 'primeng/dialog';
 import { Egresado, Educacion, egresadoNombreCompleto } from '../../../core/models';
 
@@ -16,8 +15,8 @@ import { Egresado, Educacion, egresadoNombreCompleto } from '../../../core/model
   selector: 'app-perfil',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, ButtonModule, InputTextModule, 
-    ToastModule, TooltipModule, DialogModule, InputTextareaModule
+    CommonModule, FormsModule, ButtonModule, InputTextModule,
+    ToastModule, TooltipModule, DialogModule
   ],
   providers: [MessageService],
   templateUrl: './perfil.component.html',
@@ -25,39 +24,36 @@ import { Egresado, Educacion, egresadoNombreCompleto } from '../../../core/model
 })
 export class PerfilComponent implements OnInit {
   @ViewChild('fotoInput') fotoInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('cvInput') cvInput!: ElementRef<HTMLInputElement>;
   @ViewChild('certInput') certInput!: ElementRef<HTMLInputElement>;
 
   egresado?: Egresado;
-  loading     = true;
-  cvUrl       = '';
-  savingCv    = false;
+  loading = true;
+  savingCv = false;
   savingCertificado = false;
   uploadingFoto = false;
-  fotoError   = '';
-  dragOver    = false;
+  fotoError = '';
+  dragOver = false;
 
-  // Modal Trayectoria
   displayTrayectoriaModal = false;
   editEducacion: Educacion = { institucion: '', grado: '', periodo: '', descripcion: '' };
   editIndex = -1;
 
-  private svc          = inject(EgresadoService);
-  private photoService = inject(ProfilePhotoService);
-  private msgSvc       = inject(MessageService);
+  private svc = inject(EgresadoService);
+  private authSvc = inject(AuthService);
+  private msgSvc = inject(MessageService);
 
   get nombreCompleto() { return this.egresado ? egresadoNombreCompleto(this.egresado) : ''; }
-  get fotoUrl(): string | null { return this.photoService.fotoEgresado(); }
-  get tieneFoto(): boolean { return !!this.photoService.fotoEgresado(); }
+  get fotoUrl(): string | null { return this.egresado?.foto_url ?? null; }
+  get tieneFoto(): boolean { return !!this.egresado?.foto_url; }
 
   ngOnInit() {
     this.svc.getEgresadoActual().subscribe(e => {
       this.egresado = e;
-      this.cvUrl    = e.cv_url ?? '';
-      this.loading  = false;
+      this.loading = false;
     });
   }
 
-  // ─── Foto ──────────────────────────────────────────────────────────────────
   triggerFotoUpload() { this.fotoInput.nativeElement.click(); }
 
   onDragOver(event: DragEvent) {
@@ -74,56 +70,93 @@ export class PerfilComponent implements OnInit {
     if (file) this.procesarFoto(file);
   }
 
-  async onFotoSelected(event: Event) {
+  onFotoSelected(event: Event) {
     const input = event.target as HTMLInputElement;
-    const file  = input.files?.[0];
-    if (file) await this.procesarFoto(file);
+    const file = input.files?.[0];
+    if (file) this.procesarFoto(file);
     input.value = '';
   }
 
-  private async procesarFoto(file: File) {
-    this.fotoError    = '';
+  private procesarFoto(file: File) {
+    this.fotoError = '';
     this.uploadingFoto = true;
-    try {
-      const dataUrl = await this.photoService.readFile(file);
-      this.photoService.setFotoEgresado(dataUrl);
-      this.msgSvc.add({ severity: 'success', summary: 'Foto guardada', detail: 'Tu foto de perfil se actualizó correctamente.' });
-    } catch (err: any) {
-      this.fotoError = err.message;
-      this.msgSvc.add({ severity: 'error', summary: 'Error al subir', detail: err.message });
-    } finally {
+    const error = this.validarArchivo(file, ['image/jpeg', 'image/png', 'image/webp'], ['jpg', 'jpeg', 'png', 'webp'], 'La foto debe ser JPG, PNG o WEBP.');
+    if (error) {
+      this.fotoError = error;
       this.uploadingFoto = false;
-    }
-  }
-
-  eliminarFoto() {
-    this.photoService.removeFotoEgresado();
-    this.msgSvc.add({ severity: 'info', summary: 'Foto eliminada', detail: 'Deberás subir una nueva foto para postularte a vacantes.' });
-  }
-
-  // ─── CV ────────────────────────────────────────────────────────────────────
-  guardarCV() {
-    if (!this.cvUrl.startsWith('http')) {
-      this.msgSvc.add({ severity: 'warn', summary: 'URL inválida', detail: 'Ingresa un enlace válido de Google Drive.' });
+      this.msgSvc.add({ severity: 'error', summary: 'Archivo invalido', detail: error });
       return;
     }
-    this.savingCv = true;
-    this.svc.subirCV(this.egresado!.id, this.cvUrl).subscribe(() => {
-      this.savingCv = false;
-      this.msgSvc.add({ severity: 'success', summary: 'CV actualizado', detail: 'Tu CV ha sido guardado correctamente.' });
+
+    this.svc.subirFoto(this.egresado!.id, file).subscribe({
+      next: updated => {
+        const fotoUrl = updated.foto_url ?? this.egresado?.foto_url;
+        this.egresado = this.egresado ? { ...this.egresado, foto_url: fotoUrl } : updated;
+        this.authSvc.updateUsuario({ foto_url: fotoUrl });
+        this.uploadingFoto = false;
+        this.msgSvc.add({ severity: 'success', summary: 'Foto guardada', detail: 'Tu foto de perfil se subio a Drive correctamente.' });
+      },
+      error: (err: any) => {
+        this.fotoError = err.message ?? 'No se pudo subir la foto.';
+        this.uploadingFoto = false;
+        this.msgSvc.add({ severity: 'error', summary: 'Error al subir', detail: this.fotoError });
+      }
     });
   }
 
-  // ─── Certificados ─────────────────────────────────────────────────────────
+  triggerCvUpload() { this.cvInput.nativeElement.click(); }
+
+  onCvSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) this.guardarCV(file);
+    input.value = '';
+  }
+
+  guardarCV(file: File) {
+    const error = this.validarArchivo(
+      file,
+      ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+      ['pdf', 'doc', 'docx'],
+      'El CV debe ser PDF, DOC o DOCX.'
+    );
+    if (error) {
+      this.msgSvc.add({ severity: 'warn', summary: 'Archivo invalido', detail: error });
+      return;
+    }
+
+    this.savingCv = true;
+    this.svc.subirCV(this.egresado!.id, file).subscribe({
+      next: updated => {
+        const cvUrl = updated.cv_url ?? this.egresado?.cv_url;
+        this.egresado = this.egresado ? { ...this.egresado, cv_url: cvUrl } : updated;
+        this.authSvc.updateUsuario({ cv_url: cvUrl });
+        this.savingCv = false;
+        this.msgSvc.add({ severity: 'success', summary: 'CV actualizado', detail: 'Tu CV se subio a Drive correctamente.' });
+      },
+      error: (err: any) => {
+        this.savingCv = false;
+        this.msgSvc.add({ severity: 'error', summary: 'Error', detail: err.message ?? 'No se pudo subir el CV.' });
+      }
+    });
+  }
+
   triggerCertificadoUpload() { this.certInput.nativeElement.click(); }
 
-  async onCertificadoSelected(event: Event) {
+  onCertificadoSelected(event: Event) {
     const input = event.target as HTMLInputElement;
-    const file  = input.files?.[0];
+    const file = input.files?.[0];
     if (!file) return;
 
+    const error = this.validarArchivo(file, ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'], ['pdf', 'jpg', 'jpeg', 'png', 'webp'], 'El documento debe ser PDF, JPG, PNG o WEBP.');
+    if (error) {
+      this.msgSvc.add({ severity: 'warn', summary: 'Archivo invalido', detail: error });
+      input.value = '';
+      return;
+    }
+
     if (this.egresado && this.egresado.certificados.length >= 5) {
-      this.msgSvc.add({ severity: 'warn', summary: 'Límite alcanzado', detail: 'Solo puedes subir un máximo de 5 documentos.' });
+      this.msgSvc.add({ severity: 'warn', summary: 'Limite alcanzado', detail: 'Solo puedes subir un maximo de 5 documentos.' });
       input.value = '';
       return;
     }
@@ -135,15 +168,15 @@ export class PerfilComponent implements OnInit {
         if (this.egresado) {
           this.egresado.certificados.push({
             id: res.id,
-            nombre: file.name,
-            url: res.url || 'mock_url.pdf'
+            nombre: res.nombre || file.name,
+            url: res.url || res.url_documento || ''
           });
         }
-        this.msgSvc.add({ severity: 'success', summary: 'Documento añadido', detail: 'El archivo se ha cargado correctamente.' });
+        this.msgSvc.add({ severity: 'success', summary: 'Documento anadido', detail: 'El archivo se subio a Drive correctamente.' });
       },
-      error: () => {
+      error: (err: any) => {
         this.savingCertificado = false;
-        this.msgSvc.add({ severity: 'error', summary: 'Error', detail: 'No se pudo subir el archivo.' });
+        this.msgSvc.add({ severity: 'error', summary: 'Error', detail: err.message ?? 'No se pudo subir el archivo.' });
       }
     });
     input.value = '';
@@ -157,7 +190,6 @@ export class PerfilComponent implements OnInit {
     });
   }
 
-  // ─── Trayectoria ───────────────────────────────────────────────────────────
   abrirModalTrayectoria(entry?: Educacion, index: number = -1) {
     if (entry) {
       this.editEducacion = { ...entry };
@@ -172,7 +204,7 @@ export class PerfilComponent implements OnInit {
   guardarTrayectoria() {
     if (!this.egresado) return;
     if (!this.editEducacion.institucion || !this.editEducacion.grado) {
-      this.msgSvc.add({ severity: 'warn', summary: 'Campos incompletos', detail: 'La institución y el grado son obligatorios.' });
+      this.msgSvc.add({ severity: 'warn', summary: 'Campos incompletos', detail: 'La institucion y el grado son obligatorios.' });
       return;
     }
 
@@ -182,13 +214,20 @@ export class PerfilComponent implements OnInit {
       this.egresado.trayectoria.push({ ...this.editEducacion });
     }
     this.displayTrayectoriaModal = false;
-    this.msgSvc.add({ severity: 'success', summary: 'Actualizado', detail: 'Tu trayectoria académica ha sido actualizada.' });
+    this.msgSvc.add({ severity: 'success', summary: 'Actualizado', detail: 'Tu trayectoria academica ha sido actualizada.' });
   }
 
   eliminarTrayectoria(index: number) {
-    if (confirm('¿Estás seguro de eliminar este registro académico?')) {
+    if (confirm('Estas seguro de eliminar este registro academico?')) {
       this.egresado?.trayectoria.splice(index, 1);
       this.msgSvc.add({ severity: 'info', summary: 'Eliminado', detail: 'Registro eliminado correctamente.' });
     }
+  }
+
+  private validarArchivo(file: File, allowedTypes: string[], allowedExtensions: string[], message: string): string | null {
+    const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+    if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(extension)) return message;
+    if (file.size > 15 * 1024 * 1024) return 'El archivo no debe superar los 15 MB.';
+    return null;
   }
 }

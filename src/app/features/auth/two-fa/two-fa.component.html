@@ -5,8 +5,8 @@
     </div>
 
     <div class="card-header">
-      <h2>Verificación de dos factores</h2>
-      <p>Ingresa el código de 6 dígitos enviado a tu correo institucional o aplicación autenticadora.</p>
+      <h2>Verificacion de dos factores</h2>
+      <p>Ingresa el codigo de 6 digitos enviado por el proveedor institucional.</p>
     </div>
 
     @if (error) {
@@ -28,7 +28,7 @@
           inputmode="numeric"
         />
         @if (form.get('code')?.invalid && form.get('code')?.touched) {
-          <span class="field-error">Ingresa el código de 6 dígitos</span>
+          <span class="field-error">Ingresa el codigo de 6 digitos</span>
         }
       </div>
 
@@ -42,9 +42,5 @@
         [disabled]="loading"
       ></button>
     </form>
-
-    <div class="hint">
-      <p>¿No tienes el código? <button class="link-btn" (click)="usarCodigo()">Usar código demo (123456)</button></p>
-    </div>
   </div>
 </div>

@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { CompetenciaDemandada, InsercionCarrera, KpiDashboard } from '../models';
-import { COMPETENCIAS_DEMANDADAS_MOCK, INSERCION_CARRERAS_MOCK, REPORTE_KPI_MOCK } from '../../shared/mocks/reportes.mock';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope, toApiError, unwrapData } from './api-response';
 import { buildKpis, mapCompetencia, mapInsercion } from './api-mappers';
@@ -21,7 +20,6 @@ export class AdminService {
   ) {}
 
   getKpis(): Observable<KpiDashboard> {
-    if (environment.useMocks) return of(REPORTE_KPI_MOCK);
     return forkJoin({
       egresados: this.egresadoSvc.getEgresados(),
       empresas: this.empresaSvc.getEmpresas(),
@@ -34,7 +32,6 @@ export class AdminService {
   }
 
   getInsercionPorCarrera(): Observable<InsercionCarrera[]> {
-    if (environment.useMocks) return of(INSERCION_CARRERAS_MOCK);
     return this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/dashboard/admin/insercion`).pipe(
       map(response => unwrapData(response).map(mapInsercion)),
       catchError(error => toApiError(error, 'No se pudo cargar la insercion por carrera'))
@@ -42,7 +39,6 @@ export class AdminService {
   }
 
   getCompetenciasDemandadas(): Observable<CompetenciaDemandada[]> {
-    if (environment.useMocks) return of(COMPETENCIAS_DEMANDADAS_MOCK);
     return this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/dashboard/admin/competencias`).pipe(
       map(response => unwrapData(response).map(mapCompetencia)),
       catchError(error => toApiError(error, 'No se pudieron cargar las competencias'))
@@ -50,7 +46,6 @@ export class AdminService {
   }
 
   crearCuentaEmpresa(solicitudId: string): Observable<{ email: string; password: string }> {
-    if (environment.useMocks) return of({ email: 'empresa@demo.utc.mx', password: 'Temp2024!' });
     return this.http.put<ApiEnvelope<any>>(`${environment.apiUrl}/solicitudes-convenio/${solicitudId}`, {
       estado: 'aprobada',
     }).pipe(

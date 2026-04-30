@@ -306,6 +306,7 @@
 
 // CV
 .cv-section { display: flex; flex-direction: column; gap: 14px; }
+.cv-section > .caption:not(.cv-upload-caption) { display: none; }
 .cv-input-group { display: flex; flex-direction: column; gap: 6px; }
 
 .cv-current {

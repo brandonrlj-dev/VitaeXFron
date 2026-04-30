@@ -65,6 +65,20 @@ export const DIMENSION_CONFIG: Record<DimensionType, { label: string; color: str
 };
 
 // ─── Egresado ────────────────────────────────────────────────────────────────
+export interface CertificadoEgresado {
+  id?: string;
+  nombre: string;
+  url: string;
+  verificado?: boolean;
+}
+
+export interface Educacion {
+  institucion: string;
+  grado:       string;
+  periodo:     string;
+  descripcion?: string;
+}
+
 export interface Egresado {
   id:                       string;
   cve_alumno:               string;
@@ -84,20 +98,6 @@ export interface Egresado {
   datos_confirmados:        boolean;
   foto_url?:                string;
   trayectoria:              Educacion[];
-}
-
-export interface CertificadoEgresado {
-  id?: string;
-  nombre: string;
-  url: string;
-  verificado?: boolean;
-}
-
-export interface Educacion {
-  institucion: string;
-  grado:       string;
-  periodo:     string;
-  descripcion?: string;
 }
 
 export function egresadoNombreCompleto(e: Egresado): string {

@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { DimensionType, Egresado, Pregunta } from '../models';
-import { EGRESADOS_MOCK } from '../../shared/mocks/egresados.mock';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope, toApiError, unwrapData, unwrapItems } from './api-response';
 import { mapCertificado, mapEgresado, mapPregunta } from './api-mappers';
@@ -14,8 +13,6 @@ export class EgresadoService {
   constructor(private http: HttpClient, private auth: AuthService) {}
 
   getEgresadoActual(): Observable<Egresado> {
-    if (environment.useMocks) return of(EGRESADOS_MOCK[0]);
-
     const id = this.currentEgresadoId();
     if (!id) {
       return this.getEgresados().pipe(
@@ -40,7 +37,6 @@ export class EgresadoService {
   }
 
   getEgresados(): Observable<Egresado[]> {
-    if (environment.useMocks) return of(EGRESADOS_MOCK);
     return this.http.get<ApiEnvelope<any>>(`${environment.apiUrl}/egresados?limit=100`).pipe(
       map(response => unwrapItems<any>(response).map(mapEgresado)),
       catchError(error => toApiError(error, 'No se pudieron cargar los egresados'))
@@ -48,7 +44,6 @@ export class EgresadoService {
   }
 
   confirmarDatos(id: string): Observable<void> {
-    if (environment.useMocks) return of(undefined);
     return this.http.put<ApiEnvelope<any>>(`${environment.apiUrl}/egresados/${id}/perfil`, {
       disponible_laboralmente: true,
     }).pipe(
@@ -58,7 +53,6 @@ export class EgresadoService {
   }
 
   getPreguntasPorDimension(dimension: DimensionType): Observable<Pregunta[]> {
-    if (environment.useMocks) return of([]);
     return this.tipoPruebaPorDimension(dimension).pipe(
       switchMap(tipo => this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/evaluaciones/preguntas/${tipo.cve_tipo_prueba}`)),
       map(response => unwrapData(response).map(row => mapPregunta(row, dimension))),
@@ -71,16 +65,6 @@ export class EgresadoService {
     dimension: DimensionType,
     puntaje: number
   ): Observable<void> {
-    if (environment.useMocks) {
-      const e = EGRESADOS_MOCK.find(x => x.id === egresadoId);
-      if (e) {
-        if (!e.evaluaciones_completadas.includes(dimension)) e.evaluaciones_completadas.push(dimension);
-        if (!e.scores) e.scores = { psicometrica: 0, cognitiva: 0, tecnica: 0, proyectiva: 0 };
-        e.scores[dimension] = puntaje;
-      }
-      return of(undefined);
-    }
-
     return this.tipoPruebaPorDimension(dimension).pipe(
       switchMap(tipo => this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/evaluaciones/preguntas/${tipo.cve_tipo_prueba}`)),
       map(response => unwrapData(response)),
@@ -102,30 +86,39 @@ export class EgresadoService {
     );
   }
 
-  subirCV(egresadoId: string, driveUrl: string): Observable<void> {
-    if (environment.useMocks) return of(undefined);
-    return this.http.put<ApiEnvelope<any>>(`${environment.apiUrl}/egresados/${egresadoId}/perfil`, {
-      url_cv: driveUrl
-    }).pipe(
-      map(() => undefined),
-      catchError(error => toApiError(error, 'No se pudo guardar el CV'))
+  subirFoto(egresadoId: string, file: File): Observable<Egresado> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<ApiEnvelope<any>>(`${environment.apiUrl}/egresados/${egresadoId}/foto`, formData).pipe(
+      map(response => mapEgresado(unwrapData(response))),
+      catchError(error => toApiError(error, 'No se pudo subir la foto'))
+    );
+  }
+
+  subirCV(egresadoId: string, file: File): Observable<Egresado> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<ApiEnvelope<any>>(`${environment.apiUrl}/egresados/${egresadoId}/cv`, formData).pipe(
+      map(response => mapEgresado(unwrapData(response))),
+      catchError(error => toApiError(error, 'No se pudo subir el CV'))
     );
   }
 
   subirCertificado(egresadoId: string, file: File): Observable<any> {
-    if (environment.useMocks) return of({ url: 'mock_certificate_url.pdf' });
-    return this.http.post<ApiEnvelope<any>>(`${environment.apiUrl}/egresados/${egresadoId}/certificados`, {
-      tipo_documento: 'certificado',
-      nombre_archivo: file.name,
-      url_documento: `google-drive://${encodeURIComponent(file.name)}`,
-    }).pipe(
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('tipo_documento', 'certificado');
+    formData.append('nombre_archivo', file.name);
+
+    return this.http.post<ApiEnvelope<any>>(`${environment.apiUrl}/egresados/${egresadoId}/certificados`, formData).pipe(
       map(response => mapCertificado(unwrapData(response))),
       catchError(error => toApiError(error, 'No se pudo registrar el certificado'))
     );
   }
 
   eliminarCertificado(_egresadoId: string, certificadoId: string): Observable<void> {
-    if (environment.useMocks) return of(undefined);
     return this.http.delete<ApiEnvelope<any>>(`${environment.apiUrl}/certificados/${certificadoId}`).pipe(
       map(() => undefined),
       catchError(error => toApiError(error, 'No se pudo eliminar el certificado'))
@@ -133,14 +126,10 @@ export class EgresadoService {
   }
 
   resetEvaluaciones(id: string): Observable<void> {
-    if (environment.useMocks) {
-      const e = EGRESADOS_MOCK.find(x => x.id === id);
-      if (e) {
-        e.evaluaciones_completadas = [];
-        e.scores = { psicometrica: 0, cognitiva: 0, tecnica: 0, proyectiva: 0 };
-      }
-    }
-    return of(undefined);
+    return this.http.delete<ApiEnvelope<any>>(`${environment.apiUrl}/egresados/${id}/evaluaciones`).pipe(
+      map(() => undefined),
+      catchError(error => toApiError(error, 'No se pudieron reiniciar las evaluaciones'))
+    );
   }
 
   private tipoPruebaPorDimension(dimension: DimensionType): Observable<any> {

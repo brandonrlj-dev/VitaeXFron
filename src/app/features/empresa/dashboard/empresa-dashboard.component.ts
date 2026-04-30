@@ -1,13 +1,16 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
+import { ToastModule } from 'primeng/toast';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
+import { MessageService } from 'primeng/api';
 import { EmpresaService } from '../../../core/services/empresa.service';
 import { EgresadoService } from '../../../core/services/egresado.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ScoreCircleComponent } from '../../../shared/components/score-circle/score-circle.component';
 import { SpiderChartComponent } from '../../../shared/components/spider-chart/spider-chart.component';
 import { DimensionPillComponent } from '../../../shared/components/dimension-pill/dimension-pill.component';
@@ -23,13 +26,16 @@ interface CandidatoCard {
   selector: 'app-empresa-dashboard',
   standalone: true,
   imports: [
-    CommonModule, RouterLink, ButtonModule, DialogModule, DropdownModule, FormsModule,
+    CommonModule, RouterLink, ButtonModule, DialogModule, DropdownModule, FormsModule, ToastModule,
     ScoreCircleComponent, SpiderChartComponent, DimensionPillComponent,
   ],
+  providers: [MessageService],
   templateUrl: './empresa-dashboard.component.html',
   styleUrls: ['./empresa-dashboard.component.scss'],
 })
 export class EmpresaDashboardComponent implements OnInit {
+  @ViewChild('logoInput') logoInput!: ElementRef<HTMLInputElement>;
+
   empresa?: Empresa;
   vacantes: Vacante[] = [];
   postulaciones: Postulacion[] = [];
@@ -37,6 +43,7 @@ export class EmpresaDashboardComponent implements OnInit {
   candidatos: CandidatoCard[] = [];
   selectedVacanteId = '';
   loading = true;
+  subiendoLogo = false;
 
   selectedCandidato?: CandidatoCard;
   showPerfilDialog = false;
@@ -45,10 +52,13 @@ export class EmpresaDashboardComponent implements OnInit {
 
   private empresaSvc  = inject(EmpresaService);
   private egresadoSvc = inject(EgresadoService);
+  private authSvc     = inject(AuthService);
+  private msgSvc      = inject(MessageService);
 
   get vacantesActivas()   { return this.vacantes.filter(v => v.activa).length; }
   get totalCandidatos()   { return this.candidatosIdoneos.length; }
   get nombreEmpresa() { return this.empresa?.nombre ?? ''; }
+  get empresaInicial() { return this.nombreEmpresa.trim()[0]?.toUpperCase() ?? 'E'; }
   get vacanteOpciones() { return this.vacantes.map(v => ({ label: v.puesto, value: v.id })); }
 
   get vacanteSeleccionada(): Vacante | undefined {
@@ -150,5 +160,43 @@ export class EmpresaDashboardComponent implements OnInit {
     this.showPerfilDialog  = true;
   }
 
+  triggerLogoUpload() { this.logoInput.nativeElement.click(); }
+
+  onLogoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file || !this.empresa) return;
+
+    const error = this.validarImagen(file);
+    if (error) {
+      this.msgSvc.add({ severity: 'warn', summary: 'Archivo invalido', detail: error });
+      input.value = '';
+      return;
+    }
+
+    this.subiendoLogo = true;
+    this.empresaSvc.subirFoto(this.empresa.id, file).subscribe({
+      next: updated => {
+        const logoUrl = updated.logo_url ?? this.empresa?.logo_url;
+        this.empresa = this.empresa ? { ...this.empresa, logo_url: logoUrl } : updated;
+        this.authSvc.updateUsuario({ foto_url: logoUrl, logo_url: logoUrl });
+        this.subiendoLogo = false;
+        this.msgSvc.add({ severity: 'success', summary: 'Logo actualizado', detail: 'La imagen de empresa se subio a Drive correctamente.' });
+      },
+      error: (err: any) => {
+        this.subiendoLogo = false;
+        this.msgSvc.add({ severity: 'error', summary: 'Error', detail: err.message ?? 'No se pudo subir la imagen.' });
+      }
+    });
+    input.value = '';
+  }
+
   nombreCompleto(eg: Egresado): string { return egresadoNombreCompleto(eg); }
+
+  private validarImagen(file: File): string | null {
+    const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) && !['jpg', 'jpeg', 'png', 'webp'].includes(extension)) return 'La imagen debe ser JPG, PNG o WEBP.';
+    if (file.size > 15 * 1024 * 1024) return 'El archivo no debe superar los 15 MB.';
+    return null;
+  }
 }

@@ -77,7 +77,7 @@
             id="usuario"
             pInputText
             formControlName="usuario"
-            placeholder="ej. juan.lopez"
+            placeholder="Matricula, correo o usuario"
             class="w-full"
           />
           @if (form.get('usuario')?.invalid && form.get('usuario')?.touched) {
@@ -113,8 +113,7 @@
         ></button>
       </form>
 
-      @if (mostrarSolicitudConvenio) {
-        <div class="convenio-callout">
+      <div class="convenio-callout">
           <div>
             <p class="convenio-title">¿Tu empresa aún no tiene convenio?</p>
             <p class="convenio-copy">Solicita el alta para que la UTC revise tus datos y active el acceso empresarial.</p>
@@ -127,27 +126,8 @@
             class="p-button-outlined p-button-sm"
             (click)="abrirSolicitudConvenio()"
           ></button>
-        </div>
-      }
-
-      <!-- Demo credentials -->
-      <div class="demo-section">
-        <p class="demo-title">Credenciales de prueba</p>
-        <div class="demo-creds">
-          <button class="demo-btn" (click)="usarCredencial('egresado-2026','testing2026')">
-            <i class="pi pi-user"></i>
-            <span>Egresado</span>
-          </button>
-          <button class="demo-btn" (click)="usarCredencial('empresa-2026','testing2026')">
-            <i class="pi pi-building"></i>
-            <span>Empresa</span>
-          </button>
-          <button class="demo-btn" (click)="usarCredencial('hackaton-2026','testing2026')">
-            <i class="pi pi-shield"></i>
-            <span>Admin</span>
-          </button>
-        </div>
       </div>
+
     </div>
   </div>
 

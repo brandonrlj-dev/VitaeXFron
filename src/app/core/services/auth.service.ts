@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { AuthState, RolUsuario, SiestTokenPayload } from '../models';
 import { environment } from '../../../environments/environment';
@@ -25,43 +25,19 @@ export class AuthService {
   }
 
   login(usuario: string, contrasena: string): Observable<{ token: string }> {
-    if (!environment.useMocks) {
-      return this.http.post<ApiEnvelope<{ token: string; user: SiestTokenPayload }>>(
-        `${environment.apiUrl}/auth/login`,
-        { usuario, contrasena }
-      ).pipe(
-        map(response => unwrapData(response)),
-        tap(response => this.saveSession(response.token, response.user)),
-        map(response => ({ token: response.token })),
-        catchError(error => toApiError(error, 'Usuario o contrasena incorrectos'))
-      );
-    }
-
-    const creds: Record<string, { rol: RolUsuario; nombre: string }> = {
-      'egresado-2026': { rol: 'egresado', nombre: 'Egresado UTC' },
-      'empresa-2026':  { rol: 'empresa',  nombre: 'Empresa UTC' },
-      'hackaton-2026': { rol: 'admin',    nombre: 'Admin UTC' },
-      'admin-2026':    { rol: 'admin',    nombre: 'Admin UTC' },
-    };
-
-    const passwords: Record<string, string> = {
-      'egresado-2026': 'testing2026',
-      'empresa-2026':  'testing2026',
-      'hackaton-2026': 'testing2026',
-      'admin-2026':    'testing2026',
-    };
-
-    if (creds[usuario] && passwords[usuario] === contrasena) {
-      const { rol, nombre } = creds[usuario];
-      const token = this.buildMockJwt(usuario, rol, nombre);
-      return of({ token }).pipe(tap(r => this.saveSession(r.token)));
-    }
-    return throwError(() => new Error('Usuario o contrasena incorrectos'));
+    return this.http.post<ApiEnvelope<{ token: string; user: SiestTokenPayload }>>(
+      `${environment.apiUrl}/auth/login`,
+      { usuario, contrasena }
+    ).pipe(
+      map(response => unwrapData(response)),
+      tap(response => this.saveSession(response.token, response.user)),
+      map(response => ({ token: response.token })),
+      catchError(error => toApiError(error, 'Usuario o contrasena incorrectos'))
+    );
   }
 
-  verify2FA(code: string): Observable<boolean> {
-    if (/^\d{6}$/.test(code)) return of(true);
-    return throwError(() => new Error('Codigo de verificacion invalido'));
+  verify2FA(_code: string): Observable<boolean> {
+    return throwError(() => new Error('La verificacion de dos factores no esta configurada en backend'));
   }
 
   logout(): void {
@@ -76,6 +52,15 @@ export class AuthService {
   getRol():   RolUsuario | null { return this.state().rol; }
   isAuthenticated(): boolean { return this.state().isAuthenticated; }
   getUsuario(): SiestTokenPayload | null { return this.state().usuario; }
+
+  updateUsuario(patch: Partial<SiestTokenPayload>): void {
+    const current = this.state().usuario;
+    if (!current) return;
+
+    const usuario = this.normalizePayload({ ...current, ...patch });
+    localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
+    this.state.set({ ...this.state(), usuario });
+  }
 
   private saveSession(token: string, user?: SiestTokenPayload): void {
     const payload = this.normalizePayload(user ?? this.decodeJwt(token));
@@ -125,22 +110,4 @@ export class AuthService {
     return 'egresado';
   }
 
-  private buildMockJwt(usuario: string, tipo: RolUsuario, nombre: string): string {
-    const header  = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-    const payload = btoa(JSON.stringify({
-      sub: '12345',
-      usuario,
-      tipo,
-      rol: tipo,
-      nombre,
-      perfil_id: '1',
-      cve_persona: '12345',
-      cve_division: '1',
-      abreviatura_division: 'ITI',
-      roles: [{ id: tipo === 'egresado' ? '40' : tipo === 'empresa' ? '41' : '22', nombre: tipo }],
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 86400
-    }));
-    return `${header}.${payload}.${btoa('sig')}`;
-  }
 }

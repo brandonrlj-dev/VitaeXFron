@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope, toApiError, unwrapData } from './api-response';
@@ -25,7 +25,6 @@ export class MensajeService {
   constructor(private http: HttpClient) {}
 
   porEmpresa(empresaId: string): Observable<MensajeView[]> {
-    if (environment.useMocks) return of([]);
     return this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/mensajes/empresa/${empresaId}`).pipe(
       map(response => unwrapData(response).map(row => this.mapMensaje(row, 'empresa'))),
       catchError(error => toApiError(error, 'No se pudieron cargar los mensajes'))
@@ -39,20 +38,6 @@ export class MensajeService {
     remitente: 'empresa' | 'egresado' | 'admin';
     contenido: string;
   }): Observable<MensajeView> {
-    if (environment.useMocks) {
-      return of({
-        id: String(Date.now()),
-        candidato: '',
-        initials: '',
-        asunto: 'Nuevo mensaje',
-        preview: payload.contenido,
-        contenido: payload.contenido,
-        fecha: new Date().toISOString().split('T')[0],
-        leido: true,
-        tipo: 'enviado',
-      });
-    }
-
     return this.http.post<ApiEnvelope<any>>(`${environment.apiUrl}/mensajes`, payload).pipe(
       map(response => this.mapMensaje(unwrapData(response), payload.remitente)),
       catchError(error => toApiError(error, 'No se pudo enviar el mensaje'))
@@ -60,7 +45,6 @@ export class MensajeService {
   }
 
   marcarLeido(id: string): Observable<void> {
-    if (environment.useMocks) return of(undefined);
     return this.http.put<ApiEnvelope<any>>(`${environment.apiUrl}/mensajes/${id}/leido`, {}).pipe(
       map(() => undefined),
       catchError(error => toApiError(error, 'No se pudo marcar el mensaje como leido'))

@@ -5,7 +5,6 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { EgresadoService } from '../../../core/services/egresado.service';
-import { ProfilePhotoService } from '../../../core/services/profile-photo.service';
 import { ScoreCircleComponent } from '../../../shared/components/score-circle/score-circle.component';
 import { SpiderChartComponent } from '../../../shared/components/spider-chart/spider-chart.component';
 import { DimensionPillComponent } from '../../../shared/components/dimension-pill/dimension-pill.component';
@@ -40,11 +39,10 @@ export class EgresadoDashboardComponent implements OnInit {
   readonly DIMS: DimensionType[] = ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'];
 
   private svc          = inject(EgresadoService);
-  private photoService = inject(ProfilePhotoService);
 
   get nombreCompleto() { return this.egresado ? egresadoNombreCompleto(this.egresado) : ''; }
-  get fotoUrl(): string | null { return this.photoService.fotoEgresado(); }
-  get tieneFoto(): boolean     { return !!this.photoService.fotoEgresado(); }
+  get fotoUrl(): string | null { return this.egresado?.foto_url ?? null; }
+  get tieneFoto(): boolean     { return !!this.egresado?.foto_url; }
 
   // 10% datos + 15% foto + 40% evaluaciones + 15% CV + 20% Certificado = 100%
   get completitud(): number {

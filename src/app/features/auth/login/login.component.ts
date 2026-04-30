@@ -41,10 +41,6 @@ export class LoginComponent {
     { label: 'Sur',    value: 'sur' },
   ];
 
-  get mostrarSolicitudConvenio(): boolean {
-    return this.form.get('usuario')?.value === 'empresa-2026';
-  }
-
   private fb     = inject(FormBuilder);
   private auth   = inject(AuthService);
   private router = inject(Router);
@@ -77,17 +73,13 @@ export class LoginComponent {
     this.auth.login(usuario, contrasena).subscribe({
       next: () => {
         this.loading = false;
-        this.router.navigate(['/login/2fa']);
+        this.redirectByRole();
       },
       error: (err) => {
         this.loading = false;
         this.error   = err.message ?? 'Error al iniciar sesión';
       }
     });
-  }
-
-  usarCredencial(usuario: string, contrasena: string) {
-    this.form.setValue({ usuario, contrasena });
   }
 
   abrirSolicitudConvenio() {
@@ -121,5 +113,12 @@ export class LoginComponent {
         });
       }
     });
+  }
+
+  private redirectByRole() {
+    const rol = this.auth.getRol();
+    if (rol === 'egresado') this.router.navigate(['/egresado/dashboard']);
+    else if (rol === 'empresa') this.router.navigate(['/empresa/dashboard']);
+    else this.router.navigate(['/admin/dashboard']);
   }
 }

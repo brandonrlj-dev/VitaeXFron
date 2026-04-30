@@ -6,7 +6,6 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { FormsModule } from '@angular/forms';
 import { DimensionType, DIMENSION_CONFIG, Pregunta, Egresado } from '../../../core/models';
-import { BANCO_PREGUNTAS } from '../../../shared/mocks/evaluaciones.mock';
 import { EgresadoService } from '../../../core/services/egresado.service';
 
 @Component({
@@ -60,20 +59,19 @@ export class EvaluacionesComponent implements OnInit {
     if (this.isCompletada(dim)) return;
     this.egresadoSvc.getPreguntasPorDimension(dim).subscribe({
       next: preguntas => {
+        if (!preguntas.length) {
+          alert('No hay preguntas registradas para esta dimension.');
+          return;
+        }
         this.dimension     = dim;
-        this.preguntas     = preguntas.length ? preguntas : BANCO_PREGUNTAS[dim];
+        this.preguntas     = preguntas;
         this.currentIndex  = 0;
         this.respuestas    = {};
         this.respuestaActual = '';
         this.fase          = 'prueba';
       },
       error: () => {
-        this.dimension     = dim;
-        this.preguntas     = BANCO_PREGUNTAS[dim];
-        this.currentIndex  = 0;
-        this.respuestas    = {};
-        this.respuestaActual = '';
-        this.fase          = 'prueba';
+        alert('No se pudieron cargar las preguntas desde el backend.');
       }
     });
   }
@@ -132,7 +130,7 @@ export class EvaluacionesComponent implements OnInit {
   resetPruebas() {
     if (!this.egresado) return;
     this.egresadoSvc.resetEvaluaciones(this.egresado.id).subscribe(() => {
-      // Actualizamos localmente para no recargar la página y perder el estado del Mock
+      // Actualizamos localmente para no recargar la pagina y perder el estado actual.
       this.egresado!.evaluaciones_completadas = [];
       this.egresado!.scores = { psicometrica: 0, cognitiva: 0, tecnica: 0, proyectiva: 0 };
     });

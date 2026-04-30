@@ -6,260 +6,244 @@
   </div>
 
   @if (loading) {
-    <div class="sk sk-profile"></div>
+  <div class="sk sk-profile"></div>
   } @else if (egresado) {
-    <div class="perfil-grid">
+  <div class="perfil-grid">
 
-      <!-- ─── FOTO DE PERFIL (obligatoria) ─────────────────────────────── -->
-      <div class="vtx-card foto-card">
-        <div class="section-head">
-          <div class="section-icon"><i class="pi pi-camera"></i></div>
-          <div>
-            <h3>Foto de perfil</h3>
-            <span class="required-badge"><i class="pi pi-asterisk"></i> Obligatoria</span>
-          </div>
+    <!-- ─── FOTO DE PERFIL (obligatoria) ─────────────────────────────── -->
+    <div class="vtx-card foto-card">
+      <div class="section-head">
+        <div class="section-icon"><i class="pi pi-camera"></i></div>
+        <div>
+          <h3>Foto de perfil</h3>
+          <span class="required-badge"><i class="pi pi-asterisk"></i> Obligatoria</span>
         </div>
+      </div>
 
-        @if (!tieneFoto) {
-          <p class="caption" style="margin-bottom:20px">
-            Sube una foto clara de tu rostro en fondo blanco o neutro.
-            Se mostrará en tu perfil y en las postulaciones a empresas.
-          </p>
-        }
+      @if (!tieneFoto) {
+      <p class="caption" style="margin-bottom:20px">
+        Sube una foto clara de tu rostro en fondo blanco o neutro.
+        Se mostrará en tu perfil y en las postulaciones a empresas.
+      </p>
+      }
 
-        <!-- Drop zone -->
-        <div
-          class="foto-dropzone"
-          [class.has-foto]="tieneFoto"
-          [class.drag-active]="dragOver"
-          [class.error]="!!fotoError"
-          (click)="triggerFotoUpload()"
-          (dragover)="onDragOver($event)"
-          (dragleave)="onDragLeave()"
-          (drop)="onDrop($event)"
-        >
-          @if (uploadingFoto) {
-            <div class="dz-uploading">
-              <div class="dz-spinner"></div>
-              <span>Procesando imagen...</span>
-            </div>
-          } @else if (tieneFoto && fotoUrl) {
-            <img [src]="fotoUrl" class="foto-preview" alt="Foto de perfil" />
-            <div class="foto-overlay">
-              <i class="pi pi-camera"></i>
-              <span>Cambiar foto</span>
-            </div>
-          } @else {
-            <div class="dz-empty">
-              <div class="dz-icon"><i class="pi pi-user"></i></div>
-              <span class="dz-title">Haz clic o arrastra una imagen aquí</span>
-              <span class="dz-hint">JPG, PNG o WEBP · máx. 15 MB</span>
-            </div>
-          }
+      <!-- Drop zone -->
+      <div class="foto-dropzone" [class.has-foto]="tieneFoto" [class.drag-active]="dragOver" [class.error]="!!fotoError"
+        (click)="triggerFotoUpload()" (dragover)="onDragOver($event)" (dragleave)="onDragLeave()"
+        (drop)="onDrop($event)">
+        @if (uploadingFoto) {
+        <div class="dz-uploading">
+          <div class="dz-spinner"></div>
+          <span>Procesando imagen...</span>
         </div>
-
-        @if (fotoError) {
-          <p class="foto-error-msg"><i class="pi pi-exclamation-circle"></i> {{ fotoError }}</p>
-        }
-
-        @if (!tieneFoto) {
-          <div class="foto-required-notice">
-            <i class="pi pi-info-circle"></i>
-            <p>Necesitas subir tu foto para poder postularte a vacantes.</p>
-          </div>
+        } @else if (tieneFoto && fotoUrl) {
+        <img [src]="fotoUrl" class="foto-preview" alt="Foto de perfil" />
+        <div class="foto-overlay">
+          <i class="pi pi-camera"></i>
+          <span>Cambiar foto</span>
+        </div>
         } @else {
-          <div class="foto-actions">
-            <button pButton type="button" label="Cambiar foto" icon="pi pi-camera" class="p-button-outlined p-button-sm" (click)="triggerFotoUpload()"></button>
-            <button pButton type="button" label="Eliminar" icon="pi pi-trash" class="p-button-outlined p-button-sm btn-danger-outlined" (click)="eliminarFoto()"></button>
-          </div>
+        <div class="dz-empty">
+          <div class="dz-icon"><i class="pi pi-user"></i></div>
+          <span class="dz-title">Haz clic o arrastra una imagen aquí</span>
+          <span class="dz-hint">JPG, PNG o WEBP · máx. 15 MB</span>
+        </div>
+        }
+      </div>
+
+      @if (fotoError) {
+      <p class="foto-error-msg"><i class="pi pi-exclamation-circle"></i> {{ fotoError }}</p>
+      }
+
+      @if (!tieneFoto) {
+      <div class="foto-required-notice">
+        <i class="pi pi-info-circle"></i>
+        <p>Necesitas subir tu foto para poder postularte a vacantes.</p>
+      </div>
+      } @else {
+      <div class="foto-actions">
+        <button pButton type="button" label="Cambiar foto" icon="pi pi-camera" class="p-button-outlined p-button-sm"
+          (click)="triggerFotoUpload()"></button>
+      </div>
+      }
+
+      <input #fotoInput type="file" accept="image/*" style="display:none" (change)="onFotoSelected($event)" />
+    </div>
+
+    <!-- ─── DATOS PERSONALES ──────────────────────────────────────────── -->
+    <div class="vtx-card">
+      <div class="section-head">
+        <div class="section-icon"><i class="pi pi-user"></i></div>
+        <h3>Datos del SIEst</h3>
+        <span class="readonly-badge"><i class="pi pi-lock"></i> Solo lectura</span>
+      </div>
+
+      <div class="datos-grid">
+        <div class="dato-item">
+          <span class="dato-label">Nombre</span>
+          <span class="dato-valor">{{ egresado.nombre }}</span>
+        </div>
+        <div class="dato-item">
+          <span class="dato-label">Apellido Paterno</span>
+          <span class="dato-valor">{{ egresado.apellido_paterno }}</span>
+        </div>
+        <div class="dato-item">
+          <span class="dato-label">Apellido Materno</span>
+          <span class="dato-valor">{{ egresado.apellido_materno }}</span>
+        </div>
+        <div class="dato-item">
+          <span class="dato-label">Matrícula</span>
+          <span class="dato-valor">{{ egresado.matricula }}</span>
+        </div>
+        <div class="dato-item full">
+          <span class="dato-label">Carrera</span>
+          <span class="dato-valor">{{ egresado.carrera }}</span>
+        </div>
+        <div class="dato-item">
+          <span class="dato-label">Abreviatura</span>
+          <span class="dato-valor">{{ egresado.abreviatura_carrera }}</span>
+        </div>
+        <div class="dato-item">
+          <span class="dato-label">Periodo de egreso</span>
+          <span class="dato-valor">{{ egresado.periodo_egreso }}</span>
+        </div>
+        @if (egresado.email) {
+        <div class="dato-item full">
+          <span class="dato-label">Correo institucional</span>
+          <span class="dato-valor">{{ egresado.email }}</span>
+        </div>
+        }
+      </div>
+
+      <div class="siesta-notice">
+        <i class="pi pi-info-circle"></i>
+        <p>Para actualizar estos datos contacta a Control Escolar:
+          <strong>controlescolar&#64;utdelacosta.edu.mx</strong>
+        </p>
+      </div>
+    </div>
+
+    <!-- ─── CV ────────────────────────────────────────────────────────── -->
+    <div class="vtx-card">
+      <div class="section-head">
+        <div class="section-icon"><i class="pi pi-file-pdf"></i></div>
+        <h3>Currículum Vitae</h3>
+      </div>
+
+      <div class="cv-section">
+        <p class="caption cv-upload-caption">Sube tu CV en PDF, DOC o DOCX. El backend lo guardará en Drive
+          automáticamente.</p>
+
+
+        @if (egresado.cv_url) {
+        <div class="cv-current">
+          <i class="pi pi-check-circle"></i>
+          <span>CV cargado</span>
+          <a [href]="egresado.cv_url" target="_blank" class="cv-link">
+            <i class="pi pi-external-link"></i> Ver CV
+          </a>
+        </div>
         }
 
-        <input #fotoInput type="file" accept="image/*" style="display:none" (change)="onFotoSelected($event)" />
+        <button pButton type="button" [label]="egresado.cv_url ? 'Reemplazar CV' : 'Subir CV'" icon="pi pi-upload"
+          class="save-cv-btn" [loading]="savingCv" (click)="triggerCvUpload()"></button>
+        <input #cvInput type="file" accept="application/pdf,.pdf,.doc,.docx" style="display:none"
+          (change)="onCvSelected($event)" />
+      </div>
+    </div>
+
+    <!-- ─── TRAYECTORIA ───────────────────────────────────────────────── -->
+    <div class="vtx-card">
+      <div class="section-head">
+        <div class="section-icon"><i class="pi pi-graduation-cap"></i></div>
+        <div class="flex-1">
+          <h3>Trayectoria Académica</h3>
+        </div>
+        <button pButton icon="pi pi-plus" label="Agregar" class="p-button-text p-button-sm"
+          (click)="abrirModalTrayectoria()"></button>
       </div>
 
-      <!-- ─── DATOS PERSONALES ──────────────────────────────────────────── -->
-      <div class="vtx-card">
-        <div class="section-head">
-          <div class="section-icon"><i class="pi pi-user"></i></div>
-          <h3>Datos del SIEst</h3>
-          <span class="readonly-badge"><i class="pi pi-lock"></i> Solo lectura</span>
-        </div>
-
-        <div class="datos-grid">
-          <div class="dato-item">
-            <span class="dato-label">Nombre</span>
-            <span class="dato-valor">{{ egresado.nombre }}</span>
+      <div class="trayectoria-list">
+        @for (item of egresado.trayectoria; track $index) {
+        <div class="trayectoria-item animate-fade-in">
+          <div class="tray-left">
+            <div class="tray-dot"></div>
+            <div class="tray-line"></div>
           </div>
-          <div class="dato-item">
-            <span class="dato-label">Apellido Paterno</span>
-            <span class="dato-valor">{{ egresado.apellido_paterno }}</span>
-          </div>
-          <div class="dato-item">
-            <span class="dato-label">Apellido Materno</span>
-            <span class="dato-valor">{{ egresado.apellido_materno }}</span>
-          </div>
-          <div class="dato-item">
-            <span class="dato-label">Matrícula</span>
-            <span class="dato-valor">{{ egresado.matricula }}</span>
-          </div>
-          <div class="dato-item full">
-            <span class="dato-label">Carrera</span>
-            <span class="dato-valor">{{ egresado.carrera }}</span>
-          </div>
-          <div class="dato-item">
-            <span class="dato-label">Abreviatura</span>
-            <span class="dato-valor">{{ egresado.abreviatura_carrera }}</span>
-          </div>
-          <div class="dato-item">
-            <span class="dato-label">Periodo de egreso</span>
-            <span class="dato-valor">{{ egresado.periodo_egreso }}</span>
-          </div>
-          @if (egresado.email) {
-            <div class="dato-item full">
-              <span class="dato-label">Correo institucional</span>
-              <span class="dato-valor">{{ egresado.email }}</span>
+          <div clas s="tray-content">
+            <div class="tray-header">
+              <p class="tray-title">{{ item.grado }}</p>
+              <div class="tray-actions">
+                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm"
+                  (click)="abrirModalTrayectoria(item, $index)"></button>
+                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger p-button-sm"
+                  (click)="eliminarTrayectoria($index)"></button>
+              </div>
             </div>
-          }
+            <p class="tray-inst">{{ item.institucion }}</p>
+            <p class="caption">{{ item.periodo }}</p>
+            @if (item.descripcion) {
+            <p class="tray-desc">{{ item.descripcion }}</p>
+            }
+          </div>
         </div>
-
-        <div class="siesta-notice">
-          <i class="pi pi-info-circle"></i>
-          <p>Para actualizar estos datos contacta a Control Escolar: <strong>controlescolar&#64;utdelacosta.edu.mx</strong></p>
-        </div>
+        }
       </div>
 
-      <!-- ─── CV ────────────────────────────────────────────────────────── -->
-      <div class="vtx-card">
-        <div class="section-head">
-          <div class="section-icon"><i class="pi pi-file-pdf"></i></div>
-          <h3>Currículum Vitae</h3>
-        </div>
+      <div class="certificado-section">
+        <div class="section-divider"></div>
+        <p class="caption" style="margin-bottom: 12px;">
+          <i class="pi pi-file-pdf"></i>
+          Sube tu <strong>Certificado de Estudios</strong>, <strong>Título</strong> o <strong>Certificaciones</strong>
+          (PDF o imagen, máx. 15 MB).
+        </p>
 
-        <div class="cv-section">
-          <p class="caption">Pega el enlace de tu CV en Google Drive. Asegúrate de que cualquier persona con el enlace pueda verlo.</p>
-
-          <div class="cv-input-group">
-            <label class="label">Enlace de Google Drive</label>
-            <input pInputText [(ngModel)]="cvUrl" placeholder="https://drive.google.com/file/d/..." class="w-full" />
-          </div>
-
-          @if (egresado.cv_url) {
-            <div class="cv-current">
-              <i class="pi pi-check-circle"></i>
-              <span>CV cargado</span>
-              <a [href]="egresado.cv_url" target="_blank" class="cv-link">
-                <i class="pi pi-external-link"></i> Ver CV
+        <div class="cert-list">
+          @for (cert of egresado.certificados; track cert.url; let i = $index) {
+          <div class="cert-file-info animate-scale-in">
+            <div class="file-icon"><i class="pi pi-file-pdf"></i></div>
+            <div class="file-details">
+              <span class="file-name">{{ cert.nombre }}</span>
+              <a [href]="cert.url" target="_blank" class="cv-link">
+                <i class="pi pi-external-link"></i> Ver documento
               </a>
             </div>
-          }
-
-          <button pButton type="button" label="Guardar CV" icon="pi pi-save" class="save-cv-btn" [loading]="savingCv" (click)="guardarCV()"></button>
-        </div>
-      </div>
-
-      <!-- ─── TRAYECTORIA ───────────────────────────────────────────────── -->
-      <div class="vtx-card">
-        <div class="section-head">
-          <div class="section-icon"><i class="pi pi-graduation-cap"></i></div>
-          <div class="flex-1">
-            <h3>Trayectoria Académica</h3>
+            <button pButton type="button" icon="pi pi-times"
+              class="p-button-rounded p-button-text p-button-danger p-button-sm remove-cert-btn"
+              (click)="eliminarCertificado(i)" pTooltip="Eliminar documento"></button>
           </div>
-          <button pButton icon="pi pi-plus" label="Agregar" class="p-button-text p-button-sm" (click)="abrirModalTrayectoria()"></button>
-        </div>
-
-        <div class="trayectoria-list">
-          @for (item of egresado.trayectoria; track $index) {
-            <div class="trayectoria-item animate-fade-in">
-              <div class="tray-left">
-                <div class="tray-dot"></div>
-                <div class="tray-line"></div>
-              </div>
-              <div class="tray-content">
-                <div class="tray-header">
-                  <p class="tray-title">{{ item.grado }}</p>
-                  <div class="tray-actions">
-                    <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm" (click)="abrirModalTrayectoria(item, $index)"></button>
-                    <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger p-button-sm" (click)="eliminarTrayectoria($index)"></button>
-                  </div>
-                </div>
-                <p class="tray-inst">{{ item.institucion }}</p>
-                <p class="caption">{{ item.periodo }}</p>
-                @if (item.descripcion) {
-                  <p class="tray-desc">{{ item.descripcion }}</p>
-                }
-              </div>
-            </div>
           }
         </div>
 
-        <div class="certificado-section">
-          <div class="section-divider"></div>
-          <p class="caption" style="margin-bottom: 12px;">
-            <i class="pi pi-file-pdf"></i>
-            Sube tu <strong>Certificado de Estudios</strong>, <strong>Título</strong> o <strong>Certificaciones</strong> (PDF o imagen, máx. 15 MB).
-          </p>
+        <div class="cert-actions">
+          <button pButton type="button"
+            [label]="egresado.certificados.length > 0 ? 'Agregar otro documento' : 'Subir Certificado'"
+            icon="pi pi-plus" class="p-button-sm p-button-outlined" [loading]="savingCertificado"
+            [disabled]="egresado.certificados.length >= 5" (click)="triggerCertificadoUpload()"></button>
 
-          <div class="cert-list">
-            @for (cert of egresado.certificados; track cert.url; let i = $index) {
-              <div class="cert-file-info animate-scale-in">
-                <div class="file-icon"><i class="pi pi-file-pdf"></i></div>
-                <div class="file-details">
-                  <span class="file-name">{{ cert.nombre }}</span>
-                  <a [href]="cert.url" target="_blank" class="cv-link">
-                    <i class="pi pi-external-link"></i> Ver documento
-                  </a>
-                </div>
-                <button
-                  pButton
-                  type="button"
-                  icon="pi pi-times"
-                  class="p-button-rounded p-button-text p-button-danger p-button-sm remove-cert-btn"
-                  (click)="eliminarCertificado(i)"
-                  pTooltip="Eliminar documento"
-                ></button>
-              </div>
-            }
-          </div>
+          @if (egresado.certificados.length >= 5) {
+          <span class="limit-hint"><i class="pi pi-info-circle"></i> Límite de 5 archivos alcanzado</span>
+          }
 
-          <div class="cert-actions">
-            <button
-              pButton
-              type="button"
-              [label]="egresado.certificados.length > 0 ? 'Agregar otro documento' : 'Subir Certificado'"
-              icon="pi pi-plus"
-              class="p-button-sm p-button-outlined"
-              [loading]="savingCertificado"
-              [disabled]="egresado.certificados.length >= 5"
-              (click)="triggerCertificadoUpload()"
-            ></button>
-
-            @if (egresado.certificados.length >= 5) {
-              <span class="limit-hint"><i class="pi pi-info-circle"></i> Límite de 5 archivos alcanzado</span>
-            }
-
-            <input #certInput type="file" accept="application/pdf,image/*" style="display:none" (change)="onCertificadoSelected($event)" />
-          </div>
+          <input #certInput type="file" accept="application/pdf,image/*" style="display:none"
+            (change)="onCertificadoSelected($event)" />
         </div>
       </div>
-
     </div>
+
+  </div>
   }
 </div>
 
 <!-- Modal Trayectoria -->
-<p-dialog 
-  [(visible)]="displayTrayectoriaModal" 
-  [header]="editIndex > -1 ? 'Editar Registro Académico' : 'Agregar Registro Académico'" 
-  [modal]="true" 
-  [draggable]="false" 
-  [resizable]="false"
-  [style]="{width: '500px'}"
-  styleClass="vtx-modal"
->
+<p-dialog [(visible)]="displayTrayectoriaModal"
+  [header]="editIndex > -1 ? 'Editar Registro Académico' : 'Agregar Registro Académico'" [modal]="true"
+  [draggable]="false" [resizable]="false" [style]="{width: '500px'}" styleClass="vtx-modal">
   <div class="modal-form">
     <div class="field">
       <label class="label">Institución</label>
-      <input pInputText [(ngModel)]="editEducacion.institucion" placeholder="Ej: Universidad Tecnológica de la Costa" class="w-full" />
+      <input pInputText [(ngModel)]="editEducacion.institucion" placeholder="Ej: Universidad Tecnológica de la Costa"
+        class="w-full" />
     </div>
     <div class="field">
       <label class="label">Grado / Carrera</label>
@@ -271,12 +255,14 @@
     </div>
     <div class="field">
       <label class="label">Descripción (Opcional)</label>
-      <textarea pInputTextarea [(ngModel)]="editEducacion.descripcion" rows="3" placeholder="Logros, promedio o detalles relevantes..." class="w-full"></textarea>
+      <textarea pInputText [(ngModel)]="editEducacion.descripcion" rows="3"
+        placeholder="Logros, promedio o detalles relevantes..." class="w-full" style="resize:vertical"></textarea>
     </div>
   </div>
 
   <ng-template pTemplate="footer">
-    <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="displayTrayectoriaModal = false"></button>
+    <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text"
+      (click)="displayTrayectoriaModal = false"></button>
     <button pButton label="Guardar" icon="pi pi-check" (click)="guardarTrayectoria()"></button>
   </ng-template>
 </p-dialog>

@@ -47,8 +47,4 @@ export class TwoFaComponent {
       }
     });
   }
-
-  usarCodigo() {
-    this.form.patchValue({ code: '123456' });
-  }
 }

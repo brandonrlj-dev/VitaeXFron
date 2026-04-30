@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
 import { AuthService } from '../../../core/services/auth.service';
-import { ProfilePhotoService } from '../../../core/services/profile-photo.service';
 import { RolUsuario } from '../../../core/models';
 
 const NAV_ITEMS: Record<RolUsuario, MenuItem[]> = {
@@ -44,11 +43,12 @@ export class NavbarComponent implements OnInit {
   initialsUsuario = '';
 
   private authService  = inject(AuthService);
-  private photoService = inject(ProfilePhotoService);
   private router       = inject(Router);
 
   get fotoUrl(): string | null {
-    return this.rol === 'egresado' ? this.photoService.fotoEgresado() : null;
+    const user = this.authService.getUsuario();
+    const url = user?.['foto_url'] ?? user?.['logo_url'];
+    return typeof url === 'string' && url.trim() ? url : null;
   }
 
   ngOnInit() {

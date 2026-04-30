@@ -3,9 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Empresa, Egresado, SolicitudConvenio, Vacante } from '../models';
-import { EMPRESAS_MOCK } from '../../shared/mocks/empresas.mock';
-import { VACANTES_MOCK } from '../../shared/mocks/vacantes.mock';
-import { SOLICITUDES_MOCK } from '../../shared/mocks/convenios.mock';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope, toApiError, unwrapData, unwrapItems } from './api-response';
 import {
@@ -22,13 +19,9 @@ import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class EmpresaService {
-  private mockVacantes: Vacante[] = VACANTES_MOCK.map(v => ({ ...v, perfil_ideal: { ...v.perfil_ideal } }));
-  private mockSolicitudes: SolicitudConvenio[] = SOLICITUDES_MOCK.map(s => ({ ...s }));
-
   constructor(private http: HttpClient, private auth: AuthService) {}
 
   getEmpresas(): Observable<Empresa[]> {
-    if (environment.useMocks) return of(EMPRESAS_MOCK);
     return this.http.get<ApiEnvelope<any>>(`${environment.apiUrl}/empresas?limit=100`).pipe(
       map(response => unwrapItems<any>(response).map(mapEmpresa)),
       catchError(error => toApiError(error, 'No se pudieron cargar las empresas'))
@@ -36,7 +29,6 @@ export class EmpresaService {
   }
 
   getEmpresaActual(): Observable<Empresa> {
-    if (environment.useMocks) return of(EMPRESAS_MOCK[0]);
     const id = this.auth.getUsuario()?.cve_empresa;
     if (id) {
       return this.http.get<ApiEnvelope<any>>(`${environment.apiUrl}/empresas/${id}`).pipe(
@@ -53,8 +45,17 @@ export class EmpresaService {
     );
   }
 
+  subirFoto(empresaId: string, file: File): Observable<Empresa> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<ApiEnvelope<any>>(`${environment.apiUrl}/empresas/${empresaId}/foto`, formData).pipe(
+      map(response => mapEmpresa(unwrapData(response))),
+      catchError(error => toApiError(error, 'No se pudo subir la foto de empresa'))
+    );
+  }
+
   getVacantesEmpresa(empresaId: string): Observable<Vacante[]> {
-    if (environment.useMocks) return of(this.mockVacantes.filter(v => v.empresa_id === empresaId));
     return this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/empresas/${empresaId}/vacantes`).pipe(
       map(response => unwrapData(response).map(mapVacante)),
       catchError(error => toApiError(error, 'No se pudieron cargar las vacantes de la empresa'))
@@ -62,12 +63,6 @@ export class EmpresaService {
   }
 
   crearVacante(vacante: Partial<Vacante>): Observable<Vacante> {
-    if (environment.useMocks) {
-      const nueva = { ...vacante, id: Date.now().toString() } as Vacante;
-      this.mockVacantes = [nueva, ...this.mockVacantes];
-      return of(nueva);
-    }
-
     const apiPayload = vacanteToApi(vacante);
     return this.http.post<ApiEnvelope<any>>(`${environment.apiUrl}/vacantes`, apiPayload).pipe(
       map(response => this.hydrateVacante(unwrapData(response), vacante)),
@@ -76,18 +71,6 @@ export class EmpresaService {
   }
 
   actualizarVacante(id: string, cambios: Partial<Vacante>): Observable<Vacante> {
-    if (environment.useMocks) {
-      const idx = this.mockVacantes.findIndex(v => v.id === id);
-      if (idx < 0) throw new Error('Vacante no encontrada');
-      const actualizada = {
-        ...this.mockVacantes[idx],
-        ...cambios,
-        perfil_ideal: cambios.perfil_ideal ? { ...cambios.perfil_ideal } : { ...this.mockVacantes[idx].perfil_ideal },
-      };
-      this.mockVacantes = this.mockVacantes.map(v => v.id === id ? actualizada : v);
-      return of(actualizada);
-    }
-
     const apiPayload = vacanteToApi(cambios);
     delete apiPayload.perfil_idoneo;
 
@@ -106,7 +89,6 @@ export class EmpresaService {
   }
 
   darBajaVacante(id: string): Observable<Vacante> {
-    if (environment.useMocks) return this.actualizarVacante(id, { activa: false });
     return this.http.delete<ApiEnvelope<any>>(`${environment.apiUrl}/vacantes/${id}`).pipe(
       map(response => mapVacante(unwrapData(response))),
       catchError(error => toApiError(error, 'No se pudo dar de baja la vacante'))
@@ -114,7 +96,6 @@ export class EmpresaService {
   }
 
   getSolicitudes(): Observable<SolicitudConvenio[]> {
-    if (environment.useMocks) return of(this.mockSolicitudes);
     return this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/solicitudes-convenio`).pipe(
       map(response => unwrapData(response).map(mapSolicitud)),
       catchError(error => toApiError(error, 'No se pudieron cargar las solicitudes'))
@@ -122,17 +103,6 @@ export class EmpresaService {
   }
 
   crearSolicitudConvenio(solicitud: Omit<SolicitudConvenio, 'id' | 'fecha_solicitud' | 'estatus'>): Observable<SolicitudConvenio> {
-    if (environment.useMocks) {
-      const nueva: SolicitudConvenio = {
-        ...solicitud,
-        id: `s${Date.now()}`,
-        fecha_solicitud: new Date().toISOString().split('T')[0],
-        estatus: 'pendiente',
-      };
-      this.mockSolicitudes = [nueva, ...this.mockSolicitudes];
-      return of(nueva);
-    }
-
     return this.http.post<ApiEnvelope<any>>(`${environment.apiUrl}/solicitudes-convenio`, solicitudToApi(solicitud)).pipe(
       map(response => mapSolicitud(unwrapData(response))),
       catchError(error => toApiError(error, 'No se pudo crear la solicitud de convenio'))
@@ -140,7 +110,6 @@ export class EmpresaService {
   }
 
   aprobarSolicitud(id: string): Observable<void> {
-    if (environment.useMocks) return of(undefined);
     return this.http.put<ApiEnvelope<any>>(`${environment.apiUrl}/solicitudes-convenio/${id}`, {
       estado: 'aprobada',
     }).pipe(
@@ -150,7 +119,6 @@ export class EmpresaService {
   }
 
   rechazarSolicitud(id: string, motivo: string): Observable<void> {
-    if (environment.useMocks) return of(undefined);
     return this.http.put<ApiEnvelope<any>>(`${environment.apiUrl}/solicitudes-convenio/${id}`, {
       estado: 'rechazada',
       observacion: motivo,
@@ -165,7 +133,6 @@ export class EmpresaService {
     postulaciones: any[];
     candidatos: { egresado: Egresado; coincidencia: number }[];
   }> {
-    if (environment.useMocks) return of({ vacantes: this.mockVacantes, postulaciones: [], candidatos: [] });
     return forkJoin({
       dashboard: this.http.get<ApiEnvelope<any>>(`${environment.apiUrl}/dashboard/empresa/${empresaId}`).pipe(map(unwrapData)),
       vacantes: this.getVacantesEmpresa(empresaId),

@@ -41,7 +41,7 @@
   </div>
   <div class="mobile-end">
     @if (fotoUrl) {
-      <img [src]="fotoUrl" class="user-avatar-img sm" [routerLink]="'/egresado/perfil'" alt="Foto" />
+      <img [src]="fotoUrl" class="user-avatar-img sm" [routerLink]="rol === 'egresado' ? '/egresado/perfil' : null" alt="Foto" />
     } @else {
       <div class="user-avatar sm">{{ initialsUsuario }}</div>
     }
