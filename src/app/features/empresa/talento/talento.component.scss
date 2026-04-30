@@ -1,5 +1,18 @@
 .results-count { font-size: 13px; color: var(--color-text-secondary); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 20px; padding: 4px 12px; white-space: nowrap; align-self: flex-start; margin-top: 8px; }
 
+.talento-header-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.vacante-select {
+  min-width: 260px;
+
+  @media (max-width: 480px) { min-width: 100%; }
+}
+
 .talento-layout {
   display: grid;
   grid-template-columns: 240px 1fr;
@@ -63,3 +76,20 @@
 .dp-header { display: flex; align-items: center; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--color-border); }
 .dp-header > div:nth-child(2) { flex: 1; h2 { font-size: 1.125rem; } }
 .dp-dims { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 13px;
+    font-weight: 500;
+  }
+}
+
+.contacto-textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.5;
+}

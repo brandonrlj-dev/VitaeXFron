@@ -1,11 +1,24 @@
+<p-toast position="top-right"></p-toast>
+
 <div class="page-container animate-fade-slide">
 
   <div class="page-header">
     <div>
       <h1>Búsqueda de Talento</h1>
-      <p class="caption">Egresados con perfil evaluado. Solo se muestran candidatos con ≥ 80% de coincidencia por defecto.</p>
+      <p class="caption">Egresados con perfil evaluado. Solo se muestran candidatos con ≥ 80% de coincidencia.</p>
     </div>
-    <span class="results-count">{{ egresadosFiltrados.length }} candidato{{ egresadosFiltrados.length !== 1 ? 's' : '' }}</span>
+    <div class="talento-header-actions">
+      @if (vacantes.length > 0) {
+        <p-dropdown
+          [(ngModel)]="selectedVacanteId"
+          [options]="vacanteOpciones"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="vacante-select"
+        ></p-dropdown>
+      }
+      <span class="results-count">{{ egresadosFiltrados.length }} candidato{{ egresadosFiltrados.length !== 1 ? 's' : '' }}</span>
+    </div>
   </div>
 
   <div class="talento-layout">
@@ -17,7 +30,7 @@
       <div class="filtro-item">
         <p class="filtro-label">Coincidencia mínima</p>
         <div class="filtro-val">{{ filtros.minCoincidencia }}%</div>
-        <p-slider [(ngModel)]="filtros.minCoincidencia" [min]="0" [max]="100" [step]="5"></p-slider>
+        <p-slider [(ngModel)]="filtros.minCoincidencia" [min]="80" [max]="100" [step]="5"></p-slider>
       </div>
 
       @for (dim of DIMS; track dim) {
@@ -64,6 +77,8 @@
               <app-score-circle [score]="c.coincidencia" color="#03837b" size="60px" [strokeWidth]="6"></app-score-circle>
               <button pButton type="button" label="Ver perfil" icon="pi pi-eye" class="p-button-outlined p-button-sm"
                 (click)="verPerfil(c.egresado)"></button>
+              <button pButton type="button" label="Contactar" icon="pi pi-send" class="p-button-sm"
+                (click)="contactar(c.egresado)"></button>
             </div>
           </div>
         }
@@ -92,4 +107,34 @@
       </div>
     </div>
   }
+</p-dialog>
+
+<p-dialog [(visible)]="showContactoDialog" [modal]="true" header="Contactar egresado" [style]="{width:'560px',maxWidth:'95vw'}">
+  @if (selectedContacto) {
+    <div class="dialog-content">
+      <div class="dp-header">
+        <div class="tc-avatar large">{{ selectedContacto.nombre[0] }}{{ selectedContacto.apellido_paterno[0] }}</div>
+        <div>
+          <h2>{{ nombreCompleto(selectedContacto) }}</h2>
+          <p class="caption">{{ selectedContacto.email }}</p>
+          <p class="caption">Vacante: {{ vacanteSeleccionada.puesto }}</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Mensaje</label>
+        <textarea
+          pInputText
+          [(ngModel)]="mensajeContacto"
+          rows="5"
+          class="w-full contacto-textarea"
+        ></textarea>
+      </div>
+    </div>
+  }
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancelar" class="p-button-outlined" (click)="showContactoDialog=false"></button>
+    <button pButton type="button" label="Enviar mensaje" icon="pi pi-send" [disabled]="!mensajeContacto.trim()" (click)="enviarContacto()"></button>
+  </ng-template>
 </p-dialog>

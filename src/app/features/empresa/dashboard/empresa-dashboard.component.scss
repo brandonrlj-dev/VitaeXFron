@@ -1,5 +1,23 @@
 .greeting { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px; }
 
+.header-actions,
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.vacante-select {
+  min-width: 280px;
+
+  @media (max-width: 480px) { min-width: 100%; }
+}
+
+.section-heading { margin-bottom: 16px; }
+.section-title { font-size: 1rem; font-weight: 700; color: var(--color-dark); margin: 0 0 4px; }
+
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -93,6 +111,88 @@
   flex-shrink: 0;
 }
 
+.analytics-card {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+
+  > div {
+    padding: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--color-surface-alt);
+  }
+
+  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 520px) { grid-template-columns: 1fr; }
+}
+
+.analytics-table {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.analytics-row {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) repeat(5, minmax(86px, 0.4fr));
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: 13px;
+
+  &:last-child { border-bottom: none; }
+
+  small {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.analytics-head {
+  background: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.laborando-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.laborando-card {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 0.6fr 1fr;
+  gap: 18px;
+  align-items: center;
+
+  p {
+    font-size: 13px;
+    color: var(--color-text-primary);
+    word-break: break-word;
+  }
+
+  @media (max-width: 900px) { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 560px) { grid-template-columns: 1fr; }
+}
+
 // Empty
 .empty-state {
   text-align: center;
@@ -104,6 +204,8 @@
   i { font-size: 40px; color: var(--color-text-muted); }
   h3 { color: var(--color-text-secondary); }
   p  { color: var(--color-text-muted); font-size: 14px; }
+
+  &.compact { padding: 36px 24px; }
 }
 
 // Skeleton

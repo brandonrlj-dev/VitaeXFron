@@ -1,3 +1,5 @@
+<p-toast position="top-right"></p-toast>
+
 <div class="page-container animate-fade-slide">
 
   <div class="page-header">
@@ -18,7 +20,7 @@
     <div class="mensajes-list vtx-card">
       <div class="list-header">
         <span class="section-label">Bandeja</span>
-        <button pButton icon="pi pi-plus" class="p-button-text p-button-sm" pTooltip="Nuevo mensaje" (click)="nuevo()"></button>
+        <button pButton icon="pi pi-plus" class="p-button-text p-button-sm" title="Nuevo mensaje" (click)="nuevo()"></button>
       </div>
 
       @for (m of mensajes; track m.id) {
@@ -46,7 +48,34 @@
 
     <!-- Panel de mensaje -->
     <div class="mensaje-panel vtx-card">
-      @if (selectedMensaje) {
+      @if (composeMode) {
+        <div class="msg-detail">
+          <div class="compose-header">
+            <h3>Nuevo mensaje</h3>
+            <p class="caption">Contacta a egresados con coincidencia para tus vacantes.</p>
+          </div>
+
+          <div class="compose-fields">
+            <div class="field">
+              <label>Destinatario</label>
+              <input pInputText [(ngModel)]="contactoDestino" placeholder="Nombre del egresado" class="w-full" />
+            </div>
+            <div class="field">
+              <label>Asunto</label>
+              <input pInputText [(ngModel)]="contactoAsunto" placeholder="Asunto del mensaje" class="w-full" />
+            </div>
+            <div class="field">
+              <label>Mensaje</label>
+              <textarea pInputText [(ngModel)]="nuevoMensaje" rows="7" placeholder="Escribe tu mensaje..." class="w-full message-textarea"></textarea>
+            </div>
+          </div>
+
+          <div class="msg-reply">
+            <button pButton label="Cancelar" class="p-button-outlined" (click)="composeMode=false"></button>
+            <button pButton label="Enviar mensaje" icon="pi pi-send" (click)="enviarRespuesta()" [disabled]="!contactoDestino.trim() || !contactoAsunto.trim() || !nuevoMensaje.trim()"></button>
+          </div>
+        </div>
+      } @else if (selectedMensaje) {
         <div class="msg-detail">
           <div class="msg-detail-header">
             <div class="msg-avatar lg">{{ selectedMensaje.initials }}</div>
@@ -61,11 +90,10 @@
           </div>
 
           <div class="msg-body">
-            <p>{{ selectedMensaje.preview }}</p>
+            <p>{{ selectedMensaje.contenido }}</p>
             <p style="margin-top:12px; color: var(--color-text-secondary)">
               Este mensaje fue {{ selectedMensaje.tipo === 'enviado' ? 'enviado por tu empresa' : 'recibido del candidato' }}
-              el {{ selectedMensaje.fecha }}. La funcionalidad completa de mensajería estará disponible
-              cuando el backend esté integrado.
+              el {{ selectedMensaje.fecha }}.
             </p>
           </div>
 
@@ -79,6 +107,7 @@
           <i class="pi pi-envelope-open"></i>
           <h3>Selecciona un mensaje</h3>
           <p>Elige un mensaje de la bandeja para leerlo o responderlo.</p>
+          <button pButton label="Nuevo mensaje" icon="pi pi-plus" class="p-button-sm" (click)="nuevo()"></button>
         </div>
       }
     </div>

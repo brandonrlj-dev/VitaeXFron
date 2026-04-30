@@ -1,3 +1,5 @@
+<p-toast position="top-right"></p-toast>
+
 <div class="login-shell">
 
   <!-- Panel izquierdo: branding -->
@@ -111,6 +113,23 @@
         ></button>
       </form>
 
+      @if (mostrarSolicitudConvenio) {
+        <div class="convenio-callout">
+          <div>
+            <p class="convenio-title">¿Tu empresa aún no tiene convenio?</p>
+            <p class="convenio-copy">Solicita el alta para que la UTC revise tus datos y active el acceso empresarial.</p>
+          </div>
+          <button
+            pButton
+            type="button"
+            label="Solicitar convenio"
+            icon="pi pi-file-edit"
+            class="p-button-outlined p-button-sm"
+            (click)="abrirSolicitudConvenio()"
+          ></button>
+        </div>
+      }
+
       <!-- Demo credentials -->
       <div class="demo-section">
         <p class="demo-title">Credenciales de prueba</p>
@@ -133,3 +152,93 @@
   </div>
 
 </div>
+
+<p-dialog
+  [(visible)]="showSolicitudDialog"
+  [modal]="true"
+  header="Solicitud de convenio empresarial"
+  [style]="{ width: '640px', maxWidth: '95vw' }"
+  [closable]="!enviandoSolicitud"
+>
+  <form [formGroup]="solicitudForm" class="solicitud-form">
+    <div class="field">
+      <label>Empresa *</label>
+      <input pInputText formControlName="empresa_nombre" placeholder="Razón social de la empresa" class="w-full" />
+      @if (solicitudForm.get('empresa_nombre')?.invalid && solicitudForm.get('empresa_nombre')?.touched) {
+        <span class="field-error">La empresa es requerida</span>
+      }
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <label>RFC *</label>
+        <input pInputText formControlName="rfc" placeholder="ABC010101AAA" class="w-full" />
+        @if (solicitudForm.get('rfc')?.invalid && solicitudForm.get('rfc')?.touched) {
+          <span class="field-error">Ingresa un RFC válido</span>
+        }
+      </div>
+      <div class="field">
+        <label>Zona *</label>
+        <p-dropdown
+          formControlName="zona"
+          [options]="zonaOpciones"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="w-full"
+        ></p-dropdown>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Giro empresarial *</label>
+      <input pInputText formControlName="giro" placeholder="Tecnología, manufactura, servicios..." class="w-full" />
+      @if (solicitudForm.get('giro')?.invalid && solicitudForm.get('giro')?.touched) {
+        <span class="field-error">El giro es requerido</span>
+      }
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <label>Contacto *</label>
+        <input pInputText formControlName="contacto_nombre" placeholder="Nombre completo" class="w-full" />
+        @if (solicitudForm.get('contacto_nombre')?.invalid && solicitudForm.get('contacto_nombre')?.touched) {
+          <span class="field-error">El contacto es requerido</span>
+        }
+      </div>
+      <div class="field">
+        <label>Teléfono *</label>
+        <input pInputText formControlName="contacto_telefono" placeholder="311-000-0000" class="w-full" />
+        @if (solicitudForm.get('contacto_telefono')?.invalid && solicitudForm.get('contacto_telefono')?.touched) {
+          <span class="field-error">El teléfono es requerido</span>
+        }
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Correo de contacto *</label>
+      <input pInputText formControlName="contacto_email" placeholder="contacto@empresa.com" class="w-full" />
+      @if (solicitudForm.get('contacto_email')?.invalid && solicitudForm.get('contacto_email')?.touched) {
+        <span class="field-error">Ingresa un correo válido</span>
+      }
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      label="Cancelar"
+      class="p-button-outlined"
+      (click)="showSolicitudDialog=false"
+      [disabled]="enviandoSolicitud"
+    ></button>
+    <button
+      pButton
+      type="button"
+      label="Enviar solicitud"
+      icon="pi pi-send"
+      [loading]="enviandoSolicitud"
+      (click)="enviarSolicitudConvenio()"
+    ></button>
+  </ng-template>
+</p-dialog>
