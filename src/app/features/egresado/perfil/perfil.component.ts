@@ -134,6 +134,7 @@ export class PerfilComponent implements OnInit {
         this.savingCertificado = false;
         if (this.egresado) {
           this.egresado.certificados.push({
+            id: res.id,
             nombre: file.name,
             url: res.url || 'mock_url.pdf'
           });
@@ -150,7 +151,7 @@ export class PerfilComponent implements OnInit {
 
   eliminarCertificado(index: number) {
     const cert = this.egresado!.certificados[index];
-    this.svc.eliminarCertificado(this.egresado!.id, cert.url).subscribe(() => {
+    this.svc.eliminarCertificado(this.egresado!.id, cert.id ?? cert.url).subscribe(() => {
       this.egresado!.certificados.splice(index, 1);
       this.msgSvc.add({ severity: 'info', summary: 'Documento eliminado', detail: 'El archivo ha sido removido.' });
     });

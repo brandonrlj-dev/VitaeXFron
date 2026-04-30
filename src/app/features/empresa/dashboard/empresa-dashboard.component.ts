@@ -5,17 +5,18 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { EmpresaService } from '../../../core/services/empresa.service';
-import { VacanteService } from '../../../core/services/vacante.service';
+import { EgresadoService } from '../../../core/services/egresado.service';
 import { ScoreCircleComponent } from '../../../shared/components/score-circle/score-circle.component';
 import { SpiderChartComponent } from '../../../shared/components/spider-chart/spider-chart.component';
 import { DimensionPillComponent } from '../../../shared/components/dimension-pill/dimension-pill.component';
 import { Empresa, Vacante, Egresado, Postulacion, DimensionType, egresadoNombreCompleto } from '../../../core/models';
-import { EGRESADOS_MOCK, POSTULACIONES_MOCK } from '../../../shared/mocks/egresados.mock';
 
 interface CandidatoCard {
   egresado: Egresado;
   coincidencia: number;
+  vacanteId?: string;
 }
 
 @Component({
@@ -30,8 +31,10 @@ interface CandidatoCard {
 })
 export class EmpresaDashboardComponent implements OnInit {
   empresa?: Empresa;
-  vacantes: Vacante[]          = [];
-  postulaciones: Postulacion[] = POSTULACIONES_MOCK;
+  vacantes: Vacante[] = [];
+  postulaciones: Postulacion[] = [];
+  egresados: Egresado[] = [];
+  candidatos: CandidatoCard[] = [];
   selectedVacanteId = '';
   loading = true;
 
@@ -41,31 +44,21 @@ export class EmpresaDashboardComponent implements OnInit {
   readonly DIMS: DimensionType[] = ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'];
 
   private empresaSvc  = inject(EmpresaService);
-  private vacanteSvc  = inject(VacanteService);
+  private egresadoSvc = inject(EgresadoService);
 
   get vacantesActivas()   { return this.vacantes.filter(v => v.activa).length; }
   get totalCandidatos()   { return this.candidatosIdoneos.length; }
-
   get nombreEmpresa() { return this.empresa?.nombre ?? ''; }
-
-  get vacanteOpciones() {
-    return this.vacantes.map(v => ({ label: v.puesto, value: v.id }));
-  }
+  get vacanteOpciones() { return this.vacantes.map(v => ({ label: v.puesto, value: v.id })); }
 
   get vacanteSeleccionada(): Vacante | undefined {
     return this.vacantes.find(v => v.id === this.selectedVacanteId) ?? this.vacantes[0];
   }
 
   get candidatosIdoneos(): CandidatoCard[] {
-    const vacante = this.vacanteSeleccionada;
-    if (!vacante) return [];
-
-    return EGRESADOS_MOCK
-      .filter(eg => eg.scores && eg.evaluaciones_completadas.length === 4)
-      .map(eg => ({
-        egresado: eg,
-        coincidencia: this.vacanteSvc.calcularCoincidencia(eg.scores!, vacante.perfil_ideal),
-      }))
+    const id = this.vacanteSeleccionada?.id;
+    return this.candidatos
+      .filter(c => !id || c.vacanteId === id)
       .filter(c => c.coincidencia >= 80)
       .sort((a, b) => b.coincidencia - a.coincidencia);
   }
@@ -91,7 +84,7 @@ export class EmpresaDashboardComponent implements OnInit {
       total: postulaciones.length,
       revision: postulaciones.filter(p => p.estatus === 'en_revision').length,
       entrevistas: postulaciones.filter(p => p.estatus === 'entrevista').length,
-      contratados: postulaciones.filter(p => p.estatus === 'aceptada').length,
+      contratados: postulaciones.filter(p => p.estatus === 'aceptada' || p.estatus === 'contratado').length,
       promedio,
     };
   }
@@ -108,7 +101,7 @@ export class EmpresaDashboardComponent implements OnInit {
         total: postulaciones.length,
         revision: postulaciones.filter(p => p.estatus === 'en_revision').length,
         entrevistas: postulaciones.filter(p => p.estatus === 'entrevista').length,
-        aceptadas: postulaciones.filter(p => p.estatus === 'aceptada').length,
+        aceptadas: postulaciones.filter(p => p.estatus === 'aceptada' || p.estatus === 'contratado').length,
         promedio,
       };
     });
@@ -116,22 +109,39 @@ export class EmpresaDashboardComponent implements OnInit {
 
   get egresadosLaborando() {
     return this.postulacionesEmpresa
-      .filter(p => p.estatus === 'aceptada')
+      .filter(p => p.estatus === 'aceptada' || p.estatus === 'contratado')
       .map(p => ({
         postulacion: p,
-        egresado: EGRESADOS_MOCK.find(eg => eg.id === p.egresado_id),
+        egresado: this.egresados.find(eg => eg.id === p.egresado_id),
       }))
       .filter((r): r is { postulacion: Postulacion; egresado: Egresado } => !!r.egresado);
   }
 
   ngOnInit() {
-    this.empresaSvc.getEmpresaActual().subscribe(e => {
-      this.empresa = e;
-      this.empresaSvc.getVacantesEmpresa(e.id).subscribe(vacs => {
-        this.vacantes = vacs;
-        this.selectedVacanteId = vacs.find(v => v.activa)?.id ?? vacs[0]?.id ?? '';
-        this.loading = false;
-      });
+    this.empresaSvc.getEmpresaActual().subscribe({
+      next: empresa => {
+        this.empresa = empresa;
+        forkJoin({
+          dashboard: this.empresaSvc.getDashboardEmpresa(empresa.id),
+          egresados: this.egresadoSvc.getEgresados(),
+        }).subscribe({
+          next: ({ dashboard, egresados }) => {
+            const egresadosById = new Map(egresados.map(e => [e.id, e]));
+            this.egresados = egresados;
+            this.vacantes = dashboard.vacantes;
+            this.postulaciones = dashboard.postulaciones;
+            this.candidatos = dashboard.candidatos.map(c => ({
+              ...c,
+              egresado: egresadosById.get(c.egresado.id) ?? c.egresado,
+              vacanteId: c.egresado.id ? this.postulaciones.find(p => p.egresado_id === c.egresado.id)?.vacante_id : undefined,
+            }));
+            this.selectedVacanteId = this.vacantes.find(v => v.activa)?.id ?? this.vacantes[0]?.id ?? '';
+            this.loading = false;
+          },
+          error: () => this.loading = false,
+        });
+      },
+      error: () => this.loading = false,
     });
   }
 

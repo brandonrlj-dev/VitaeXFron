@@ -42,7 +42,7 @@ export class LoginComponent {
   ];
 
   get mostrarSolicitudConvenio(): boolean {
-    return this.form.get('usuario')?.value === 'empresa-demo';
+    return this.form.get('usuario')?.value === 'empresa-2026';
   }
 
   private fb     = inject(FormBuilder);

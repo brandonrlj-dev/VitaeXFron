@@ -2,8 +2,10 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of, throwError } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { AuthState, RolUsuario, SiestTokenPayload } from '../models';
+import { environment } from '../../../environments/environment';
+import { ApiEnvelope, toApiError, unwrapData } from './api-response';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -23,16 +25,30 @@ export class AuthService {
   }
 
   login(usuario: string, contrasena: string): Observable<{ token: string }> {
+    if (!environment.useMocks) {
+      return this.http.post<ApiEnvelope<{ token: string; user: SiestTokenPayload }>>(
+        `${environment.apiUrl}/auth/login`,
+        { usuario, contrasena }
+      ).pipe(
+        map(response => unwrapData(response)),
+        tap(response => this.saveSession(response.token, response.user)),
+        map(response => ({ token: response.token })),
+        catchError(error => toApiError(error, 'Usuario o contrasena incorrectos'))
+      );
+    }
+
     const creds: Record<string, { rol: RolUsuario; nombre: string }> = {
-      'hackaton-2026':  { rol: 'egresado', nombre: 'Carlos Mendoza López' },
-      'empresa-demo':   { rol: 'empresa',  nombre: 'TecnoSol del Pacífico' },
-      'admin-utc':      { rol: 'admin',    nombre: 'Admin UTC' },
+      'egresado-2026': { rol: 'egresado', nombre: 'Egresado UTC' },
+      'empresa-2026':  { rol: 'empresa',  nombre: 'Empresa UTC' },
+      'hackaton-2026': { rol: 'admin',    nombre: 'Admin UTC' },
+      'admin-2026':    { rol: 'admin',    nombre: 'Admin UTC' },
     };
 
     const passwords: Record<string, string> = {
+      'egresado-2026': 'testing2026',
+      'empresa-2026':  'testing2026',
       'hackaton-2026': 'testing2026',
-      'empresa-demo':  'empresa2026',
-      'admin-utc':     'admin2026',
+      'admin-2026':    'testing2026',
     };
 
     if (creds[usuario] && passwords[usuario] === contrasena) {
@@ -40,12 +56,12 @@ export class AuthService {
       const token = this.buildMockJwt(usuario, rol, nombre);
       return of({ token }).pipe(tap(r => this.saveSession(r.token)));
     }
-    return throwError(() => new Error('Usuario o contraseña incorrectos'));
+    return throwError(() => new Error('Usuario o contrasena incorrectos'));
   }
 
   verify2FA(code: string): Observable<boolean> {
     if (/^\d{6}$/.test(code)) return of(true);
-    return throwError(() => new Error('Código de verificación inválido'));
+    return throwError(() => new Error('Codigo de verificacion invalido'));
   }
 
   logout(): void {
@@ -61,9 +77,9 @@ export class AuthService {
   isAuthenticated(): boolean { return this.state().isAuthenticated; }
   getUsuario(): SiestTokenPayload | null { return this.state().usuario; }
 
-  private saveSession(token: string): void {
-    const payload = this.decodeJwt(token);
-    const rol     = payload?.tipo as RolUsuario ?? 'egresado';
+  private saveSession(token: string, user?: SiestTokenPayload): void {
+    const payload = this.normalizePayload(user ?? this.decodeJwt(token));
+    const rol     = payload.rol ?? payload.tipo ?? 'egresado';
     localStorage.setItem(this.TOKEN_KEY, token);
     localStorage.setItem(this.ROL_KEY,   rol);
     localStorage.setItem(this.USER_KEY,  JSON.stringify(payload));
@@ -78,7 +94,7 @@ export class AuthService {
       this.state.set({
         token,
         rol,
-        usuario: raw ? JSON.parse(raw) : null,
+        usuario: raw ? this.normalizePayload(JSON.parse(raw)) : null,
         isAuthenticated: true
       });
     }
@@ -87,8 +103,26 @@ export class AuthService {
   private decodeJwt(token: string): SiestTokenPayload | null {
     try {
       const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-      return JSON.parse(atob(b64));
+      const padded = b64.padEnd(Math.ceil(b64.length / 4) * 4, '=');
+      return JSON.parse(atob(padded));
     } catch { return null; }
+  }
+
+  private normalizePayload(payload: SiestTokenPayload | null): SiestTokenPayload {
+    const rol = (payload?.rol ?? payload?.tipo ?? this.roleFromRaw(payload)) as RolUsuario;
+    return {
+      ...(payload ?? { usuario: '' }),
+      rol,
+      tipo: rol,
+    };
+  }
+
+  private roleFromRaw(payload: SiestTokenPayload | null): RolUsuario {
+    const rawRoles = payload?.roles_originales ?? payload?.roles ?? [];
+    const roleIds = rawRoles.map(role => String(role.id));
+    if (roleIds.includes('22') || roleIds.includes('1')) return 'admin';
+    if (roleIds.includes('41')) return 'empresa';
+    return 'egresado';
   }
 
   private buildMockJwt(usuario: string, tipo: RolUsuario, nombre: string): string {
@@ -97,12 +131,13 @@ export class AuthService {
       sub: '12345',
       usuario,
       tipo,
+      rol: tipo,
       nombre,
       perfil_id: '1',
       cve_persona: '12345',
       cve_division: '1',
       abreviatura_division: 'ITI',
-      roles: [{ id: tipo === 'egresado' ? '40' : tipo === 'empresa' ? '50' : '10', nombre: tipo }],
+      roles: [{ id: tipo === 'egresado' ? '40' : tipo === 'empresa' ? '41' : '22', nombre: tipo }],
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 86400
     }));

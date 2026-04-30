@@ -1,16 +1,21 @@
 // ─── Auth ────────────────────────────────────────────────────────────────────
 export interface SiestTokenPayload {
-  sub: string;
+  sub?: string;
   usuario: string;
-  tipo: 'egresado' | 'empresa' | 'admin';
-  perfil_id: string;
-  cve_persona: string;
-  cve_division: string;
-  abreviatura_division: string;
-  roles: { id: string; nombre: string }[];
+  tipo?: 'egresado' | 'empresa' | 'admin';
+  rol?: 'egresado' | 'empresa' | 'admin';
+  perfil_id?: string | number | null;
+  cve_persona?: string;
+  cve_egresado?: string | number;
+  cve_empresa?: string | number;
+  cve_division?: string;
+  abreviatura_division?: string;
+  roles?: { id: string; nombre: string }[];
+  roles_originales?: { id: string; nombre: string }[];
   nombre?: string;
-  iat: number;
-  exp: number;
+  iat?: number;
+  exp?: number;
+  [key: string]: unknown;
 }
 
 export interface AuthState {
@@ -75,10 +80,17 @@ export interface Egresado {
   scores?:                  DimensionScores;
   evaluaciones_completadas: DimensionType[];
   cv_url?:                  string;
-  certificados:             { nombre: string, url: string }[];
+  certificados:             CertificadoEgresado[];
   datos_confirmados:        boolean;
   foto_url?:                string;
   trayectoria:              Educacion[];
+}
+
+export interface CertificadoEgresado {
+  id?: string;
+  nombre: string;
+  url: string;
+  verificado?: boolean;
 }
 
 export interface Educacion {

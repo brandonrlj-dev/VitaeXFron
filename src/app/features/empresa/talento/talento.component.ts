@@ -10,11 +10,12 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { VacanteService } from '../../../core/services/vacante.service';
 import { EmpresaService } from '../../../core/services/empresa.service';
+import { EgresadoService } from '../../../core/services/egresado.service';
+import { MensajeService as BolsaMensajeService } from '../../../core/services/mensaje.service';
 import { ScoreCircleComponent } from '../../../shared/components/score-circle/score-circle.component';
 import { DimensionPillComponent } from '../../../shared/components/dimension-pill/dimension-pill.component';
 import { SpiderChartComponent } from '../../../shared/components/spider-chart/spider-chart.component';
 import { Egresado, Vacante, DimensionType, egresadoNombreCompleto } from '../../../core/models';
-import { EGRESADOS_MOCK } from '../../../shared/mocks/egresados.mock';
 
 @Component({
   selector: 'app-talento',
@@ -43,6 +44,8 @@ export class TalentoComponent implements OnInit {
   readonly DIMS: DimensionType[] = ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'];
   private vacanteSvc = inject(VacanteService);
   private empresaSvc = inject(EmpresaService);
+  private egresadoSvc = inject(EgresadoService);
+  private mensajeSvc = inject(BolsaMensajeService);
   private msgSvc = inject(MessageService);
 
   get vacanteOpciones() {
@@ -75,7 +78,10 @@ export class TalentoComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.egresados = EGRESADOS_MOCK;
+    this.egresadoSvc.getEgresados().subscribe(egresados => {
+      this.egresados = egresados;
+    });
+
     this.empresaSvc.getEmpresaActual().subscribe(empresa => {
       this.empresaSvc.getVacantesEmpresa(empresa.id).subscribe(vacantes => {
         this.vacantes = vacantes.filter(v => v.activa);
@@ -91,19 +97,35 @@ export class TalentoComponent implements OnInit {
 
   contactar(eg: Egresado) {
     this.selectedContacto = eg;
-    this.mensajeContacto = `Hola ${eg.nombre}, tu perfil coincide con la vacante ${this.vacanteSeleccionada?.puesto ?? 'publicada'} y nos gustaría iniciar contacto contigo.`;
+    this.mensajeContacto = `Hola ${eg.nombre}, tu perfil coincide con la vacante ${this.vacanteSeleccionada?.puesto ?? 'publicada'} y nos gustaria iniciar contacto contigo.`;
     this.showContactoDialog = true;
   }
 
   enviarContacto() {
-    if (!this.selectedContacto || !this.mensajeContacto.trim()) return;
-    this.msgSvc.add({
-      severity: 'success',
-      summary: 'Mensaje enviado',
-      detail: `Se contactó a ${this.nombreCompleto(this.selectedContacto)}.`,
+    if (!this.selectedContacto || !this.mensajeContacto.trim() || !this.selectedVacanteId) return;
+    this.mensajeSvc.enviar({
+      cve_egresado: this.selectedContacto.id,
+      cve_vacante: this.selectedVacanteId,
+      remitente: 'empresa',
+      contenido: this.mensajeContacto,
+    }).subscribe({
+      next: () => {
+        this.msgSvc.add({
+          severity: 'success',
+          summary: 'Mensaje enviado',
+          detail: `Se contacto a ${this.nombreCompleto(this.selectedContacto!)}.`,
+        });
+        this.showContactoDialog = false;
+        this.mensajeContacto = '';
+      },
+      error: (err) => {
+        this.msgSvc.add({
+          severity: 'error',
+          summary: 'No se pudo enviar',
+          detail: err.message,
+        });
+      }
     });
-    this.showContactoDialog = false;
-    this.mensajeContacto = '';
   }
 
   nombreCompleto(eg: Egresado) { return egresadoNombreCompleto(eg); }

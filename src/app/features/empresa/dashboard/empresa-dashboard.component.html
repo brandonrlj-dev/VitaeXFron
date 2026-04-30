@@ -135,7 +135,7 @@
               <a
                 pButton
                 routerLink="/empresa/comunicacion"
-                [queryParams]="{ candidato: c.egresado.id, vacante: vacanteSeleccionada?.puesto }"
+                [queryParams]="{ candidato: c.egresado.id, vacante: vacanteSeleccionada?.puesto, vacanteId: vacanteSeleccionada?.id }"
                 label="Contactar"
                 icon="pi pi-send"
                 class="p-button-sm"

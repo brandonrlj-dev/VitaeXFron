@@ -6,10 +6,10 @@ import { ChartModule } from 'primeng/chart';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { AdminService } from '../../../core/services/admin.service';
+import { EmpresaService } from '../../../core/services/empresa.service';
 import { ProfilePhotoService } from '../../../core/services/profile-photo.service';
 import { ZoneHeatmapComponent } from '../../../shared/components/zone-heatmap/zone-heatmap.component';
 import { InsercionCarrera, CompetenciaDemandada, KpiDashboard } from '../../../core/models';
-import { CONVENIOS_POR_ZONA_MOCK } from '../../../shared/mocks/reportes.mock';
 
 @Component({
   selector: 'app-reportes',
@@ -32,6 +32,7 @@ export class ReportesComponent implements OnInit {
   pieChartOptions: any = {};
   barChartData2: any   = {};
   barChartOptions2: any = {};
+  conveniosPorZona = { norte: 0, centro: 0, sur: 0 };
 
   readonly today = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -57,15 +58,22 @@ export class ReportesComponent implements OnInit {
   ];
 
   private adminSvc    = inject(AdminService);
+  private empresaSvc  = inject(EmpresaService);
   private photoSvc    = inject(ProfilePhotoService);
 
   get logoAdmin(): string | null { return this.photoSvc.logoAdmin(); }
 
   ngOnInit() {
     this.adminSvc.getKpis().subscribe(k => this.kpis = k);
+    this.empresaSvc.getEmpresas().subscribe(empresas => {
+      this.conveniosPorZona = empresas.reduce((acc, empresa) => {
+        acc[empresa.zona] = (acc[empresa.zona] ?? 0) + 1;
+        return acc;
+      }, { norte: 0, centro: 0, sur: 0 });
+      this.buildPieChart();
+    });
     this.adminSvc.getInsercionPorCarrera().subscribe(d => {
       this.insercion = d;
-      this.buildPieChart();
     });
     this.adminSvc.getCompetenciasDemandadas().subscribe(d => {
       this.competencias = d;
@@ -75,7 +83,7 @@ export class ReportesComponent implements OnInit {
   }
 
   private buildPieChart() {
-    const z = CONVENIOS_POR_ZONA_MOCK;
+    const z = this.conveniosPorZona;
     this.pieChartData = {
       labels: ['Zona Norte', 'Zona Centro', 'Zona Sur'],
       datasets: [{
