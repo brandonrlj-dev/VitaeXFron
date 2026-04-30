@@ -152,16 +152,18 @@ export interface Vacante {
 }
 
 export interface VacanteNacional {
-  id:                 string;
-  puesto:             string;
-  empresa:            string;
-  empresa_logo?:      string;
-  ubicacion:          string;
-  salario?:           string;
-  fuente:             string;
-  url_externa:        string;
-  descripcion:        string;
-  fecha_publicacion:  string;
+  id:                     string;
+  puesto:                 string;
+  empresa:                string;
+  empresa_logo?:          string;
+  ubicacion:              string;
+  salario?:               string;
+  fuente:                 string;
+  url_externa:            string;
+  descripcion:            string;
+  fecha_publicacion:      string;
+  coincidencia?:          number;
+  perfil_ideal_estimado?: DimensionScores;
 }
 
 // ─── Empresa ─────────────────────────────────────────────────────────────────

@@ -45,23 +45,21 @@
         </span>
       </div>
 
-      <ng-container *ngIf="modo === 'bolsa'">
-        <div class="filter-item">
-          <p-dropdown
-            [(ngModel)]="areaFiltro"
-            [options]="areasOpciones"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Área"
-            styleClass="w-full"
-          ></p-dropdown>
-        </div>
+      <div class="filter-item" *ngIf="modo === 'bolsa'">
+        <p-dropdown
+          [(ngModel)]="areaFiltro"
+          [options]="areasOpciones"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Área"
+          styleClass="w-full"
+        ></p-dropdown>
+      </div>
 
-        <div class="filter-item slider-filter">
-          <label class="label">Coincidencia mínima: <strong>{{ minCoincidencia }}%</strong></label>
-          <p-slider [(ngModel)]="minCoincidencia" [min]="0" [max]="95" [step]="5"></p-slider>
-        </div>
-      </ng-container>
+      <div class="filter-item slider-filter">
+        <label class="label">Coincidencia mínima: <strong>{{ minCoincidencia }}%</strong></label>
+        <p-slider [(ngModel)]="minCoincidencia" [min]="0" [max]="95" [step]="5"></p-slider>
+      </div>
     </div>
   </div>
 
@@ -143,14 +141,20 @@
               @if (vn.empresa_logo) {
                 <img [src]="vn.empresa_logo" class="company-logo-api" [alt]="vn.empresa">
               } @else {
-                <div class="company-avatar api">{{ vn.fuente[0] }}</div>
+                <div class="company-avatar api">{{ vn.empresa[0] }}</div>
               }
               <div>
                 <h3 class="vac-puesto">{{ vn.puesto }}</h3>
                 <p class="vac-empresa-name">{{ vn.empresa }}</p>
-                <span class="source-tag"><i class="pi pi-external-link"></i> {{ vn.fuente }}</span>
+                <span class="source-tag"><i class="pi pi-external-link"></i> VACANTE EXTERNA</span>
               </div>
             </div>
+            <app-score-circle
+              [score]="vn.coincidencia ?? 0"
+              [color]="scoreColor(vn.coincidencia)"
+              size="64px"
+              [strokeWidth]="6"
+            ></app-score-circle>
           </div>
 
           <div class="vac-meta">
@@ -160,9 +164,20 @@
             <span class="vac-badge" *ngIf="vn.salario">
               <i class="pi pi-dollar"></i>{{ vn.salario }}
             </span>
+            <span class="source-badge">
+              <i class="pi pi-globe"></i>{{ vn.fuente }}
+            </span>
           </div>
 
-          <p class="vac-desc-preview">{{ vn.descripcion | slice:0:140 }}...</p>
+          <p class="vac-desc-preview">{{ vn.descripcion | slice:0:120 }}...</p>
+
+          @if (vn.perfil_ideal_estimado) {
+            <div class="vac-dims">
+              @for (dim of DIMS; track dim) {
+                <app-dimension-pill [dimension]="dim" [score]="vn.perfil_ideal_estimado[dim]"></app-dimension-pill>
+              }
+            </div>
+          }
 
           <div class="vac-actions">
             <a
@@ -171,7 +186,7 @@
               label="Ver detalles"
               icon="pi pi-globe"
               iconPos="right"
-              class="p-button-sm"
+              class="p-button-outlined p-button-sm"
             ></a>
           </div>
         </div>
