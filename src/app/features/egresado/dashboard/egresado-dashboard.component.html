@@ -148,8 +148,13 @@
               }
             </div>
             <div class="score-total-block">
-              <span class="label">Score global</span>
-              <app-score-circle [score]="scoreTotal" color="#03837b" size="80px" [strokeWidth]="7"></app-score-circle>
+              <div class="score-info">
+                <span class="label">Score global</span>
+                <span class="level-badge" [style.background-color]="interpretacionColor + '15'" [style.color]="interpretacionColor">
+                  {{ interpretacion }}
+                </span>
+              </div>
+              <app-score-circle [score]="scoreTotal" [color]="interpretacionColor" size="80px" [strokeWidth]="7"></app-score-circle>
             </div>
           </div>
           <div class="spider-chart-col">
