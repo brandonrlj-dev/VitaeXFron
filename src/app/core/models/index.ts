@@ -137,7 +137,7 @@ export interface Empresa {
 }
 
 // ─── Postulación ─────────────────────────────────────────────────────────────
-export type EstatusPostulacion = 'enviada' | 'en_revision' | 'entrevista' | 'aceptada' | 'rechazada';
+export type EstatusPostulacion = 'enviada' | 'en_revision' | 'entrevista' | 'aceptada' | 'rechazada' | 'contratado';
 
 export interface Postulacion {
   id:                string;

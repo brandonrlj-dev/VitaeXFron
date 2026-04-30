@@ -120,6 +120,27 @@
           </div>
         }
 
+        <!-- Reporte de Idoneidad (Shell) -->
+        <div class="vtx-card export-card">
+          <div class="export-content">
+            <div class="export-icon">
+              <i class="pi pi-file-pdf"></i>
+            </div>
+            <div class="export-text">
+              <h4>Reporte de Idoneidad Profesional</h4>
+              <p class="caption">Descarga un análisis detallado de tu compatibilidad con esta vacante basado en tus evaluaciones.</p>
+            </div>
+            <button 
+              pButton 
+              type="button" 
+              label="Exportar PDF" 
+              icon="pi pi-file-pdf" 
+              class="p-button-outlined p-button-danger export-btn"
+              (click)="exportarReporte()"
+            ></button>
+          </div>
+        </div>
+
       </div>
 
       <!-- Columna derecha: acción -->

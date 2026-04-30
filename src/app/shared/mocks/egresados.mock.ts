@@ -134,4 +134,14 @@ export const POSTULACIONES_MOCK: Postulacion[] = [
     estatus: 'rechazada',
     coincidencia: 62,
   },
+  {
+    id: 'p4',
+    egresado_id: '1',
+    vacante_id: 'v2',
+    empresa_nombre: 'AgroNorte S.A. de C.V.',
+    puesto: 'Ingeniero de Mantenimiento Industrial',
+    fecha_postulacion: '2024-04-01',
+    estatus: 'contratado',
+    coincidencia: 99,
+  },
 ];
