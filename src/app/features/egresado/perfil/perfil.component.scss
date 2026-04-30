@@ -32,6 +32,95 @@
   i { font-size: 9px; }
 }
 
+.trayectoria-list {
+  padding: 10px 0;
+}
+
+.trayectoria-item {
+  display: flex;
+  gap: 16px;
+  
+  &:last-child .tray-line { display: none; }
+}
+
+.tray-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 6px;
+}
+
+.tray-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+  z-index: 2;
+}
+
+.tray-line {
+  flex: 1;
+  width: 2px;
+  background: #e5e7eb;
+  margin: 4px 0;
+}
+
+.tray-content {
+  flex: 1;
+  padding-bottom: 24px;
+}
+
+.tray-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.tray-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-dark);
+}
+
+.tray-inst {
+  font-size: 14px;
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+
+.tray-desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-top: 8px;
+  background: #f9fafb;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.tray-actions {
+  display: flex;
+  gap: 4px;
+}
+
+// Modal Form
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px 0;
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.flex-1 { flex: 1; }
+
 .readonly-badge {
   margin-left: auto;
   display: inline-flex; align-items: center; gap: 4px;

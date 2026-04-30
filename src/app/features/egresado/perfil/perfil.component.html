@@ -161,15 +161,35 @@
       <div class="vtx-card">
         <div class="section-head">
           <div class="section-icon"><i class="pi pi-graduation-cap"></i></div>
-          <h3>Trayectoria Académica</h3>
+          <div class="flex-1">
+            <h3>Trayectoria Académica</h3>
+          </div>
+          <button pButton icon="pi pi-plus" label="Agregar" class="p-button-text p-button-sm" (click)="abrirModalTrayectoria()"></button>
         </div>
 
-        <div class="trayectoria-item">
-          <div class="tray-dot"></div>
-          <div>
-            <p class="tray-title">{{ egresado.carrera }}</p>
-            <p class="caption">Universidad Tecnológica de la Costa · Egreso {{ egresado.periodo_egreso }}</p>
-          </div>
+        <div class="trayectoria-list">
+          @for (item of egresado.trayectoria; track $index) {
+            <div class="trayectoria-item animate-fade-in">
+              <div class="tray-left">
+                <div class="tray-dot"></div>
+                <div class="tray-line"></div>
+              </div>
+              <div class="tray-content">
+                <div class="tray-header">
+                  <p class="tray-title">{{ item.grado }}</p>
+                  <div class="tray-actions">
+                    <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm" (click)="abrirModalTrayectoria(item, $index)"></button>
+                    <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger p-button-sm" (click)="eliminarTrayectoria($index)"></button>
+                  </div>
+                </div>
+                <p class="tray-inst">{{ item.institucion }}</p>
+                <p class="caption">{{ item.periodo }}</p>
+                @if (item.descripcion) {
+                  <p class="tray-desc">{{ item.descripcion }}</p>
+                }
+              </div>
+            </div>
+          }
         </div>
 
         <div class="certificado-section">
@@ -225,3 +245,38 @@
     </div>
   }
 </div>
+
+<!-- Modal Trayectoria -->
+<p-dialog 
+  [(visible)]="displayTrayectoriaModal" 
+  [header]="editIndex > -1 ? 'Editar Registro Académico' : 'Agregar Registro Académico'" 
+  [modal]="true" 
+  [draggable]="false" 
+  [resizable]="false"
+  [style]="{width: '500px'}"
+  styleClass="vtx-modal"
+>
+  <div class="modal-form">
+    <div class="field">
+      <label class="label">Institución</label>
+      <input pInputText [(ngModel)]="editEducacion.institucion" placeholder="Ej: Universidad Tecnológica de la Costa" class="w-full" />
+    </div>
+    <div class="field">
+      <label class="label">Grado / Carrera</label>
+      <input pInputText [(ngModel)]="editEducacion.grado" placeholder="Ej: Ingeniería en TI" class="w-full" />
+    </div>
+    <div class="field">
+      <label class="label">Periodo</label>
+      <input pInputText [(ngModel)]="editEducacion.periodo" placeholder="Ej: 2020 - 2023" class="w-full" />
+    </div>
+    <div class="field">
+      <label class="label">Descripción (Opcional)</label>
+      <textarea pInputTextarea [(ngModel)]="editEducacion.descripcion" rows="3" placeholder="Logros, promedio o detalles relevantes..." class="w-full"></textarea>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="displayTrayectoriaModal = false"></button>
+    <button pButton label="Guardar" icon="pi pi-check" (click)="guardarTrayectoria()"></button>
+  </ng-template>
+</p-dialog>

@@ -18,6 +18,9 @@ export const EGRESADOS_MOCK: Egresado[] = [
     cv_url: 'https://drive.google.com/file/d/mock1',
     certificados: [],
     datos_confirmados: true,
+    trayectoria: [
+      { institucion: 'Universidad Tecnológica de la Costa', grado: 'Ingeniería en Tecnologías de la Información', periodo: '2021 - 2023', descripcion: 'Formación en desarrollo web y gestión de bases de datos.' }
+    ]
   },
   {
     id: '2',
@@ -35,6 +38,9 @@ export const EGRESADOS_MOCK: Egresado[] = [
     evaluaciones_completadas: ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'],
     certificados: [],
     datos_confirmados: true,
+    trayectoria: [
+      { institucion: 'Universidad Tecnológica de la Costa', grado: 'Ingeniería en Gestión Empresarial', periodo: '2021 - 2023' }
+    ]
   },
   {
     id: '3',
@@ -51,6 +57,9 @@ export const EGRESADOS_MOCK: Egresado[] = [
     evaluaciones_completadas: ['psicometrica', 'cognitiva', 'tecnica'],
     certificados: [],
     datos_confirmados: true,
+    trayectoria: [
+      { institucion: 'Universidad Tecnológica de la Costa', grado: 'Ingeniería en Mantenimiento Industrial', periodo: '2022 - 2024' }
+    ]
   },
   {
     id: '4',
@@ -68,6 +77,9 @@ export const EGRESADOS_MOCK: Egresado[] = [
     cv_url: 'https://drive.google.com/file/d/mock4',
     certificados: [],
     datos_confirmados: true,
+    trayectoria: [
+      { institucion: 'Universidad Tecnológica de la Costa', grado: 'Ingeniería en Logística y Transporte', periodo: '2022 - 2024' }
+    ]
   },
   {
     id: '5',
@@ -84,6 +96,9 @@ export const EGRESADOS_MOCK: Egresado[] = [
     evaluaciones_completadas: ['psicometrica', 'cognitiva'],
     certificados: [],
     datos_confirmados: false,
+    trayectoria: [
+      { institucion: 'Universidad Tecnológica de la Costa', grado: 'Ingeniería en Tecnologías de la Información', periodo: '2023 - 2024' }
+    ]
   },
   {
     id: '6',
@@ -100,6 +115,9 @@ export const EGRESADOS_MOCK: Egresado[] = [
     evaluaciones_completadas: ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'],
     certificados: [],
     datos_confirmados: true,
+    trayectoria: [
+      { institucion: 'Universidad Tecnológica de la Costa', grado: 'Tecnología en Mecatrónica', periodo: '2022 - 2024' }
+    ]
   },
 ];
 

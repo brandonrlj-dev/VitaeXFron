@@ -78,6 +78,14 @@ export interface Egresado {
   certificados:             { nombre: string, url: string }[];
   datos_confirmados:        boolean;
   foto_url?:                string;
+  trayectoria:              Educacion[];
+}
+
+export interface Educacion {
+  institucion: string;
+  grado:       string;
+  periodo:     string;
+  descripcion?: string;
 }
 
 export function egresadoNombreCompleto(e: Egresado): string {
