@@ -47,8 +47,13 @@
                 [severity]="estatusSeverity(s.estatus)"
               ></p-tag>
             </td>
-            <td>
-              <button pButton icon="pi pi-eye" class="p-button-text p-button-sm" (click)="verDetalle(s)" pTooltip="Ver detalles"></button>
+            <td class="text-right">
+              <div class="flex gap-2 justify-content-end">
+                @if (s.estatus === 'aprobada') {
+                  <button pButton icon="pi pi-user-plus" class="p-button-text p-button-success p-button-sm" (click)="verDetalle(s)" pTooltip="Generar cuenta"></button>
+                }
+                <button pButton icon="pi pi-eye" class="p-button-text p-button-secondary p-button-sm" (click)="verDetalle(s)" pTooltip="Ver detalle"></button>
+              </div>
             </td>
           </tr>
         </ng-template>
@@ -109,36 +114,51 @@
         }
       </div>
 
-      @if (showRechazarForm) {
-        <div class="rechazar-form">
-          <label class="label">Motivo del rechazo *</label>
-          <textarea
-            pInputText
-            [(ngModel)]="motivoRechazo"
-            rows="3"
-            placeholder="Explica el motivo del rechazo para notificar a la empresa..."
-            class="w-full"
-            style="resize:vertical; min-height:80px; border-radius:8px; border:1.5px solid var(--color-border); padding:10px 12px; font-family:inherit; font-size:14px;"
-          ></textarea>
-        </div>
-      }
     </div>
-
-    <ng-template pTemplate="footer">
-      @if (selectedSolicitud.estatus === 'pendiente' || selectedSolicitud.estatus === 'en_proceso') {
-        @if (!showRechazarForm) {
-          <button pButton label="Rechazar" icon="pi pi-times" class="p-button-outlined p-button-danger" (click)="showRechazarForm=true"></button>
-          <button pButton label="Aprobar" icon="pi pi-check" [loading]="procesando" (click)="aprobar()"></button>
-        } @else {
-          <button pButton label="Cancelar" class="p-button-outlined" (click)="showRechazarForm=false"></button>
-          <button pButton label="Confirmar rechazo" class="p-button-danger" icon="pi pi-ban" [loading]="procesando" [disabled]="!motivoRechazo.trim()" (click)="rechazar()"></button>
-        }
-      }
-      @if (selectedSolicitud.estatus === 'aprobada') {
-        <button pButton label="Crear Cuenta Empresa" icon="pi pi-user-plus" [loading]="procesando" (click)="crearCuenta()"></button>
-      }
-    </ng-template>
   }
+
+  <ng-template pTemplate="footer">
+    @if (selectedSolicitud) {
+      <div class="footer-actions">
+        
+        @if (!showRechazarForm) {
+          <div class="status-manager">
+            <span class="status-title">Gestión de Estatus</span>
+            <div class="status-options">
+              <button class="status-opt" [class.active]="selectedSolicitud.estatus === 'pendiente'" (click)="cambiarEstatus('pendiente')">
+                <i class="pi pi-clock"></i><span>Pendiente</span>
+              </button>
+              <button class="status-opt" [class.active]="selectedSolicitud.estatus === 'en_proceso'" (click)="cambiarEstatus('en_proceso')">
+                <i class="pi pi-sync"></i><span>En proceso</span>
+              </button>
+              <button class="status-opt btn-rechazar" [class.active]="selectedSolicitud.estatus === 'rechazada'" (click)="showRechazarForm = true">
+                <i class="pi pi-times"></i><span>Rechazar</span>
+              </button>
+              <button class="status-opt btn-aprobar" [class.active]="selectedSolicitud.estatus === 'aprobada'" (click)="cambiarEstatus('aprobada')">
+                <i class="pi pi-check"></i><span>Aprobar</span>
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (selectedSolicitud.estatus === 'aprobada' && !showRechazarForm) {
+          <button pButton label="Generar Cuenta Institucional" icon="pi pi-user-plus" class="vtx-btn-primary w-full mt-8" [loading]="procesando" (click)="crearCuenta()"></button>
+        }
+
+        @if (showRechazarForm) {
+          <div class="rechazar-confirm animate-fade-in flex-column align-items-center text-center py-8">
+            <i class="pi pi-exclamation-triangle text-red-500 mb-8" style="font-size: 2rem; color: #ef4444;"></i>
+            <p class="font-bold mb-12" style="color: var(--color-dark);">¿Estás seguro de que deseas rechazar esta solicitud?</p>
+            <div class="flex gap-2 justify-content-center">
+              <button pButton label="No, cancelar" class="p-button-text p-button-secondary" (click)="showRechazarForm=false"></button>
+              <button pButton label="Sí, rechazar" class="p-button-danger" icon="pi pi-ban" [loading]="procesando" (click)="rechazar()"></button>
+            </div>
+          </div>
+        }
+
+      </div>
+    }
+  </ng-template>
 </p-dialog>
 
 <!-- Dialog: Credenciales generadas -->

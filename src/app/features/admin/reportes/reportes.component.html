@@ -1,11 +1,64 @@
-<div class="page-container animate-fade-slide">
+<div class="page-container animate-fade-slide" id="reportes-print-area">
 
-  <div class="page-header">
+  <!-- Cabecera de impresión (solo visible al imprimir) -->
+  <div class="print-header">
+    @if (logoAdmin) {
+      <img [src]="logoAdmin" class="print-logo" alt="Logo institucional" />
+    } @else {
+      <div class="print-logo-text">VX</div>
+    }
+    <div class="print-title-block">
+      <h2 class="print-title">Bolsa de Trabajo — Universidad Tecnológica de la Costa</h2>
+      <p class="print-subtitle">Reporte Institucional de Vinculación Laboral · {{ today }}</p>
+    </div>
+  </div>
+
+  <!-- Encabezado de página normal -->
+  <div class="page-header no-print">
     <div>
       <h1>Reportes Institucionales</h1>
       <p class="caption">Indicadores de vinculación laboral exportables</p>
     </div>
     <button pButton label="Exportar PDF" icon="pi pi-file-pdf" class="p-button-outlined" (click)="exportarPDF()"></button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="vtx-card filters-card no-print" style="margin-bottom:24px">
+    <div class="filters-grid">
+      <div class="filter-item">
+        <label>Rango de fechas</label>
+        <p-calendar
+          [(ngModel)]="filterDate"
+          selectionMode="range"
+          [readonlyInput]="true"
+          placeholder="Seleccionar periodo"
+          styleClass="w-full"
+          (onSelect)="aplicarFiltros()"
+        ></p-calendar>
+      </div>
+      <div class="filter-item">
+        <label>Carrera</label>
+        <p-dropdown
+          [options]="careers"
+          [(ngModel)]="filterCareer"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="w-full"
+          (onChange)="aplicarFiltros()"
+        ></p-dropdown>
+      </div>
+      <div class="filter-item">
+        <label>Zona</label>
+        <p-dropdown
+          [options]="zones"
+          [(ngModel)]="filterZone"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="w-full"
+          (onChange)="aplicarFiltros()"
+        ></p-dropdown>
+      </div>
+    </div>
   </div>
 
   @if (!kpis || loading) {
@@ -34,40 +87,60 @@
       </div>
     </div>
 
-    <!-- Charts row -->
-    <div class="charts-row mt-32">
+    <!-- Charts row principal -->
+    <div class="charts-row mt-24">
 
-      <div class="vtx-card chart-card">
+      <!-- Inserción por carrera -->
+      <div class="vtx-card chart-card main-chart">
         <h3>Inserción laboral por carrera</h3>
-        <p class="caption">Porcentaje de egresados insertados en cada programa educativo</p>
-        <div class="insercion-list">
+        <p class="caption">Porcentaje de egresados insertados por programa educativo</p>
+        <div class="insercion-list mt-16">
           @for (row of insercion; track row.abreviatura) {
             <div class="ins-row">
-              <span class="ins-abbr">{{ row.abreviatura }}</span>
+              <div class="ins-info">
+                <span class="ins-abbr">{{ row.abreviatura }}</span>
+                <span class="ins-nums">{{ row.insertados }} / {{ row.total_egresados }}</span>
+              </div>
               <div class="ins-bar-track">
-                <div class="ins-bar-fill" [style.width]="row.tasa + '%'"></div>
+                <div
+                  class="ins-bar-fill"
+                  [style.width]="row.tasa + '%'"
+                  [class.low]="row.tasa < 50"
+                  [class.med]="row.tasa >= 50 && row.tasa < 75"
+                ></div>
               </div>
               <span class="ins-tasa" [class.high]="row.tasa >= 75">{{ row.tasa }}%</span>
-              <span class="ins-nums">{{ row.insertados }}/{{ row.total_egresados }}</span>
             </div>
           }
         </div>
       </div>
 
+      <!-- Gráficas laterales -->
       <div class="side-charts">
+
+        <!-- Mapa de calor por zona geográfica -->
         <div class="vtx-card chart-card">
-          <h3>Convenios por zona</h3>
-          <p class="caption">Distribución geográfica de empresas con convenio</p>
-          <div class="pie-wrap">
-            <p-chart type="doughnut" [data]="pieChartData" [options]="pieChartOptions" [style]="{width:'100%',maxWidth:'260px'}"></p-chart>
+          <h3>Mapa de calor — Empresas por zona</h3>
+          <p class="caption">Distribución geográfica de empresas con convenio activo en Nayarit</p>
+          <div class="heatmap-wrap-outer">
+            <app-zone-heatmap></app-zone-heatmap>
           </div>
         </div>
 
+        <!-- Ranking de competencias -->
         <div class="vtx-card chart-card">
-          <h3>Competencias más demandadas</h3>
-          <p class="caption">Nivel que solicitan las empresas por dimensión</p>
-          <p-chart type="bar" [data]="barChartData2" [options]="barChartOptions2" [style]="{width:'100%',height:'200px'}"></p-chart>
+          <h3>Ranking de competencias demandadas</h3>
+          <p class="caption">Nivel promedio solicitado por las empresas por dimensión</p>
+          <div class="bar-wrap">
+            <p-chart
+              type="bar"
+              [data]="barChartData2"
+              [options]="barChartOptions2"
+              [style]="{width:'100%',height:'180px'}"
+            ></p-chart>
+          </div>
         </div>
+
       </div>
     </div>
 

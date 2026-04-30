@@ -1,12 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { EmpresaService } from '../../../core/services/empresa.service';
 import { AdminService } from '../../../core/services/admin.service';
@@ -17,7 +20,7 @@ import { SolicitudConvenio, EstatusSolicitud } from '../../../core/models';
   standalone: true,
   imports: [
     CommonModule, FormsModule, ButtonModule, TableModule,
-    DialogModule, TagModule, ToastModule, InputTextModule,
+    DialogModule, TagModule, ToastModule, InputTextModule, TooltipModule,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './solicitudes.component.html',
@@ -54,14 +57,58 @@ export class SolicitudesComponent implements OnInit {
     this.motivoRechazo     = '';
   }
 
-  aprobar() {
+  cambiarEstatus(nuevoEstatus: EstatusSolicitud) {
     if (!this.selectedSolicitud) return;
     this.procesando = true;
-    this.empresaSvc.aprobarSolicitud(this.selectedSolicitud.id).subscribe(() => {
-      this.selectedSolicitud!.estatus = 'aprobada';
-      this.actualizarLista(this.selectedSolicitud!.id, 'aprobada');
+    
+    // Si es rechazar, mostramos el form de motivo primero si no se ha ingresado
+    if (nuevoEstatus === 'rechazada' && !this.showRechazarForm) {
+      this.showRechazarForm = true;
       this.procesando = false;
-      this.msgSvc.add({ severity: 'success', summary: 'Solicitud aprobada', detail: 'Se aprobó el convenio con ' + this.selectedSolicitud!.empresa_nombre });
+      return;
+    }
+
+    const obs = nuevoEstatus === 'aprobada' 
+      ? this.empresaSvc.aprobarSolicitud(this.selectedSolicitud.id)
+      : nuevoEstatus === 'rechazada'
+        ? this.empresaSvc.rechazarSolicitud(this.selectedSolicitud.id, this.motivoRechazo)
+        : of(undefined).pipe(delay(500)); // Simulamos para pendiente/en_proceso
+
+    obs.subscribe(() => {
+      this.selectedSolicitud!.estatus = nuevoEstatus;
+      this.actualizarLista(this.selectedSolicitud!.id, nuevoEstatus);
+      this.procesando = false;
+      this.showRechazarForm = false;
+      this.msgSvc.add({ 
+        severity: this.estatusSeverity(nuevoEstatus), 
+        summary: 'Estatus actualizado', 
+        detail: `La solicitud ahora está ${this.estatusLabel(nuevoEstatus).toLowerCase()}.` 
+      });
+    });
+  }
+
+  aprobar() {
+    this.cambiarEstatus('aprobada');
+  }
+
+  rechazar() {
+    this.cambiarEstatus('rechazada');
+  }
+
+  cambiarEstatusDirecto(s: SolicitudConvenio, nuevoEstatus: EstatusSolicitud) {
+    this.procesando = true;
+    const obs = nuevoEstatus === 'aprobada' 
+      ? this.empresaSvc.aprobarSolicitud(s.id)
+      : of(undefined).pipe(delay(500));
+
+    obs.subscribe(() => {
+      this.actualizarLista(s.id, nuevoEstatus);
+      this.procesando = false;
+      this.msgSvc.add({ 
+        severity: this.estatusSeverity(nuevoEstatus), 
+        summary: 'Estatus actualizado', 
+        detail: `Se actualizó el estatus de ${s.empresa_nombre}.` 
+      });
     });
   }
 
@@ -73,18 +120,6 @@ export class SolicitudesComponent implements OnInit {
       this.procesando   = false;
       this.showDetalle  = false;
       this.showCredDialog = true;
-    });
-  }
-
-  rechazar() {
-    if (!this.selectedSolicitud || !this.motivoRechazo.trim()) return;
-    this.procesando = true;
-    this.empresaSvc.rechazarSolicitud(this.selectedSolicitud.id, this.motivoRechazo).subscribe(() => {
-      this.selectedSolicitud!.estatus = 'rechazada';
-      this.actualizarLista(this.selectedSolicitud!.id, 'rechazada');
-      this.procesando   = false;
-      this.showDetalle  = false;
-      this.msgSvc.add({ severity: 'info', summary: 'Solicitud rechazada', detail: 'Se notificará a la empresa.' });
     });
   }
 
