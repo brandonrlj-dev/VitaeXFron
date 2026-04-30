@@ -191,11 +191,14 @@ export function mapEmpresa(row: any): Empresa {
 }
 
 export function mapSolicitud(row: any): SolicitudConvenio {
-  const estatus = row.estado === 'en_revision'
-    ? 'en_proceso'
-    : row.estado === 'formalizada'
-      ? 'aprobada'
-      : (row.estado ?? 'pendiente');
+  const estadoMap: Record<string, string> = {
+    en_revision: 'en_proceso',
+    formalizada: 'formalizada',
+    aprobada:    'aprobada',
+    rechazada:   'rechazada',
+    pendiente:   'pendiente',
+  };
+  const estatus = estadoMap[row.estado ?? ''] ?? (row.estado ?? 'pendiente');
   return {
     id: id(row.cve_solicitud_convenio ?? row.id),
     empresa_nombre: row.empresa_nombre ?? row.razon_social ?? '',
@@ -206,7 +209,7 @@ export function mapSolicitud(row: any): SolicitudConvenio {
     zona: zonaFrontend(row.zona),
     giro: row.giro ?? row.sector ?? '',
     fecha_solicitud: fecha(row.fecha_solicitud),
-    estatus,
+    estatus: estatus as any,
     motivo: row.motivo ?? row.observacion,
   };
 }

@@ -146,7 +146,13 @@ export class SolicitudesComponent implements OnInit {
   }
 
   estatusSeverity(estatus: string): any {
-    const map: Record<string, string> = { pendiente: 'warning', en_proceso: 'info', aprobada: 'success', rechazada: 'danger' };
+    const map: Record<string, string> = {
+      pendiente:   'warning',
+      en_proceso:  'info',
+      aprobada:    'success',
+      rechazada:   'danger',
+      formalizada: 'success',
+    };
     return map[estatus];
   }
 
@@ -155,7 +161,13 @@ export class SolicitudesComponent implements OnInit {
   }
 
   estatusLabel(estatus: string): string {
-    const map: Record<string, string> = { pendiente: 'Pendiente', en_proceso: 'En proceso', aprobada: 'Aprobada', rechazada: 'Rechazada' };
+    const map: Record<string, string> = {
+      pendiente:   'Pendiente',
+      en_proceso:  'En proceso',
+      aprobada:    'Aprobada',
+      rechazada:   'Rechazada',
+      formalizada: 'Formalizada',
+    };
     return map[estatus] ?? estatus;
   }
 }

@@ -115,7 +115,14 @@
   <ng-template pTemplate="footer">
     @if (selectedSolicitud) {
       <div class="footer-actions">
-        @if (!showRechazarForm) {
+        @if (selectedSolicitud.estatus === 'formalizada') {
+          <div style="text-align:center; padding: 12px 0; color: #059669; font-weight: 600;">
+            <i class="pi pi-check-circle" style="margin-right:6px"></i>
+            Esta solicitud ya fue formalizada como convenio.
+          </div>
+        }
+
+        @if (selectedSolicitud.estatus !== 'formalizada' && !showRechazarForm) {
           <div class="status-manager">
             <span class="status-title">Gestion de Estatus</span>
             <div class="status-options">

@@ -1,6 +1,6 @@
 .heatmap-wrap {
   display: flex;
-  gap: 24px;
+  gap: 16px;
   align-items: flex-start;
 
   @media (max-width: 600px) { flex-direction: column; align-items: center; }
@@ -120,7 +120,10 @@
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover, &.active { background: var(--color-bg); }
+  &:hover, &.active {
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
 }
 
 .legend-swatch {
@@ -151,9 +154,9 @@
 }
 
 .legend-pct {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-primary);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-dark);
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
 }

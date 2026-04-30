@@ -172,7 +172,7 @@ export interface Postulacion {
 }
 
 // ─── Solicitud de Convenio ───────────────────────────────────────────────────
-export type EstatusSolicitud = 'pendiente' | 'en_proceso' | 'aprobada' | 'rechazada';
+export type EstatusSolicitud = 'pendiente' | 'en_proceso' | 'aprobada' | 'rechazada' | 'formalizada';
 
 export interface SolicitudConvenio {
   id:                 string;
