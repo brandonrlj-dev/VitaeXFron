@@ -45,7 +45,7 @@ export class VacanteService {
         acc[String(row.cve_vacante)] = Number(row.porcentaje_coincidencia ?? 0);
         return acc;
       }, {} as Record<string, number>)),
-      catchError(() => of({}))
+      catchError(error => toApiError(error, 'No se pudo cargar la coincidencia de vacantes'))
     );
   }
 

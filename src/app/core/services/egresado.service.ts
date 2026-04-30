@@ -15,12 +15,7 @@ export class EgresadoService {
   getEgresadoActual(): Observable<Egresado> {
     const id = this.currentEgresadoId();
     if (!id) {
-      return this.getEgresados().pipe(
-        map(items => {
-          if (!items.length) throw new Error('No hay egresados registrados');
-          return items[0];
-        })
-      );
+      return throwError(() => new Error('No se pudo identificar el egresado actual en la sesión'));
     }
 
     return forkJoin({

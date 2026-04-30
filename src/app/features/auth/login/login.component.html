@@ -113,21 +113,6 @@
         ></button>
       </form>
 
-      <div class="convenio-callout">
-          <div>
-            <p class="convenio-title">¿Tu empresa aún no tiene convenio?</p>
-            <p class="convenio-copy">Solicita el alta para que la UTC revise tus datos y active el acceso empresarial.</p>
-          </div>
-          <button
-            pButton
-            type="button"
-            label="Solicitar convenio"
-            icon="pi pi-file-edit"
-            class="p-button-outlined p-button-sm"
-            (click)="abrirSolicitudConvenio()"
-          ></button>
-      </div>
-
     </div>
   </div>
 
@@ -142,7 +127,7 @@
 >
   <form [formGroup]="solicitudForm" class="solicitud-form">
     <div class="field">
-      <label>Empresa *</label>
+      <label>Nombre de la empresa *</label>
       <input pInputText formControlName="empresa_nombre" placeholder="Razón social de la empresa" class="w-full" />
       @if (solicitudForm.get('empresa_nombre')?.invalid && solicitudForm.get('empresa_nombre')?.touched) {
         <span class="field-error">La empresa es requerida</span>
@@ -169,12 +154,38 @@
       </div>
     </div>
 
-    <div class="field">
-      <label>Giro empresarial *</label>
-      <input pInputText formControlName="giro" placeholder="Tecnología, manufactura, servicios..." class="w-full" />
-      @if (solicitudForm.get('giro')?.invalid && solicitudForm.get('giro')?.touched) {
-        <span class="field-error">El giro es requerido</span>
-      }
+    <div class="form-row">
+      <div class="field">
+        <label>Giro *</label>
+        <input pInputText formControlName="giro" placeholder="Tecnología, manufactura, servicios..." class="w-full" />
+        @if (solicitudForm.get('giro')?.invalid && solicitudForm.get('giro')?.touched) {
+          <span class="field-error">El giro es requerido</span>
+        }
+      </div>
+      <div class="field">
+        <label>Sector *</label>
+        <input pInputText formControlName="sector" placeholder="Privado, público, social..." class="w-full" />
+        @if (solicitudForm.get('sector')?.invalid && solicitudForm.get('sector')?.touched) {
+          <span class="field-error">El sector es requerido</span>
+        }
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <label>Municipio *</label>
+        <input pInputText formControlName="municipio" placeholder="Tepic" class="w-full" />
+        @if (solicitudForm.get('municipio')?.invalid && solicitudForm.get('municipio')?.touched) {
+          <span class="field-error">El municipio es requerido</span>
+        }
+      </div>
+      <div class="field">
+        <label>Estado *</label>
+        <input pInputText formControlName="estado" placeholder="Nayarit" class="w-full" />
+        @if (solicitudForm.get('estado')?.invalid && solicitudForm.get('estado')?.touched) {
+          <span class="field-error">El estado es requerido</span>
+        }
+      </div>
     </div>
 
     <div class="form-row">
@@ -200,6 +211,17 @@
       @if (solicitudForm.get('contacto_email')?.invalid && solicitudForm.get('contacto_email')?.touched) {
         <span class="field-error">Ingresa un correo válido</span>
       }
+    </div>
+
+    <div class="field">
+      <label>Mensaje opcional</label>
+      <textarea
+        pInputText
+        formControlName="mensaje"
+        rows="4"
+        placeholder="Cuéntanos brevemente por qué solicitan el convenio..."
+        class="w-full solicitud-textarea"
+      ></textarea>
     </div>
   </form>
 

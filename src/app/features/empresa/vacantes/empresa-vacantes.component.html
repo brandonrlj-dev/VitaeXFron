@@ -17,13 +17,11 @@
       <p-table [value]="vacantes" styleClass="p-datatable-sm" [rows]="10" [paginator]="vacantes.length > 10">
         <ng-template pTemplate="header">
           <tr>
-            <th>Puesto</th>
+            <th>Título</th>
             <th>Área</th>
             <th>Ubicación</th>
-            <th>Modalidad</th>
-            <th>Perfil ideal</th>
+            <th>Postulaciones</th>
             <th>Estatus</th>
-            <th>Publicado</th>
             <th>Acciones</th>
           </tr>
         </ng-template>
@@ -40,23 +38,11 @@
                 <i class="pi pi-map-marker"></i> {{ v.ubicacion }}
               </span>
             </td>
-            <td>
-              <span class="caption">{{ v.modalidad | titlecase }}</span>
-            </td>
-            <td>
-              <div class="dims-cell">
-                @for (dim of DIMS; track dim) {
-                  <app-dimension-pill [dimension]="dim" [score]="v.perfil_ideal[dim]"></app-dimension-pill>
-                }
-              </div>
-            </td>
+            <td><span class="caption">{{ v.postulaciones_count ?? 0 }}</span></td>
             <td>
               <span [class]="v.activa ? 'badge-activo' : 'badge-inactivo'">
                 {{ v.activa ? 'Activa' : 'Inactiva' }}
               </span>
-            </td>
-            <td>
-              <span class="caption">{{ v.fecha_publicacion }}</span>
             </td>
             <td>
               <div class="actions-cell">
@@ -64,7 +50,7 @@
                   pButton
                   type="button"
                   icon="pi pi-pencil"
-                  class="p-button-text p-button-sm"
+                  class="p-button-text p-button-sm p-button-icon-only"
                   title="Editar vacante"
                   (click)="abrirEdicion(v)"
                 ></button>
@@ -73,7 +59,7 @@
                     pButton
                     type="button"
                     icon="pi pi-ban"
-                    class="p-button-text p-button-danger p-button-sm"
+                    class="p-button-text p-button-danger p-button-sm p-button-icon-only"
                     title="Dar de baja"
                     (click)="darBajaVacante(v)"
                   ></button>
@@ -82,7 +68,7 @@
                     pButton
                     type="button"
                     icon="pi pi-refresh"
-                    class="p-button-text p-button-sm"
+                    class="p-button-text p-button-sm p-button-icon-only"
                     title="Reactivar"
                     (click)="reactivarVacante(v)"
                   ></button>
@@ -93,7 +79,7 @@
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="8" class="empty-row">No tienes vacantes publicadas aún.</td>
+            <td colspan="6" class="empty-row">No tienes vacantes publicadas aún.</td>
           </tr>
         </ng-template>
       </p-table>
@@ -113,12 +99,18 @@
   <form [formGroup]="form" class="vacante-form">
     <div class="form-row">
       <div class="field">
-        <label>Puesto *</label>
+        <label>Título *</label>
         <input pInputText formControlName="puesto" placeholder="ej. Desarrollador Full Stack" class="w-full" />
+        @if (campoInvalido('puesto')) {
+          <span class="field-error">{{ mensajeCampo('puesto') }}</span>
+        }
       </div>
       <div class="field">
         <label>Área *</label>
         <input pInputText formControlName="area" placeholder="ej. Tecnologías de la Información" class="w-full" />
+        @if (campoInvalido('area')) {
+          <span class="field-error">{{ mensajeCampo('area') }}</span>
+        }
       </div>
     </div>
 
@@ -129,15 +121,20 @@
         formControlName="descripcion"
         rows="3"
         placeholder="Describe las responsabilidades y requisitos del puesto..."
-        class="w-full"
-        style="resize:vertical; min-height:80px; border-radius:8px; border:1.5px solid var(--color-border); padding:10px 12px; font-family:inherit; font-size:14px;"
+        class="w-full form-textarea"
       ></textarea>
+      @if (campoInvalido('descripcion')) {
+        <span class="field-error">{{ mensajeCampo('descripcion') }}</span>
+      }
     </div>
 
     <div class="form-row">
       <div class="field">
         <label>Ubicación *</label>
         <input pInputText formControlName="ubicacion" placeholder="ej. Tepic, Nayarit" class="w-full" />
+        @if (campoInvalido('ubicacion')) {
+          <span class="field-error">{{ mensajeCampo('ubicacion') }}</span>
+        }
       </div>
       <div class="field">
         <label>Modalidad *</label>
@@ -148,18 +145,38 @@
           optionValue="value"
           styleClass="w-full"
         ></p-dropdown>
+        @if (campoInvalido('modalidad')) {
+          <span class="field-error">{{ mensajeCampo('modalidad') }}</span>
+        }
       </div>
     </div>
 
-    <div class="field">
-      <label>Rango salarial (opcional)</label>
-      <input pInputText formControlName="salario_rango" placeholder="ej. $12,000 – $16,000 MXN" class="w-full" />
+    <div class="form-row">
+      <div class="field">
+        <label>Salario *</label>
+        <input pInputText formControlName="salario_rango" placeholder="ej. $12,000 - $16,000 MXN" class="w-full" />
+        @if (campoInvalido('salario_rango')) {
+          <span class="field-error">{{ mensajeCampo('salario_rango') }}</span>
+        }
+      </div>
+      <div class="field">
+        <label>Fecha de cierre *</label>
+        <input pInputText type="date" formControlName="fecha_cierre" class="w-full" />
+        @if (campoInvalido('fecha_cierre')) {
+          <span class="field-error">{{ mensajeCampo('fecha_cierre') }}</span>
+        }
+      </div>
     </div>
 
-    <!-- Perfil ideal por dimensión -->
+    <!-- Perfil idóneo por dimensión -->
     <div class="perfil-ideal-section">
-      <p class="section-label">Perfil Ideal — Puntaje mínimo por dimensión</p>
-      <p class="caption" style="margin-bottom: 16px">Define el nivel mínimo esperado en cada dimensión. El sistema calculará la coincidencia con los egresados.</p>
+      <div class="perfil-header">
+        <div>
+          <p class="section-label">Perfil Idóneo</p>
+          <p class="caption">Define el peso de cada dimensión. La suma debe ser 100%.</p>
+        </div>
+        <span [class]="perfilValido ? 'badge-activo' : 'badge-pendiente'">Total {{ perfilTotal }}%</span>
+      </div>
 
       @for (dim of DIMS; track dim) {
         <div class="slider-row">
@@ -168,6 +185,38 @@
             <p-slider [(ngModel)]="perfilIdeal[dim]" [ngModelOptions]="{standalone:true}" [min]="0" [max]="100" [step]="5"></p-slider>
           </div>
           <span class="slider-val">{{ perfilIdeal[dim] }}%</span>
+        </div>
+      }
+      @if (!perfilValido) {
+        <span class="field-error">Los pesos del perfil idóneo deben sumar exactamente 100%.</span>
+      }
+    </div>
+
+    <div class="preguntas-section">
+      <div>
+        <p class="section-label">Preguntas técnicas personalizadas</p>
+        <p class="caption">Agrega preguntas que el egresado deberá responder para esta vacante.</p>
+      </div>
+
+      <div class="pregunta-input">
+        <input
+          pInputText
+          [(ngModel)]="nuevaPreguntaTecnica"
+          [ngModelOptions]="{standalone:true}"
+          placeholder="ej. ¿Cómo optimizarías una consulta lenta?"
+          class="w-full"
+        />
+        <button pButton type="button" label="Agregar" icon="pi pi-plus" class="p-button-outlined" (click)="agregarPreguntaTecnica()"></button>
+      </div>
+
+      @if (preguntasTecnicas.length > 0) {
+        <div class="preguntas-list">
+          @for (pregunta of preguntasTecnicas; track $index) {
+            <div class="pregunta-item">
+              <span>{{ pregunta }}</span>
+              <button pButton type="button" icon="pi pi-times" class="p-button-text p-button-sm p-button-danger p-button-icon-only" title="Eliminar pregunta" (click)="eliminarPreguntaTecnica($index)"></button>
+            </div>
+          }
         </div>
       }
     </div>
@@ -182,5 +231,22 @@
       [loading]="saving"
       (click)="guardarVacante()"
     ></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="showBajaDialog"
+  [modal]="true"
+  header="Dar de baja vacante"
+  [style]="{ width: '420px', maxWidth: '95vw' }"
+>
+  <div class="baja-dialog">
+    <i class="pi pi-exclamation-triangle"></i>
+    <p>¿Deseas dar de baja la vacante "{{ vacantePendienteBaja?.puesto }}"?</p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancelar" class="p-button-outlined" (click)="showBajaDialog=false"></button>
+    <button pButton type="button" label="Dar de baja" icon="pi pi-ban" class="p-button-danger" (click)="confirmarBajaVacante()"></button>
   </ng-template>
 </p-dialog>

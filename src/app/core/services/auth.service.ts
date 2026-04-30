@@ -26,8 +26,8 @@ export class AuthService {
 
   login(usuario: string, contrasena: string): Observable<{ token: string }> {
     return this.http.post<ApiEnvelope<{ token: string; user: SiestTokenPayload }>>(
-      `${environment.apiUrl}/auth/login`,
-      { usuario, contrasena }
+      `${environment.apiUrl}/siest/login`,
+      { usuario, correo: usuario, contrasena }
     ).pipe(
       map(response => unwrapData(response)),
       tap(response => this.saveSession(response.token, response.user)),
@@ -103,6 +103,10 @@ export class AuthService {
   }
 
   private roleFromRaw(payload: SiestTokenPayload | null): RolUsuario {
+    const cveRol = String(payload?.cve_rol ?? payload?.perfil_id ?? '');
+    if (cveRol === '41') return 'empresa';
+    if (['22', '1'].includes(cveRol)) return 'admin';
+
     const rawRoles = payload?.roles_originales ?? payload?.roles ?? [];
     const roleIds = rawRoles.map(role => String(role.id));
     if (roleIds.includes('22') || roleIds.includes('1')) return 'admin';

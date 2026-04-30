@@ -8,46 +8,20 @@
 }
 
 .empresa-logo {
-  width: 64px;
-  height: 64px;
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(3, 131, 123, 0.25);
   background: var(--color-primary-light);
   color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  font-weight: 700;
-  overflow: hidden;
-  position: relative;
   flex-shrink: 0;
-  cursor: pointer;
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  i {
+    font-size: 42px;
   }
-
-  &:hover .empresa-logo-overlay { opacity: 1; }
-}
-
-.empresa-logo-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(3, 61, 60, 0.55);
-  color: #fff;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.logo-upload-btn {
-  padding-left: 0;
-  margin-top: 4px;
 }
 
 .header-actions,
@@ -70,7 +44,7 @@
 
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-bottom: 0;
 
@@ -104,12 +78,12 @@
 
 .candidato-card {
   display: grid;
-  grid-template-columns: 260px 180px 1fr auto;
+  grid-template-columns: minmax(200px, 280px) 190px 1fr auto;
   gap: 20px;
   align-items: center;
 
-  @media (max-width: 1100px) { grid-template-columns: 1fr 180px; }
-  @media (max-width: 700px)  { grid-template-columns: 1fr; }
+  @media (max-width: 1200px) { grid-template-columns: minmax(180px, 240px) 180px 1fr; }
+  @media (max-width: 900px)  { grid-template-columns: 1fr; }
 }
 
 .candidato-main {
@@ -134,12 +108,25 @@
 }
 
 .candidato-info {
-  h3 { font-size: 0.9375rem; margin-bottom: 3px; }
+  min-width: 0;       // allow text to shrink inside grid
+  overflow: hidden;
+
+  h3 {
+    font-size: 0.9375rem;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .caption {
     display: flex;
     align-items: center;
     gap: 4px;
-    i { font-size: 11px; }
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    i { font-size: 11px; flex-shrink: 0; }
   }
 }
 
@@ -191,7 +178,7 @@
 
 .analytics-row {
   display: grid;
-  grid-template-columns: minmax(240px, 1fr) repeat(5, minmax(86px, 0.4fr));
+  grid-template-columns: minmax(220px, 1fr) repeat(6, minmax(82px, 0.4fr));
   gap: 12px;
   align-items: center;
   padding: 12px 14px;
@@ -229,7 +216,7 @@
 
 .laborando-card {
   display: grid;
-  grid-template-columns: 1.3fr 1fr 0.6fr 1fr;
+  grid-template-columns: 1.3fr 1fr 0.6fr 1fr auto;
   gap: 18px;
   align-items: center;
 
@@ -276,6 +263,10 @@
   gap: 14px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--color-border);
+
+  &.compact {
+    padding-bottom: 12px;
+  }
 }
 
 .dp-avatar {
@@ -316,4 +307,28 @@
   width: fit-content;
 
   &:hover { background: var(--color-primary-medium); }
+}
+
+.desempeno-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+}
+
+.comentario-textarea {
+  resize: vertical;
+  min-height: 110px;
+  line-height: 1.5;
 }
