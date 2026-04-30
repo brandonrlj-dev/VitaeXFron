@@ -48,6 +48,14 @@ export class EmpresaVacantesComponent implements OnInit {
     { label: 'Híbrido',    value: 'hibrido' },
   ];
 
+  private readonly camposRequeridos: Record<string, string> = {
+    puesto: 'puesto',
+    area: 'área',
+    descripcion: 'descripción',
+    ubicacion: 'ubicación',
+    modalidad: 'modalidad',
+  };
+
   private empresaSvc = inject(EmpresaService);
   private fb         = inject(FormBuilder);
   private msgSvc     = inject(MessageService);
@@ -65,10 +73,10 @@ export class EmpresaVacantesComponent implements OnInit {
 
   buildForm() {
     this.form = this.fb.group({
-      puesto:      ['', Validators.required],
-      descripcion: ['', Validators.required],
-      area:        ['', Validators.required],
-      ubicacion:   ['', Validators.required],
+      puesto:      ['', [Validators.required, Validators.pattern(/\S/)]],
+      descripcion: ['', [Validators.required, Validators.pattern(/\S/)]],
+      area:        ['', [Validators.required, Validators.pattern(/\S/)]],
+      ubicacion:   ['', [Validators.required, Validators.pattern(/\S/)]],
       modalidad:   ['presencial', Validators.required],
       salario_rango: [''],
     });
@@ -102,7 +110,21 @@ export class EmpresaVacantesComponent implements OnInit {
   }
 
   guardarVacante() {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    this.form.patchValue(this.normalizarValoresTexto());
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      const primerCampo = this.primerCampoInvalido();
+      this.msgSvc.add({
+        severity: 'warn',
+        summary: 'Faltan datos de la vacante',
+        detail: primerCampo
+          ? `Falta llenar el campo ${this.camposRequeridos[primerCampo]}.`
+          : 'Revisa los campos marcados antes de continuar.',
+      });
+      return;
+    }
+
     this.saving = true;
 
     const payload: Partial<Vacante> = {
@@ -153,5 +175,28 @@ export class EmpresaVacantesComponent implements OnInit {
       this.vacantes = this.vacantes.map(item => item.id === v.id ? v : item);
       this.msgSvc.add({ severity: 'success', summary: 'Vacante reactivada', detail: `"${v.puesto}" vuelve a estar activa.` });
     });
+  }
+
+  campoInvalido(campo: string): boolean {
+    const control = this.form.get(campo);
+    return !!control && control.invalid && (control.touched || control.dirty);
+  }
+
+  mensajeCampo(campo: string): string {
+    return `Falta llenar ${this.camposRequeridos[campo] ?? 'este campo'}.`;
+  }
+
+  private primerCampoInvalido(): string | undefined {
+    return Object.keys(this.camposRequeridos).find(campo => this.form.get(campo)?.invalid);
+  }
+
+  private normalizarValoresTexto() {
+    return {
+      puesto: this.form.value.puesto?.trim() ?? '',
+      descripcion: this.form.value.descripcion?.trim() ?? '',
+      area: this.form.value.area?.trim() ?? '',
+      ubicacion: this.form.value.ubicacion?.trim() ?? '',
+      salario_rango: this.form.value.salario_rango?.trim() ?? '',
+    };
   }
 }
