@@ -1,0 +1,109 @@
+<p-toast></p-toast>
+
+<div class="page-container animate-fade-slide">
+  
+  <div class="back-nav">
+    <a routerLink="/egresado/vacantes" class="back-link">
+      <i class="pi pi-arrow-left"></i> Volver a vacantes
+    </a>
+  </div>
+
+  @if (loading) {
+    <div class="sk-detail">
+      <div class="sk sk-header"></div>
+      <div class="sk sk-body"></div>
+    </div>
+  } @else if (vacante) {
+    
+    <div class="detalle-grid">
+      
+      <!-- Columna Principal -->
+      <div class="main-column">
+        
+        <div class="vtx-card header-card">
+          <div class="company-logo">
+            @if (vacante.empresa_logo) {
+              <img [src]="vacante.empresa_logo" [alt]="vacante.empresa">
+            } @else {
+              <div class="logo-placeholder">{{ vacante.fuente[0] }}</div>
+            }
+          </div>
+          <div class="vac-titles">
+            <h1>{{ vacante.puesto }}</h1>
+            <p class="empresa-name">{{ vacante.empresa }}</p>
+            <div class="meta-row">
+              <span><i class="pi pi-map-marker"></i> {{ vacante.ubicacion }}</span>
+              <span><i class="pi pi-calendar"></i> Publicada el {{ vacante.fecha_publicacion }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="vtx-card description-card">
+          <h3>Descripción del puesto</h3>
+          <div class="description-content">
+            {{ vacante.descripcion }}
+          </div>
+        </div>
+
+        <div class="vtx-card source-card">
+          <div class="source-info">
+            <i class="pi pi-info-circle"></i>
+            <div>
+              <h4>Vacante de Red Nacional</h4>
+              <p>Esta vacante proviene de una fuente externa (<strong>{{ vacante.fuente }}</strong>). Al postularte, serás redirigido a su portal oficial.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Barra Lateral -->
+      <div class="side-column">
+        
+        <div class="vtx-card action-card">
+          <h3>Postulación</h3>
+          
+          <div class="salario-box" *ngIf="vacante.salario">
+            <span class="label">Sueldo ofrecido</span>
+            <span class="value">{{ vacante.salario }}</span>
+          </div>
+
+          <p class="notice">
+            La Universidad Tecnológica de la Costa registrará tu interés en esta vacante para fines de seguimiento y posibles convenios.
+          </p>
+
+          <button 
+            pButton 
+            (click)="postular()" 
+            [label]="postulado ? 'Ir de nuevo a la fuente' : 'Postularme en fuente externa'"
+            [icon]="postulado ? 'pi pi-external-link' : 'pi pi-send'"
+            class="w-full p-button-lg"
+            [disabled]="(egresado?.evaluaciones_completadas?.length ?? 0) < 4"
+          ></button>
+
+          @if (egresado && egresado.evaluaciones_completadas.length < 4) {
+            <div class="notice-warn">
+              <i class="pi pi-info-circle"></i>
+              <span>Completa tus 4 evaluaciones para postularte</span>
+            </div>
+          }
+
+          <div class="postulado-badge" *ngIf="postulado">
+            <i class="pi pi-check-circle"></i>
+            Postulación registrada en el sistema UT
+          </div>
+        </div>
+
+        <div class="vtx-card help-card">
+          <h4>¿Necesitas ayuda?</h4>
+          <p>Si tienes problemas con la postulación externa, contacta a Vinculación.</p>
+          <button pButton label="Contactar Vinculación" icon="pi pi-envelope" class="p-button-text p-button-sm w-full"></button>
+        </div>
+
+      </div>
+
+    </div>
+
+  }
+
+</div>

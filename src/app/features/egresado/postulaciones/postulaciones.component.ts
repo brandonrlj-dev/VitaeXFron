@@ -31,6 +31,7 @@ export class PostulacionesComponent implements OnInit {
       en_revision: 'info',
       entrevista:  'warning',
       aceptada:    'success',
+      contratado:  'success',
       rechazada:   'danger',
     };
     return map[estatus];
@@ -42,6 +43,7 @@ export class PostulacionesComponent implements OnInit {
       en_revision: 'En revisión',
       entrevista:  'Entrevista',
       aceptada:    'Aceptada',
+      contratado:  'Contratado',
       rechazada:   'Rechazada',
     };
     return map[estatus] ?? estatus;

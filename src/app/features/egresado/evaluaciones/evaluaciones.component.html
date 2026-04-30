@@ -4,23 +4,50 @@
     <div class="page-header">
       <div>
         <h1>Centro de Evaluaciones</h1>
-        <p class="caption">Selecciona la batería de evaluación que deseas completar. El orden recomendado es el que se muestra.</p>
+        <div class="header-flex">
+          <p class="caption">Selecciona la batería de evaluación que deseas completar. El orden recomendado es el que se muestra.</p>
+          <!-- <button 
+            pButton 
+            type="button" 
+            label="Reiniciar Pruebas (Test)" 
+            icon="pi pi-refresh" 
+            class="p-button-danger p-button-text p-button-sm"
+            (click)="resetPruebas()"
+          ></button> -->
+        </div>
       </div>
     </div>
 
     <div class="dim-selection-grid">
       @for (dim of DIMS; track dim) {
         <div
-          class="dim-select-card vtx-card clickable"
+          class="dim-select-card vtx-card"
+          [class.clickable]="!isCompletada(dim)"
+          [class.completed]="isCompletada(dim)"
           [style.--dim-color]="DIMENSION_CONFIG[dim].color"
           (click)="iniciarDimension(dim)"
         >
           <div class="dim-sel-icon" [style.background]="DIMENSION_CONFIG[dim].color + '15'">
             <i [class]="DIMENSION_CONFIG[dim].icon" [style.color]="DIMENSION_CONFIG[dim].color"></i>
           </div>
+
+          @if (isCompletada(dim)) {
+            <div class="completed-badge">
+              <i class="pi pi-check"></i> Completada
+            </div>
+          }
+
           <h3>{{ DIMENSION_CONFIG[dim].label }}</h3>
           <p class="caption">{{ DIMENSION_CONFIG[dim].description }}</p>
-          <p class="question-count"><i class="pi pi-list"></i> 5 preguntas</p>
+
+          <div class="card-footer">
+            <p class="question-count"><i class="pi pi-list"></i> 5 preguntas</p>
+            @if (isCompletada(dim)) {
+              <div class="score-pct" [style.color]="DIMENSION_CONFIG[dim].color">
+                <strong>{{ getPuntaje(dim) }}%</strong>
+              </div>
+            }
+          </div>
         </div>
       }
     </div>
@@ -33,9 +60,18 @@
 
     <!-- Top bar -->
     <div class="focus-topbar">
-      <div class="focus-dim-badge" [style.background]="config?.color + '20'" [style.color]="config?.color">
-        <i [class]="config?.icon"></i>
-        <span>{{ config?.label }}</span>
+      <div class="focus-topbar-left">
+        <button 
+          pButton 
+          type="button" 
+          icon="pi pi-arrow-left" 
+          class="p-button-rounded p-button-text p-button-plain back-focus-btn"
+          (click)="cancelarPrueba()"
+        ></button>
+        <div class="focus-dim-badge" [style.background]="config?.color + '20'" [style.color]="config?.color">
+          <i [class]="config?.icon"></i>
+          <span>{{ config?.label }}</span>
+        </div>
       </div>
       <div class="focus-progress-wrap">
         <p-progressBar [value]="progreso" [showValue]="false"></p-progressBar>

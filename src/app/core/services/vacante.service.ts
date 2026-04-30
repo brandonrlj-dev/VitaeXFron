@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
-import { Vacante, DimensionScores } from '../models';
+import { Vacante, VacanteNacional, DimensionScores } from '../models';
 import { VACANTES_MOCK } from '../../shared/mocks/vacantes.mock';
+import { VACANTES_NACIONALES_MOCK } from '../../shared/mocks/vacantes-nacionales.mock';
 import { POSTULACIONES_MOCK } from '../../shared/mocks/egresados.mock';
 import { environment } from '../../../environments/environment.development';
 
@@ -23,6 +24,21 @@ export class VacanteService {
       return of(VACANTES_MOCK.find(v => v.id === id)).pipe(delay(200));
     }
     return this.http.get<Vacante>(`${environment.apiUrl}/vacantes/${id}`);
+  }
+
+  getVacantesNacionales(): Observable<VacanteNacional[]> {
+    if (environment.useMocks) {
+      return of(VACANTES_NACIONALES_MOCK).pipe(delay(400));
+    }
+    // Aquí se llamaría a la API externa o a un endpoint de tu backend que la consuma
+    return this.http.get<VacanteNacional[]>(`${environment.apiUrl}/vacantes-nacionales`);
+  }
+
+  getVacanteNacionalById(id: string): Observable<VacanteNacional | undefined> {
+    if (environment.useMocks) {
+      return of(VACANTES_NACIONALES_MOCK.find(v => v.id === id)).pipe(delay(200));
+    }
+    return this.http.get<VacanteNacional>(`${environment.apiUrl}/vacantes-nacionales/${id}`);
   }
 
   calcularCoincidencia(egresadoScores: DimensionScores, perfilIdeal: DimensionScores): number {

@@ -4,29 +4,42 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { EgresadoService } from '../../../core/services/egresado.service';
 import { ProfilePhotoService } from '../../../core/services/profile-photo.service';
-import { Egresado, egresadoNombreCompleto } from '../../../core/models';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { DialogModule } from 'primeng/dialog';
+import { Egresado, Educacion, egresadoNombreCompleto } from '../../../core/models';
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, ToastModule],
+  imports: [
+    CommonModule, FormsModule, ButtonModule, InputTextModule, 
+    ToastModule, TooltipModule, DialogModule, InputTextareaModule
+  ],
   providers: [MessageService],
   templateUrl: './perfil.component.html',
   styleUrls: ['./perfil.component.scss'],
 })
 export class PerfilComponent implements OnInit {
   @ViewChild('fotoInput') fotoInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('certInput') certInput!: ElementRef<HTMLInputElement>;
 
   egresado?: Egresado;
   loading     = true;
   cvUrl       = '';
   savingCv    = false;
+  savingCertificado = false;
   uploadingFoto = false;
   fotoError   = '';
   dragOver    = false;
+
+  // Modal Trayectoria
+  displayTrayectoriaModal = false;
+  editEducacion: Educacion = { institucion: '', grado: '', periodo: '', descripcion: '' };
+  editIndex = -1;
 
   private svc          = inject(EgresadoService);
   private photoService = inject(ProfilePhotoService);
@@ -99,5 +112,82 @@ export class PerfilComponent implements OnInit {
       this.savingCv = false;
       this.msgSvc.add({ severity: 'success', summary: 'CV actualizado', detail: 'Tu CV ha sido guardado correctamente.' });
     });
+  }
+
+  // ─── Certificados ─────────────────────────────────────────────────────────
+  triggerCertificadoUpload() { this.certInput.nativeElement.click(); }
+
+  async onCertificadoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file  = input.files?.[0];
+    if (!file) return;
+
+    if (this.egresado && this.egresado.certificados.length >= 5) {
+      this.msgSvc.add({ severity: 'warn', summary: 'Límite alcanzado', detail: 'Solo puedes subir un máximo de 5 documentos.' });
+      input.value = '';
+      return;
+    }
+
+    this.savingCertificado = true;
+    this.svc.subirCertificado(this.egresado!.id, file).subscribe({
+      next: (res: any) => {
+        this.savingCertificado = false;
+        if (this.egresado) {
+          this.egresado.certificados.push({
+            nombre: file.name,
+            url: res.url || 'mock_url.pdf'
+          });
+        }
+        this.msgSvc.add({ severity: 'success', summary: 'Documento añadido', detail: 'El archivo se ha cargado correctamente.' });
+      },
+      error: () => {
+        this.savingCertificado = false;
+        this.msgSvc.add({ severity: 'error', summary: 'Error', detail: 'No se pudo subir el archivo.' });
+      }
+    });
+    input.value = '';
+  }
+
+  eliminarCertificado(index: number) {
+    const cert = this.egresado!.certificados[index];
+    this.svc.eliminarCertificado(this.egresado!.id, cert.url).subscribe(() => {
+      this.egresado!.certificados.splice(index, 1);
+      this.msgSvc.add({ severity: 'info', summary: 'Documento eliminado', detail: 'El archivo ha sido removido.' });
+    });
+  }
+
+  // ─── Trayectoria ───────────────────────────────────────────────────────────
+  abrirModalTrayectoria(entry?: Educacion, index: number = -1) {
+    if (entry) {
+      this.editEducacion = { ...entry };
+      this.editIndex = index;
+    } else {
+      this.editEducacion = { institucion: '', grado: '', periodo: '', descripcion: '' };
+      this.editIndex = -1;
+    }
+    this.displayTrayectoriaModal = true;
+  }
+
+  guardarTrayectoria() {
+    if (!this.egresado) return;
+    if (!this.editEducacion.institucion || !this.editEducacion.grado) {
+      this.msgSvc.add({ severity: 'warn', summary: 'Campos incompletos', detail: 'La institución y el grado son obligatorios.' });
+      return;
+    }
+
+    if (this.editIndex > -1) {
+      this.egresado.trayectoria[this.editIndex] = { ...this.editEducacion };
+    } else {
+      this.egresado.trayectoria.push({ ...this.editEducacion });
+    }
+    this.displayTrayectoriaModal = false;
+    this.msgSvc.add({ severity: 'success', summary: 'Actualizado', detail: 'Tu trayectoria académica ha sido actualizada.' });
+  }
+
+  eliminarTrayectoria(index: number) {
+    if (confirm('¿Estás seguro de eliminar este registro académico?')) {
+      this.egresado?.trayectoria.splice(index, 1);
+      this.msgSvc.add({ severity: 'info', summary: 'Eliminado', detail: 'Registro eliminado correctamente.' });
+    }
   }
 }

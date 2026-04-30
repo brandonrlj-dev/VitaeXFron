@@ -16,7 +16,11 @@ export const EGRESADOS_MOCK: Egresado[] = [
     scores: { psicometrica: 78, cognitiva: 85, tecnica: 91, proyectiva: 67 },
     evaluaciones_completadas: ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'],
     cv_url: 'https://drive.google.com/file/d/mock1',
+    certificados: [],
     datos_confirmados: true,
+    trayectoria: [
+      { institucion: 'Universidad Tecnológica de la Costa', grado: 'Ingeniería en Tecnologías de la Información', periodo: '2021 - 2023', descripcion: 'Formación en desarrollo web y gestión de bases de datos.' }
+    ]
   },
   {
     id: '2',
@@ -32,7 +36,11 @@ export const EGRESADOS_MOCK: Egresado[] = [
     telefono: '311-987-6543',
     scores: { psicometrica: 88, cognitiva: 74, tecnica: 69, proyectiva: 92 },
     evaluaciones_completadas: ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'],
+    certificados: [],
     datos_confirmados: true,
+    trayectoria: [
+      { institucion: 'Universidad Tecnológica de la Costa', grado: 'Ingeniería en Gestión Empresarial', periodo: '2021 - 2023' }
+    ]
   },
   {
     id: '3',
@@ -47,7 +55,11 @@ export const EGRESADOS_MOCK: Egresado[] = [
     email: 'javier.torres@utdelacosta.edu.mx',
     scores: { psicometrica: 71, cognitiva: 80, tecnica: 88, proyectiva: 63 },
     evaluaciones_completadas: ['psicometrica', 'cognitiva', 'tecnica'],
+    certificados: [],
     datos_confirmados: true,
+    trayectoria: [
+      { institucion: 'Universidad Tecnológica de la Costa', grado: 'Ingeniería en Mantenimiento Industrial', periodo: '2022 - 2024' }
+    ]
   },
   {
     id: '4',
@@ -63,7 +75,11 @@ export const EGRESADOS_MOCK: Egresado[] = [
     scores: { psicometrica: 83, cognitiva: 77, tecnica: 72, proyectiva: 89 },
     evaluaciones_completadas: ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'],
     cv_url: 'https://drive.google.com/file/d/mock4',
+    certificados: [],
     datos_confirmados: true,
+    trayectoria: [
+      { institucion: 'Universidad Tecnológica de la Costa', grado: 'Ingeniería en Logística y Transporte', periodo: '2022 - 2024' }
+    ]
   },
   {
     id: '5',
@@ -78,7 +94,11 @@ export const EGRESADOS_MOCK: Egresado[] = [
     email: 'luis.morales@utdelacosta.edu.mx',
     scores: { psicometrica: 65, cognitiva: 90, tecnica: 95, proyectiva: 58 },
     evaluaciones_completadas: ['psicometrica', 'cognitiva'],
+    certificados: [],
     datos_confirmados: false,
+    trayectoria: [
+      { institucion: 'Universidad Tecnológica de la Costa', grado: 'Ingeniería en Tecnologías de la Información', periodo: '2023 - 2024' }
+    ]
   },
   {
     id: '6',
@@ -93,7 +113,11 @@ export const EGRESADOS_MOCK: Egresado[] = [
     email: 'ana.reyes@utdelacosta.edu.mx',
     scores: { psicometrica: 76, cognitiva: 68, tecnica: 82, proyectiva: 74 },
     evaluaciones_completadas: ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'],
+    certificados: [],
     datos_confirmados: true,
+    trayectoria: [
+      { institucion: 'Universidad Tecnológica de la Costa', grado: 'Tecnología en Mecatrónica', periodo: '2022 - 2024' }
+    ]
   },
 ];
 
@@ -163,5 +187,16 @@ export const POSTULACIONES_MOCK: Postulacion[] = [
     fecha_postulacion: '2024-03-14',
     estatus: 'en_revision',
     coincidencia: 80,
+  },
+  {
+    id: 'p7',
+    egresado_id: '1',
+    egresado_nombre: 'Carlos Eduardo Mendoza López',
+    vacante_id: 'v2',
+    empresa_nombre: 'AgroNorte S.A. de C.V.',
+    puesto: 'Ingeniero de Mantenimiento Industrial',
+    fecha_postulacion: '2024-04-01',
+    estatus: 'aceptada',
+    coincidencia: 99,
   },
 ];

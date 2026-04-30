@@ -3,9 +3,31 @@
   <div class="page-header">
     <div>
       <h1>Vacantes disponibles</h1>
-      <p class="caption">Ordenadas por % de coincidencia con tu perfil evaluado</p>
+      <p class="caption">Encuentra tu próximo reto profesional</p>
     </div>
-    <span class="results-count">{{ vacantesFiltradas.length }} vacante{{ vacantesFiltradas.length !== 1 ? 's' : '' }}</span>
+    <span class="results-count" *ngIf="!loading">
+      {{ modo === 'bolsa' ? vacantesFiltradas.length : vacantesNacionalesFiltradas.length }} vacante{{ (modo === 'bolsa' ? vacantesFiltradas.length : vacantesNacionalesFiltradas.length) !== 1 ? 's' : '' }}
+    </span>
+  </div>
+
+  <!-- Modo Tabs -->
+  <div class="modo-tabs">
+    <button 
+      class="tab-btn" 
+      [class.active]="modo === 'bolsa'" 
+      (click)="setModo('bolsa')"
+    >
+      <i class="pi pi-briefcase"></i>
+      Bolsa de Trabajo UT
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="modo === 'nacional'" 
+      (click)="setModo('nacional')"
+    >
+      <i class="pi pi-globe"></i>
+      Vacantes Nacionales (API)
+    </button>
   </div>
 
   <!-- Filtros -->
@@ -17,27 +39,29 @@
           <input
             pInputText
             [(ngModel)]="busqueda"
-            placeholder="Buscar por puesto, empresa..."
+            placeholder="Buscar por puesto, empresa o ubicación..."
             class="w-full"
           />
         </span>
       </div>
 
-      <div class="filter-item">
-        <p-dropdown
-          [(ngModel)]="areaFiltro"
-          [options]="areasOpciones"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Área"
-          styleClass="w-full"
-        ></p-dropdown>
-      </div>
+      <ng-container *ngIf="modo === 'bolsa'">
+        <div class="filter-item">
+          <p-dropdown
+            [(ngModel)]="areaFiltro"
+            [options]="areasOpciones"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Área"
+            styleClass="w-full"
+          ></p-dropdown>
+        </div>
 
-      <div class="filter-item slider-filter">
-        <label class="label">Coincidencia mínima: <strong>{{ minCoincidencia }}%</strong></label>
-        <p-slider [(ngModel)]="minCoincidencia" [min]="0" [max]="95" [step]="5"></p-slider>
-      </div>
+        <div class="filter-item slider-filter">
+          <label class="label">Coincidencia mínima: <strong>{{ minCoincidencia }}%</strong></label>
+          <p-slider [(ngModel)]="minCoincidencia" [min]="0" [max]="95" [step]="5"></p-slider>
+        </div>
+      </ng-container>
     </div>
   </div>
 
@@ -48,14 +72,10 @@
         <div class="sk sk-vac-card"></div>
       }
     </div>
-  } @else if (vacantesFiltradas.length === 0) {
-    <div class="empty-state vtx-card">
-      <i class="pi pi-search"></i>
-      <h3>Sin resultados</h3>
-      <p>Intenta ajustar los filtros de búsqueda.</p>
-    </div>
   } @else {
-    <div class="vacantes-grid">
+    
+    <!-- MODO BOLSA LOCAL -->
+    <div class="vacantes-grid" *ngIf="modo === 'bolsa'">
       @for (vacante of vacantesFiltradas; track vacante.id) {
         <div class="vacante-card vtx-card clickable animate-fade-slide">
           <div class="vac-header">
@@ -113,6 +133,58 @@
         </div>
       }
     </div>
+
+    <!-- MODO NACIONAL (API EXTERNA) -->
+    <div class="vacantes-grid" *ngIf="modo === 'nacional'">
+      @for (vn of vacantesNacionalesFiltradas; track vn.id) {
+        <div class="vacante-card vtx-card national animate-fade-slide">
+          <div class="vac-header">
+            <div class="vac-empresa">
+              @if (vn.empresa_logo) {
+                <img [src]="vn.empresa_logo" class="company-logo-api" [alt]="vn.empresa">
+              } @else {
+                <div class="company-avatar api">{{ vn.fuente[0] }}</div>
+              }
+              <div>
+                <h3 class="vac-puesto">{{ vn.puesto }}</h3>
+                <p class="vac-empresa-name">{{ vn.empresa }}</p>
+                <span class="source-tag"><i class="pi pi-external-link"></i> {{ vn.fuente }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="vac-meta">
+            <span class="vac-badge">
+              <i class="pi pi-map-marker"></i>{{ vn.ubicacion }}
+            </span>
+            <span class="vac-badge" *ngIf="vn.salario">
+              <i class="pi pi-dollar"></i>{{ vn.salario }}
+            </span>
+          </div>
+
+          <p class="vac-desc-preview">{{ vn.descripcion | slice:0:140 }}...</p>
+
+          <div class="vac-actions">
+            <a
+              pButton
+              [routerLink]="['/egresado/vacantes/nacional', vn.id]"
+              label="Ver detalles"
+              icon="pi pi-globe"
+              iconPos="right"
+              class="p-button-sm"
+            ></a>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if ((modo === 'bolsa' && vacantesFiltradas.length === 0) || (modo === 'nacional' && vacantesNacionalesFiltradas.length === 0)) {
+      <div class="empty-state vtx-card">
+        <i class="pi pi-search"></i>
+        <h3>Sin resultados</h3>
+        <p>Intenta ajustar los filtros de búsqueda.</p>
+      </div>
+    }
   }
 
 </div>

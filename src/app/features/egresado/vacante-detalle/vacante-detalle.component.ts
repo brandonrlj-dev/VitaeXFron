@@ -90,4 +90,9 @@ export class VacanteDetalleComponent implements OnInit {
     if (pct >= 0.8) return '#3b82f6';
     return '#f97316';
   }
+
+  exportarReporte() {
+    // Cascarón: Aquí irá la lógica de generación de PDF en el futuro
+    console.log('Exportando reporte de idoneidad...');
+  }
 }

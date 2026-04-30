@@ -44,6 +44,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/egresado/vacante-detalle/vacante-detalle.component').then(m => m.VacanteDetalleComponent)
       },
       {
+        path: 'vacantes/nacional/:id',
+        loadComponent: () => import('./features/egresado/vacante-nacional-detalle/vacante-nacional-detalle.component').then(m => m.VacanteNacionalDetalleComponent)
+      },
+      {
         path: 'perfil',
         loadComponent: () => import('./features/egresado/perfil/perfil.component').then(m => m.PerfilComponent)
       },

@@ -37,6 +37,16 @@ export class EgresadoService {
     puntaje: number
   ): Observable<void> {
     if (environment.useMocks) {
+      const e = EGRESADOS_MOCK.find(x => x.id === egresadoId);
+      if (e) {
+        if (!e.evaluaciones_completadas.includes(dimension)) {
+          e.evaluaciones_completadas.push(dimension);
+        }
+        if (!e.scores) {
+          e.scores = { psicometrica: 0, cognitiva: 0, tecnica: 0, proyectiva: 0 };
+        }
+        e.scores[dimension] = puntaje;
+      }
       return of(undefined).pipe(delay(500));
     }
     return this.http.post<void>(`${environment.apiUrl}/evaluaciones`, {
@@ -53,5 +63,36 @@ export class EgresadoService {
     return this.http.patch<void>(`${environment.apiUrl}/egresado/${egresadoId}/cv`, {
       cv_url: driveUrl
     });
+  }
+
+  subirCertificado(egresadoId: string, file: File): Observable<any> {
+    if (environment.useMocks) {
+      return of({ url: 'mock_certificate_url.pdf' }).pipe(delay(1000));
+    }
+    const formData = new FormData();
+    formData.append('certificado', file);
+    
+    return this.http.post(`${environment.apiUrl}/egresado/${egresadoId}/certificado`, formData);
+  }
+
+  eliminarCertificado(egresadoId: string, certificadoUrl: string): Observable<void> {
+    if (environment.useMocks) {
+      return of(undefined).pipe(delay(300));
+    }
+    return this.http.delete<void>(`${environment.apiUrl}/egresado/${egresadoId}/certificado`, {
+      body: { url: certificadoUrl }
+    });
+  }
+
+  resetEvaluaciones(id: string): Observable<void> {
+    if (environment.useMocks) {
+      const e = EGRESADOS_MOCK.find(x => x.id === id);
+      if (e) {
+        e.evaluaciones_completadas = [];
+        e.scores = { psicometrica: 0, cognitiva: 0, tecnica: 0, proyectiva: 0 };
+      }
+      return of(undefined).pipe(delay(200));
+    }
+    return this.http.post<void>(`${environment.apiUrl}/egresado/${id}/reset-evaluaciones`, {});
   }
 }
