@@ -6,10 +6,12 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { AuthService } from '../../../core/services/auth.service';
 import { EgresadoService } from '../../../core/services/egresado.service';
 import { Educacion, Egresado, ExperienciaLaboral, egresadoNombreCompleto } from '../../../core/models';
+import { buildEgresadoPhotoUrl, usablePhotoUrl } from '../../../core/services/profile-photo.service';
 
 @Component({
   selector: 'app-perfil',
@@ -17,9 +19,9 @@ import { Educacion, Egresado, ExperienciaLaboral, egresadoNombreCompleto } from 
   imports: [
     CommonModule, FormsModule,
     ButtonModule, DialogModule, InputTextModule,
-    ToastModule, TooltipModule,
+    ToastModule, TooltipModule, ConfirmDialogModule,
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './perfil.component.html',
   styleUrls: ['./perfil.component.scss'],
 })
@@ -49,13 +51,14 @@ export class PerfilComponent implements OnInit {
   editExp: ExperienciaLaboral      = { empresa: '', puesto: '', fecha_inicio: '', trabajo_actual: true };
   experienciaLaboral: ExperienciaLaboral[] = [];
 
-  private svc     = inject(EgresadoService);
-  private authSvc = inject(AuthService);
-  private msgSvc  = inject(MessageService);
+  private svc        = inject(EgresadoService);
+  private authSvc    = inject(AuthService);
+  private msgSvc     = inject(MessageService);
+  private confirmSvc = inject(ConfirmationService);
 
   get nombreCompleto(): string { return this.egresado ? egresadoNombreCompleto(this.egresado) : ''; }
-  get fotoUrl(): string | null  { return this.egresado?.foto_url ?? null; }
-  get tieneFoto(): boolean      { return !!this.egresado?.foto_url; }
+  get fotoUrl(): string | null { return buildEgresadoPhotoUrl(this.egresado?.id, this.egresado?.foto_url); }
+  get tieneFoto(): boolean     { return !!usablePhotoUrl(this.egresado?.foto_url); }
 
   ngOnInit(): void {
     this.svc.getEgresadoActual().subscribe(e => {
@@ -98,8 +101,8 @@ export class PerfilComponent implements OnInit {
       return;
     }
     this.svc.subirFoto(this.egresado!.id, file).subscribe({
-      next: updated => {
-        const fotoUrl = updated.foto_url ?? this.egresado?.foto_url;
+      next: (updated: any) => {
+        const fotoUrl = updated.url || updated.foto_url;
         this.egresado = this.egresado ? { ...this.egresado, foto_url: fotoUrl } : updated;
         this.authSvc.updateUsuario({ foto_url: fotoUrl });
         this.uploadingFoto = false;
@@ -109,6 +112,23 @@ export class PerfilComponent implements OnInit {
         this.fotoError    = err.message ?? 'No se pudo subir la foto.';
         this.uploadingFoto = false;
         this.msgSvc.add({ severity: 'error', summary: 'Error al subir', detail: this.fotoError });
+      }
+    });
+  }
+
+  eliminarFoto(): void {
+    this.confirmSvc.confirm({
+      message: '¿Estás seguro de que deseas eliminar tu foto de perfil de Google Drive?',
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.svc.eliminarFoto(this.egresado!.id).subscribe(() => {
+          this.egresado = this.egresado ? { ...this.egresado, foto_url: '' } : undefined;
+          this.authSvc.updateUsuario({ foto_url: '' });
+          this.msgSvc.add({ severity: 'success', summary: 'Éxito', detail: 'Foto eliminada' });
+        });
       }
     });
   }
@@ -134,8 +154,8 @@ export class PerfilComponent implements OnInit {
 
     this.savingCv = true;
     this.svc.subirCV(this.egresado!.id, file).subscribe({
-      next: updated => {
-        const cvUrl = updated.cv_url ?? this.egresado?.cv_url;
+      next: (updated: any) => {
+        const cvUrl = updated.url || updated.cv_url;
         this.egresado = this.egresado ? { ...this.egresado, cv_url: cvUrl } : updated;
         this.authSvc.updateUsuario({ cv_url: cvUrl });
         this.savingCv = false;
@@ -181,10 +201,25 @@ export class PerfilComponent implements OnInit {
   }
 
   eliminarCertificado(index: number): void {
-    const cert = this.egresado!.certificados[index];
-    this.svc.eliminarCertificado(this.egresado!.id, cert.id ?? cert.url).subscribe(() => {
-      this.egresado!.certificados.splice(index, 1);
-      this.msgSvc.add({ severity: 'info', summary: 'Documento eliminado', detail: 'El archivo ha sido removido.' });
+    this.confirmSvc.confirm({
+      message: '¿Estás seguro de que deseas eliminar este documento? También se borrará permanentemente de Google Drive.',
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        const cert = this.egresado!.certificados[index];
+        this.svc.eliminarCertificado(this.egresado!.id, cert.id ?? cert.url).subscribe({
+          next: () => {
+            this.egresado!.certificados.splice(index, 1);
+            this.msgSvc.add({ severity: 'success', summary: 'Éxito', detail: 'Documento eliminado de Drive' });
+          },
+          error: (err: any) => {
+            this.msgSvc.add({ severity: 'error', summary: 'Error', detail: err.message });
+          }
+        });
+      }
     });
   }
 
@@ -228,16 +263,29 @@ export class PerfilComponent implements OnInit {
   }
 
   eliminarTrayectoria(index: number): void {
-    const item = this.egresado!.trayectoria[index];
-    if (!confirm('¿Eliminar este registro académico?')) return;
-    if (item.id) {
-      this.svc.eliminarTrayectoria(item.id).subscribe(() => {
-        this.egresado!.trayectoria.splice(index, 1);
-        this.msgSvc.add({ severity: 'info', summary: 'Eliminado', detail: 'Registro eliminado.' });
-      });
-    } else {
-      this.egresado!.trayectoria.splice(index, 1);
-    }
+    this.confirmSvc.confirm({
+      message: '¿Estás seguro de que deseas eliminar este registro académico?',
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        const item = this.egresado!.trayectoria[index];
+        if (item.id) {
+          this.svc.eliminarTrayectoria(item.id).subscribe({
+            next: () => {
+              this.egresado!.trayectoria.splice(index, 1);
+              this.msgSvc.add({ severity: 'info', summary: 'Eliminado', detail: 'Registro eliminado.' });
+            },
+            error: (err: any) => {
+              this.msgSvc.add({ severity: 'error', summary: 'Error', detail: err.message });
+            }
+          });
+        } else {
+          this.egresado!.trayectoria.splice(index, 1);
+        }
+      }
+    });
   }
 
   // ─── Experiencia laboral ───────────────────────────────────────────────────

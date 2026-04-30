@@ -10,6 +10,7 @@ import { ScoreCircleComponent } from '../../../shared/components/score-circle/sc
 import { SpiderChartComponent } from '../../../shared/components/spider-chart/spider-chart.component';
 import { DimensionPillComponent } from '../../../shared/components/dimension-pill/dimension-pill.component';
 import { Egresado, DimensionType, DIMENSION_CONFIG, egresadoNombreCompleto } from '../../../core/models';
+import { buildEgresadoPhotoUrl, usablePhotoUrl } from '../../../core/services/profile-photo.service';
 
 interface EvalCard {
   dimension:   DimensionType;
@@ -44,8 +45,8 @@ export class EgresadoDashboardComponent implements OnInit {
   private svc          = inject(EgresadoService);
 
   get nombreCompleto() { return this.egresado ? egresadoNombreCompleto(this.egresado) : ''; }
-  get fotoUrl(): string | null { return this.egresado?.foto_url ?? null; }
-  get tieneFoto(): boolean     { return !!this.egresado?.foto_url; }
+  get fotoUrl(): string | null { return buildEgresadoPhotoUrl(this.egresado?.id, this.egresado?.foto_url); }
+  get tieneFoto(): boolean     { return !!usablePhotoUrl(this.egresado?.foto_url); }
 
   // 10% datos + 15% foto + 40% evaluaciones + 15% CV + 20% Certificado = 100%
   get completitud(): number {

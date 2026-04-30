@@ -1,9 +1,11 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { MenuItem } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService, MenuItem } from 'primeng/api';
 import { AuthService } from '../../../core/services/auth.service';
+import { buildEgresadoPhotoUrl, usablePhotoUrl } from '../../../core/services/profile-photo.service';
 import { RolUsuario } from '../../../core/models';
 
 const NAV_ITEMS: Record<RolUsuario, MenuItem[]> = {
@@ -33,7 +35,8 @@ const NAV_ITEMS: Record<RolUsuario, MenuItem[]> = {
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, ButtonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, ButtonModule, ConfirmDialogModule, RouterLink, RouterLinkActive],
+  providers: [ConfirmationService],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
 })
@@ -45,12 +48,18 @@ export class NavbarComponent implements OnInit {
   initialsUsuario = '';
 
   private authService  = inject(AuthService);
-  private router       = inject(Router);
+  private confirmSvc   = inject(ConfirmationService);
 
   get fotoUrl(): string | null {
     const user = this.authService.getUsuario();
-    const url = user?.['foto_url'] ?? user?.['logo_url'];
-    return typeof url === 'string' && url.trim() ? url : null;
+    const url = usablePhotoUrl(user?.['foto_url'] ?? user?.['logo_url']);
+    if (!url) return null;
+
+    if (this.rol === 'egresado' && user?.['cve_egresado']) {
+      return buildEgresadoPhotoUrl(user['cve_egresado'], url);
+    }
+
+    return url;
   }
 
   ngOnInit() {
@@ -63,5 +72,15 @@ export class NavbarComponent implements OnInit {
     }
   }
 
-  logout() { this.authService.logout(); }
+  logout() {
+    this.confirmSvc.confirm({
+      message: '¿Estás seguro de que quieres cerrar sesión?',
+      header: 'Cerrar sesión',
+      icon: 'pi pi-sign-out',
+      acceptLabel: 'Sí, cerrar sesión',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.authService.logout(),
+    });
+  }
 }
