@@ -73,10 +73,37 @@ export interface CertificadoEgresado {
 }
 
 export interface Educacion {
-  institucion: string;
-  grado:       string;
-  periodo:     string;
+  id?:          string;
+  institucion:  string;
+  programa?:    string;
+  grado:        string;
+  periodo:      string;
+  fecha_inicio?: string;
+  fecha_fin?:   string;
+  promedio?:    number;
   descripcion?: string;
+}
+
+export interface ExperienciaLaboral {
+  id?:            string;
+  empresa:        string;
+  puesto:         string;
+  descripcion?:   string;
+  fecha_inicio:   string;
+  fecha_fin?:     string;
+  trabajo_actual: boolean;
+}
+
+export interface Mensaje {
+  id:             string;
+  postulacion_id: string;
+  tipo_emisor:    'egresado' | 'empresa' | 'administrador_ut';
+  mensaje:        string;
+  leido:          boolean;
+  fecha_envio:    string;
+  vacante?:       string;
+  nombre_contacto?: string;
+  cve_vacante?:   string;
 }
 
 export interface Egresado {
@@ -98,6 +125,7 @@ export interface Egresado {
   datos_confirmados:        boolean;
   foto_url?:                string;
   trayectoria:              Educacion[];
+  experiencia_laboral:      ExperienciaLaboral[];
 }
 
 export function egresadoNombreCompleto(e: Egresado): string {

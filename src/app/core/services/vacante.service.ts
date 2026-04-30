@@ -85,4 +85,18 @@ export class VacanteService {
       catchError(error => toApiError(error, 'No se pudieron cargar las postulaciones'))
     );
   }
+
+  getContratacionesEgresado(egresadoId: string): Observable<any[]> {
+    return this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/contrataciones/egresado/${egresadoId}`).pipe(
+      map(response => unwrapData(response) ?? []),
+      catchError(() => of([]))
+    );
+  }
+
+  confirmarContratacion(contratacionId: string): Observable<void> {
+    return this.http.put<ApiEnvelope<any>>(`${environment.apiUrl}/contrataciones/${contratacionId}/confirmar-egresado`, {}).pipe(
+      map(() => undefined),
+      catchError(error => toApiError(error, 'No se pudo confirmar la contratación'))
+    );
+  }
 }

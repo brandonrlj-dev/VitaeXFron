@@ -1,0 +1,109 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="page-container animate-fade-slide">
+  <div class="page-header">
+    <div>
+      <h1>Mensajes</h1>
+      @if (totalNoLeidos > 0) {
+        <span class="badge-en_revision">{{ totalNoLeidos }} sin leer</span>
+      }
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="chat-shell sk-loading">
+      <div class="sk sk-list"></div>
+      <div class="sk sk-thread"></div>
+    </div>
+  } @else {
+    <div class="chat-shell">
+
+      <!-- ─── Panel de conversaciones ──────────────────────────────────── -->
+      <aside class="conv-panel">
+        @if (conversaciones.length === 0) {
+          <div class="empty-convs">
+            <i class="pi pi-envelope"></i>
+            <p>Aún no tienes mensajes.</p>
+            <span class="caption">Las empresas con más del 80% de coincidencia pueden contactarte.</span>
+          </div>
+        }
+        @for (conv of conversaciones; track conv.postulacion_id) {
+          <div
+            class="conv-item"
+            [class.active]="conversacionActiva?.postulacion_id === conv.postulacion_id"
+            (click)="seleccionarConversacion(conv)"
+          >
+            <div class="conv-avatar">{{ conv.empresa[0] }}</div>
+            <div class="conv-info">
+              <div class="conv-header">
+                <span class="conv-empresa">{{ conv.empresa }}</span>
+                @if (conv.no_leidos > 0) {
+                  <span class="unread-badge">{{ conv.no_leidos }}</span>
+                }
+              </div>
+              <p class="conv-vacante">{{ conv.vacante }}</p>
+              @if (conv.ultimo_mensaje) {
+                <p class="conv-preview">{{ conv.ultimo_mensaje.mensaje | slice:0:55 }}{{ conv.ultimo_mensaje.mensaje.length > 55 ? '…' : '' }}</p>
+              }
+            </div>
+          </div>
+        }
+      </aside>
+
+      <!-- ─── Hilo de mensajes ──────────────────────────────────────────── -->
+      <section class="thread-panel">
+        @if (!conversacionActiva) {
+          <div class="no-selection">
+            <i class="pi pi-comments"></i>
+            <p>Selecciona una conversación</p>
+          </div>
+        } @else {
+          <!-- Header -->
+          <div class="thread-header">
+            <div class="thread-avatar">{{ conversacionActiva.empresa[0] }}</div>
+            <div>
+              <p class="thread-empresa">{{ conversacionActiva.empresa }}</p>
+              <p class="thread-vacante caption">{{ conversacionActiva.vacante }}</p>
+            </div>
+          </div>
+
+          <!-- Mensajes -->
+          <div class="thread-body">
+            @for (msg of conversacionActiva.mensajes; track msg.id) {
+              <div class="msg-wrap" [class.msg-propio]="msg.tipo_emisor === 'egresado'">
+                <div class="msg-bubble">
+                  <p class="msg-texto">{{ msg.mensaje }}</p>
+                  <span class="msg-hora">{{ formatFecha(msg.fecha_envio) }}</span>
+                </div>
+              </div>
+            }
+            <div #threadEnd></div>
+          </div>
+
+          <!-- Input -->
+          <div class="thread-input">
+            <textarea
+              pInputText
+              [(ngModel)]="nuevoMensaje"
+              placeholder="Escribe un mensaje… (Enter para enviar)"
+              rows="2"
+              class="msg-input"
+              (keydown.enter)="onEnter($event)"
+              style="resize:none; flex:1"
+            ></textarea>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-send"
+              class="send-btn"
+              [loading]="enviando"
+              [disabled]="!nuevoMensaje.trim() || enviando"
+              (click)="enviar()"
+            ></button>
+          </div>
+        }
+      </section>
+
+    </div>
+  }
+</div>

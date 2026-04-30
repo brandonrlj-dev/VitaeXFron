@@ -1,7 +1,7 @@
-<p-toast></p-toast>
+<p-toast position="top-right"></p-toast>
 
 <div class="page-container animate-fade-slide">
-  
+
   <div class="back-nav">
     <a routerLink="/egresado/vacantes" class="back-link">
       <i class="pi pi-arrow-left"></i> Volver a vacantes
@@ -14,18 +14,19 @@
       <div class="sk sk-body"></div>
     </div>
   } @else if (vacante) {
-    
+
     <div class="detalle-grid">
-      
-      <!-- Columna Principal -->
+
+      <!-- ─── Columna principal ────────────────────────────────────────── -->
       <div class="main-column">
-        
+
+        <!-- Header -->
         <div class="vtx-card header-card">
           <div class="company-logo">
             @if (vacante.empresa_logo) {
-              <img [src]="vacante.empresa_logo" [alt]="vacante.empresa">
+              <img [src]="vacante.empresa_logo" [alt]="vacante.empresa" />
             } @else {
-              <div class="logo-placeholder">{{ vacante.fuente[0] }}</div>
+              <div class="logo-placeholder">{{ vacante.empresa[0] }}</div>
             }
           </div>
           <div class="vac-titles">
@@ -34,51 +35,166 @@
             <div class="meta-row">
               <span><i class="pi pi-map-marker"></i> {{ vacante.ubicacion }}</span>
               <span><i class="pi pi-calendar"></i> Publicada el {{ vacante.fecha_publicacion }}</span>
+              @if (vacante.salario) {
+                <span><i class="pi pi-dollar"></i> {{ vacante.salario }}</span>
+              }
             </div>
           </div>
         </div>
 
-        <div class="vtx-card description-card">
+        <!-- Descripción -->
+        <div class="vtx-card">
           <h3>Descripción del puesto</h3>
-          <div class="description-content">
-            {{ vacante.descripcion }}
-          </div>
+          <div class="description-content">{{ vacante.descripcion }}</div>
         </div>
 
+        <!-- Perfil de competencias -->
+        @if (egresado?.scores && perfilIdeal) {
+          <div class="vtx-card radar-card">
+            <h3>Perfil de competencias</h3>
+            <p class="caption" style="margin-bottom:20px">
+              Tu perfil (<strong>Mi Perfil</strong>) vs el perfil estimado para esta vacante (línea punteada).
+              El perfil ideal se calcula automáticamente a partir del título y descripción del puesto.
+            </p>
+
+            <app-spider-chart
+              [egresadoScores]="egresado!.scores!"
+              [idealScores]="perfilIdeal"
+              maxWidth="100%"
+              [showLegend]="true"
+            ></app-spider-chart>
+
+            <!-- Barras por dimensión -->
+            <div class="dim-bars">
+              @for (dim of DIMS; track dim) {
+                <div class="dim-bar-item">
+                  <div class="dim-bar-header">
+                    <app-dimension-pill [dimension]="dim"></app-dimension-pill>
+                    <div class="bar-scores">
+                      <span [style.color]="scoreColor(egresado!.scores![dim], perfilIdeal[dim])">
+                        {{ egresado!.scores![dim] }}%
+                      </span>
+                      <span class="bar-sep">/</span>
+                      <span class="ideal-score">{{ perfilIdeal[dim] }}% estimado</span>
+                    </div>
+                  </div>
+                  <div class="bar-track">
+                    <div
+                      class="bar-fill"
+                      [style.width]="egresado!.scores![dim] + '%'"
+                      [style.background]="scoreColor(egresado!.scores![dim], perfilIdeal[dim])"
+                    ></div>
+                    <div class="bar-ideal-marker" [style.left]="perfilIdeal[dim] + '%'"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Fortalezas y brechas -->
+          @if (fortalezas.length > 0 || brechas.length > 0) {
+            <div class="vtx-card">
+              <div class="strength-gap-grid">
+                @if (fortalezas.length > 0) {
+                  <div class="strength-block">
+                    <p class="label"><i class="pi pi-check-circle" style="color:#03837b"></i> Fortalezas</p>
+                    <div class="pill-list">
+                      @for (dim of fortalezas; track dim) {
+                        <app-dimension-pill [dimension]="dim" [score]="egresado!.scores![dim]"></app-dimension-pill>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (brechas.length > 0) {
+                  <div class="gap-block">
+                    <p class="label"><i class="pi pi-exclamation-triangle" style="color:#f97316"></i> Áreas de mejora</p>
+                    <div class="pill-list">
+                      @for (dim of brechas; track dim) {
+                        <app-dimension-pill [dimension]="dim" [score]="egresado!.scores![dim]"></app-dimension-pill>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+
+        <!-- Reporte PDF -->
+        @if (egresado?.scores) {
+          <div class="vtx-card export-card">
+            <div class="export-content">
+              <div class="export-icon"><i class="pi pi-file-pdf"></i></div>
+              <div class="export-text">
+                <h4>Reporte de Idoneidad Profesional</h4>
+                <p class="caption">Descarga un análisis de tu perfil de competencias en relación con este tipo de puesto.</p>
+              </div>
+              <button
+                pButton
+                type="button"
+                label="Exportar PDF"
+                icon="pi pi-file-pdf"
+                class="p-button-outlined p-button-danger export-btn"
+                [loading]="exportingPdf"
+                (click)="exportarReporte()"
+              ></button>
+            </div>
+          </div>
+        }
+
+        <!-- Fuente externa -->
         <div class="vtx-card source-card">
           <div class="source-info">
             <i class="pi pi-info-circle"></i>
             <div>
               <h4>Vacante de Red Nacional</h4>
-              <p>Esta vacante proviene de una fuente externa (<strong>{{ vacante.fuente }}</strong>). Al postularte, serás redirigido a su portal oficial.</p>
+              <p>Esta vacante proviene de una fuente externa (<strong>{{ vacante.fuente }}</strong>). Al postularte serás redirigido a su portal oficial.</p>
             </div>
           </div>
         </div>
 
       </div>
 
-      <!-- Barra Lateral -->
+      <!-- ─── Barra lateral ────────────────────────────────────────────── -->
       <div class="side-column">
-        
+
+        <!-- Coincidencia + acción -->
         <div class="vtx-card action-card">
-          <h3>Postulación</h3>
-          
-          <div class="salario-box" *ngIf="vacante.salario">
-            <span class="label">Sueldo ofrecido</span>
-            <span class="value">{{ vacante.salario }}</span>
-          </div>
+
+          @if (egresado?.scores && perfilIdeal) {
+            <div class="match-block">
+              <p class="label">Coincidencia estimada</p>
+              <app-score-circle
+                [score]="coincidencia"
+                color="#03837b"
+                size="100px"
+                [strokeWidth]="9"
+              ></app-score-circle>
+              <p class="caption match-caption">
+                Calculada a partir de tu perfil y el estimado para este tipo de vacante.
+              </p>
+            </div>
+          }
+
+          @if (vacante.salario) {
+            <div class="salario-box">
+              <span class="label">Sueldo ofrecido</span>
+              <span class="value">{{ vacante.salario }}</span>
+            </div>
+          }
 
           <p class="notice">
-            La Universidad Tecnológica de la Costa registrará tu interés en esta vacante para fines de seguimiento y posibles convenios.
+            La UT de la Costa registrará tu interés para fines de seguimiento y posibles convenios.
           </p>
 
-          <button 
-            pButton 
-            (click)="postular()" 
+          <button
+            pButton
+            type="button"
             [label]="postulado ? 'Ir de nuevo a la fuente' : 'Postularme en fuente externa'"
             [icon]="postulado ? 'pi pi-external-link' : 'pi pi-send'"
-            class="w-full p-button-lg"
+            class="w-full postulate-btn"
             [disabled]="(egresado?.evaluaciones_completadas?.length ?? 0) < 4"
+            (click)="postular()"
           ></button>
 
           @if (egresado && egresado.evaluaciones_completadas.length < 4) {
@@ -88,10 +204,12 @@
             </div>
           }
 
-          <div class="postulado-badge" *ngIf="postulado">
-            <i class="pi pi-check-circle"></i>
-            Postulación registrada en el sistema UT
-          </div>
+          @if (postulado) {
+            <div class="postulado-badge">
+              <i class="pi pi-check-circle"></i>
+              Postulación registrada en el sistema UT
+            </div>
+          }
         </div>
 
         <div class="vtx-card help-card">
@@ -103,7 +221,6 @@
       </div>
 
     </div>
-
   }
 
 </div>

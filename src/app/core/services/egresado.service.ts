@@ -1,31 +1,36 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of, throwError } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
-import { DimensionType, Egresado, Pregunta } from '../models';
+import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
+import { DimensionType, Educacion, Egresado, Mensaje, Pregunta } from '../models';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope, toApiError, unwrapData, unwrapItems } from './api-response';
-import { mapCertificado, mapEgresado, mapPregunta } from './api-mappers';
+import { mapCertificado, mapEgresado, mapMensaje, mapPregunta, mapTrayectoria } from './api-mappers';
 import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class EgresadoService {
+  private cache$: Observable<Egresado> | null = null;
+
   constructor(private http: HttpClient, private auth: AuthService) {}
 
   getEgresadoActual(): Observable<Egresado> {
-    const id = this.currentEgresadoId();
-    if (!id) {
-      return this.getEgresados().pipe(
-        map(items => {
-          if (!items.length) throw new Error('No hay egresados registrados');
-          return items[0];
-        })
-      );
-    }
+    if (this.cache$) return this.cache$;
 
+    const id = this.currentEgresadoId();
+    const source$ = id ? this.fetchById(id) : this.fetchFirst();
+    this.cache$ = source$.pipe(shareReplay(1));
+    return this.cache$;
+  }
+
+  invalidarCache(): void {
+    this.cache$ = null;
+  }
+
+  private fetchById(id: string): Observable<Egresado> {
     return forkJoin({
-      dashboard: this.http.get<ApiEnvelope<any>>(`${environment.apiUrl}/dashboard/egresado/${id}`).pipe(map(unwrapData)),
-      perfil: this.http.get<ApiEnvelope<any>>(`${environment.apiUrl}/egresados/${id}/perfil`).pipe(map(unwrapData)),
+      dashboard: this.http.get<ApiEnvelope<any>>(`${environment.apiUrl}/dashboard/egresado/${id}`).pipe(map(unwrapData), catchError(() => of(null))),
+      perfil: this.http.get<ApiEnvelope<any>>(`${environment.apiUrl}/egresados/${id}/perfil`).pipe(map(unwrapData), catchError(() => of(null))),
     }).pipe(
       map(({ dashboard, perfil }) => mapEgresado({
         ...(perfil ?? {}),
@@ -33,6 +38,15 @@ export class EgresadoService {
         certificados: dashboard?.certificados ?? [],
       })),
       catchError(error => toApiError(error, 'No se pudo cargar el egresado actual'))
+    );
+  }
+
+  private fetchFirst(): Observable<Egresado> {
+    return this.getEgresados().pipe(
+      map(items => {
+        if (!items.length) throw new Error('No hay egresados registrados');
+        return items[0];
+      })
     );
   }
 
@@ -47,9 +61,76 @@ export class EgresadoService {
     return this.http.put<ApiEnvelope<any>>(`${environment.apiUrl}/egresados/${id}/perfil`, {
       disponible_laboralmente: true,
     }).pipe(
-      map(() => undefined),
+      map(() => { this.invalidarCache(); }),
       catchError(error => toApiError(error, 'No se pudieron confirmar los datos'))
     );
+  }
+
+  getMensajes(egresadoId: string): Observable<Mensaje[]> {
+    return this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/mensajes/egresado/${egresadoId}`).pipe(
+      map(r => (unwrapData(r) ?? []).map(mapMensaje)),
+      catchError(() => of([]))
+    );
+  }
+
+  enviarMensaje(postulacionId: string, texto: string): Observable<Mensaje> {
+    return this.http.post<ApiEnvelope<any>>(`${environment.apiUrl}/mensajes`, {
+      cve_postulacion: postulacionId,
+      tipo_emisor: 'egresado',
+      mensaje: texto,
+    }).pipe(
+      map(r => mapMensaje(unwrapData(r))),
+      catchError(error => toApiError(error, 'No se pudo enviar el mensaje'))
+    );
+  }
+
+  marcarMensajeLeido(mensajeId: string): Observable<void> {
+    return this.http.put<ApiEnvelope<any>>(`${environment.apiUrl}/mensajes/${mensajeId}/leido`, {}).pipe(
+      map(() => undefined),
+      catchError(() => of(undefined))
+    );
+  }
+
+  getTrayectoria(egresadoId: string): Observable<Educacion[]> {
+    return this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/egresados/${egresadoId}/trayectoria`).pipe(
+      map(r => (unwrapData(r) ?? []).map(mapTrayectoria)),
+      catchError(() => of([]))
+    );
+  }
+
+  crearTrayectoria(egresadoId: string, item: Educacion): Observable<Educacion> {
+    return this.http.post<ApiEnvelope<any>>(`${environment.apiUrl}/egresados/${egresadoId}/trayectoria`, this.trayectoriaBody(item)).pipe(
+      map(r => mapTrayectoria(unwrapData(r))),
+      catchError(error => toApiError(error, 'No se pudo guardar la trayectoria'))
+    );
+  }
+
+  actualizarTrayectoria(itemId: string, item: Educacion): Observable<Educacion> {
+    return this.http.put<ApiEnvelope<any>>(`${environment.apiUrl}/trayectoria/${itemId}`, this.trayectoriaBody(item)).pipe(
+      map(r => mapTrayectoria(unwrapData(r))),
+      catchError(error => toApiError(error, 'No se pudo actualizar la trayectoria'))
+    );
+  }
+
+  eliminarTrayectoria(itemId: string): Observable<void> {
+    return this.http.delete<ApiEnvelope<any>>(`${environment.apiUrl}/trayectoria/${itemId}`).pipe(
+      map(() => undefined),
+      catchError(error => toApiError(error, 'No se pudo eliminar el registro'))
+    );
+  }
+
+  private trayectoriaBody(item: Educacion): Record<string, unknown> {
+    const [inicioRaw, finRaw] = (item.periodo ?? '').split('—').map(s => s.trim());
+    const esActual = !finRaw || finRaw.toLowerCase() === 'actualidad';
+    return {
+      institucion: item.institucion,
+      programa: item.programa ?? item.grado,
+      grado: item.grado,
+      fecha_inicio: item.fecha_inicio ?? (inicioRaw ? inicioRaw + '-01' : null),
+      fecha_fin: item.fecha_fin ?? (esActual ? null : (finRaw ? finRaw + '-01' : null)),
+      promedio: item.promedio ?? null,
+      descripcion: item.descripcion ?? null,
+    };
   }
 
   getPreguntasPorDimension(dimension: DimensionType): Observable<Pregunta[]> {

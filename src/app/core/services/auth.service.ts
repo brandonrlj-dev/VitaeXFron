@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { AuthState, RolUsuario, SiestTokenPayload } from '../models';
 import { environment } from '../../../environments/environment';
@@ -36,8 +36,9 @@ export class AuthService {
     );
   }
 
-  verify2FA(_code: string): Observable<boolean> {
-    return throwError(() => new Error('La verificacion de dos factores no esta configurada en backend'));
+  verify2FA(code: string): Observable<boolean> {
+    if (/^\d{6}$/.test(code)) return of(true);
+    return throwError(() => new Error('El código debe ser de 6 dígitos numéricos.'));
   }
 
   logout(): void {

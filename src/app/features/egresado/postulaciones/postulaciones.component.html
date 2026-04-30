@@ -1,3 +1,5 @@
+<p-toast position="top-right"></p-toast>
+
 <div class="page-container animate-fade-slide">
 
   <div class="page-header">
@@ -58,7 +60,7 @@
                 [severity]="estatusSeverity(p.estatus)"
               ></p-tag>
             </td>
-            <td>
+            <td class="actions-cell">
               <a
                 pButton
                 [routerLink]="['/egresado/vacantes', p.vacante_id]"
@@ -66,6 +68,18 @@
                 class="p-button-text p-button-sm"
                 pTooltip="Ver vacante"
               ></a>
+              @if (contratacionPara(p.id)) {
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-check-circle"
+                  label="Confirmar contratación"
+                  class="p-button-sm p-button-success confirmar-btn"
+                  [loading]="confirmandoId === p.id"
+                  (click)="confirmarContratacion(p.id)"
+                  pTooltip="La empresa ya te registró como contratado. Confirma aquí."
+                ></button>
+              }
             </td>
           </tr>
         </ng-template>

@@ -130,12 +130,13 @@
               <h4>Reporte de Idoneidad Profesional</h4>
               <p class="caption">Descarga un análisis detallado de tu compatibilidad con esta vacante basado en tus evaluaciones.</p>
             </div>
-            <button 
-              pButton 
-              type="button" 
-              label="Exportar PDF" 
-              icon="pi pi-file-pdf" 
+            <button
+              pButton
+              type="button"
+              label="Exportar PDF"
+              icon="pi pi-file-pdf"
               class="p-button-outlined p-button-danger export-btn"
+              [loading]="exportingPdf"
               (click)="exportarReporte()"
             ></button>
           </div>

@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../../../core/services/auth.service';
+import { EgresadoService } from '../../../core/services/egresado.service';
 
 @Component({
   selector: 'app-two-fa',
@@ -18,9 +19,10 @@ export class TwoFaComponent {
   loading = false;
   error   = '';
 
-  private fb     = inject(FormBuilder);
-  private auth   = inject(AuthService);
-  private router = inject(Router);
+  private fb          = inject(FormBuilder);
+  private auth        = inject(AuthService);
+  private router      = inject(Router);
+  private egresadoSvc = inject(EgresadoService);
 
   constructor() {
     this.form = this.fb.group({
@@ -36,14 +38,27 @@ export class TwoFaComponent {
     this.auth.verify2FA(this.form.value.code!).subscribe({
       next: () => {
         this.loading = false;
-        const rol    = this.auth.getRol();
-        if (rol === 'egresado') this.router.navigate(['/egresado/dashboard']);
-        else if (rol === 'empresa') this.router.navigate(['/empresa/dashboard']);
-        else this.router.navigate(['/admin/dashboard']);
+        const rol = this.auth.getRol();
+        if (rol === 'egresado') {
+          this.egresadoSvc.getEgresadoActual().subscribe({
+            next: egresado => {
+              if (!egresado.datos_confirmados) {
+                this.router.navigate(['/login/confirmar-datos']);
+              } else {
+                this.router.navigate(['/egresado/dashboard']);
+              }
+            },
+            error: () => this.router.navigate(['/egresado/dashboard'])
+          });
+        } else if (rol === 'empresa') {
+          this.router.navigate(['/empresa/dashboard']);
+        } else {
+          this.router.navigate(['/admin/dashboard']);
+        }
       },
       error: (err) => {
         this.loading = false;
-        this.error   = err.message;
+        this.error = err.message;
       }
     });
   }

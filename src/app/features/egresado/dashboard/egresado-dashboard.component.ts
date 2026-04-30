@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
+import { ChartModule } from 'primeng/chart';
 import { EgresadoService } from '../../../core/services/egresado.service';
 import { ScoreCircleComponent } from '../../../shared/components/score-circle/score-circle.component';
 import { SpiderChartComponent } from '../../../shared/components/spider-chart/spider-chart.component';
@@ -25,7 +26,7 @@ interface EvalCard {
   standalone: true,
   imports: [
     CommonModule, RouterLink, ButtonModule,
-    ProgressBarModule, TooltipModule,
+    ProgressBarModule, TooltipModule, ChartModule,
     ScoreCircleComponent, SpiderChartComponent, DimensionPillComponent,
   ],
   templateUrl: './egresado-dashboard.component.html',
@@ -33,8 +34,10 @@ interface EvalCard {
 })
 export class EgresadoDashboardComponent implements OnInit {
   egresado?: Egresado;
-  loading    = true;
+  loading     = true;
   evalCards: EvalCard[] = [];
+  histogramaData: any    = {};
+  histogramaOptions: any = {};
 
   readonly DIMS: DimensionType[] = ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'];
 
@@ -86,7 +89,41 @@ export class EgresadoDashboardComponent implements OnInit {
       this.egresado = e;
       this.loading  = false;
       this.buildEvalCards();
+      this.buildHistograma();
     });
+  }
+
+  private buildHistograma() {
+    const s = this.egresado?.scores;
+    this.histogramaData = {
+      labels: ['Psicométrica', 'Cognitiva', 'Técnica', 'Proyectiva'],
+      datasets: [{
+        label: 'Puntaje',
+        data: s ? [s.psicometrica, s.cognitiva, s.tecnica, s.proyectiva] : [0, 0, 0, 0],
+        backgroundColor: ['#0d9488', '#3b82f6', '#8b5cf6', '#f97316'],
+        borderRadius: 8,
+        borderSkipped: false,
+      }]
+    };
+    this.histogramaOptions = {
+      responsive: true,
+      animation: { duration: 700 },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.raw}%` } }
+      },
+      scales: {
+        y: {
+          min: 0, max: 100,
+          ticks: { stepSize: 25, font: { family: 'Inter', size: 11 }, color: '#9ca3af', callback: (v: any) => v + '%' },
+          grid: { color: '#f0f0f0' },
+        },
+        x: {
+          ticks: { font: { family: 'Inter', size: 12, weight: '600' }, color: '#374151' },
+          grid: { display: false }
+        }
+      }
+    };
   }
 
   private buildEvalCards() {

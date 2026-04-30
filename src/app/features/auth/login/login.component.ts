@@ -116,9 +116,6 @@ export class LoginComponent {
   }
 
   private redirectByRole() {
-    const rol = this.auth.getRol();
-    if (rol === 'egresado') this.router.navigate(['/egresado/dashboard']);
-    else if (rol === 'empresa') this.router.navigate(['/empresa/dashboard']);
-    else this.router.navigate(['/admin/dashboard']);
+    this.router.navigate(['/login/2fa']);
   }
 }

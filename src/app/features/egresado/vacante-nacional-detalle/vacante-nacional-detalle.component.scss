@@ -225,15 +225,127 @@
 
 // ─── Help Card ───────────────────────────────────────────────────────────────
 .help-card {
-  h4 {
-    margin-bottom: 8px;
-  }
-  p {
-    font-size: 12px;
-    color: var(--color-text-muted);
-    margin-bottom: 12px;
+  h4 { margin-bottom: 8px; }
+  p  { font-size: 12px; color: var(--color-text-muted); margin-bottom: 12px; }
+}
+
+// ─── Match block ─────────────────────────────────────────────────────────────
+.match-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.match-caption {
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+// ─── Postulate btn ───────────────────────────────────────────────────────────
+.postulate-btn {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  font-weight: 600 !important;
+  &:hover:not(:disabled) {
+    background: var(--color-dark) !important;
+    border-color: var(--color-dark) !important;
   }
 }
+
+// ─── Radar card ──────────────────────────────────────────────────────────────
+.radar-card h3 { margin-bottom: 4px; }
+
+// ─── Barras por dimensión ─────────────────────────────────────────────────────
+.dim-bars { margin-top: 24px; display: flex; flex-direction: column; gap: 14px; }
+
+.dim-bar-item { display: flex; flex-direction: column; gap: 6px; }
+
+.dim-bar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bar-scores {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bar-sep  { color: var(--color-text-muted); font-weight: 400; }
+.ideal-score { color: var(--color-text-muted); font-size: 12px; font-weight: 400; }
+
+.bar-track {
+  position: relative;
+  height: 8px;
+  background: var(--color-border);
+  border-radius: 4px;
+  overflow: visible;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bar-ideal-marker {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 16px;
+  background: var(--color-dark);
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+
+// ─── Fortalezas / Brechas ────────────────────────────────────────────────────
+.strength-gap-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  @media (max-width: 576px) { grid-template-columns: 1fr; }
+}
+
+.strength-block, .gap-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pill-list { display: flex; flex-direction: column; gap: 8px; }
+
+// ─── Export card ─────────────────────────────────────────────────────────────
+.export-card { background: #fefefe; }
+
+.export-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  @media (max-width: 576px) { flex-direction: column; text-align: center; }
+}
+
+.export-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(239,68,68,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  i { font-size: 22px; color: #ef4444; }
+}
+
+.export-text { flex: 1; h4 { font-size: 14px; font-weight: 600; margin-bottom: 2px; } }
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 .sk-detail {

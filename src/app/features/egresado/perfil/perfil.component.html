@@ -231,6 +231,46 @@
       </div>
     </div>
 
+      <!-- ─── EXPERIENCIA LABORAL ──────────────────────────────────────── -->
+      <div class="vtx-card">
+        <div class="section-head">
+          <div class="section-icon"><i class="pi pi-briefcase"></i></div>
+          <div class="flex-1">
+            <h3>Experiencia Laboral</h3>
+          </div>
+          <button pButton icon="pi pi-plus" label="Agregar" class="p-button-text p-button-sm" (click)="abrirModalExp()"></button>
+        </div>
+
+        @if (experienciaLaboral.length === 0) {
+          <p class="caption" style="margin-top:8px">Agrega tu experiencia laboral para enriquecer tu perfil.</p>
+        }
+
+        <div class="trayectoria-list">
+          @for (exp of experienciaLaboral; track $index) {
+            <div class="trayectoria-item animate-fade-in">
+              <div class="tray-left">
+                <div class="tray-dot"></div>
+                <div class="tray-line"></div>
+              </div>
+              <div class="tray-content">
+                <div class="tray-header">
+                  <p class="tray-title">{{ exp.puesto }}</p>
+                  <div class="tray-actions">
+                    <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm" (click)="abrirModalExp(exp, $index)"></button>
+                    <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger p-button-sm" (click)="eliminarExp($index)"></button>
+                  </div>
+                </div>
+                <p class="tray-inst">{{ exp.empresa }}</p>
+                <p class="caption">{{ exp.fecha_inicio }} — {{ exp.trabajo_actual ? 'Actualidad' : (exp.fecha_fin ?? '') }}</p>
+                @if (exp.descripcion) {
+                  <p class="tray-desc">{{ exp.descripcion }}</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
   </div>
   }
 </div>
@@ -263,6 +303,48 @@
   <ng-template pTemplate="footer">
     <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text"
       (click)="displayTrayectoriaModal = false"></button>
-    <button pButton label="Guardar" icon="pi pi-check" (click)="guardarTrayectoria()"></button>
+    <button pButton label="Guardar" icon="pi pi-check" [loading]="savingTrayectoria" (click)="guardarTrayectoria()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Modal Experiencia Laboral -->
+<p-dialog
+  [(visible)]="displayExpModal"
+  [header]="editExpIndex > -1 ? 'Editar Experiencia Laboral' : 'Agregar Experiencia Laboral'"
+  [modal]="true" [draggable]="false" [resizable]="false"
+  [style]="{width: '500px'}" styleClass="vtx-modal"
+>
+  <div class="modal-form">
+    <div class="field">
+      <label class="label">Empresa</label>
+      <input pInputText [(ngModel)]="editExp.empresa" placeholder="Ej: TecnoSol del Pacífico" class="w-full" />
+    </div>
+    <div class="field">
+      <label class="label">Puesto / Cargo</label>
+      <input pInputText [(ngModel)]="editExp.puesto" placeholder="Ej: Desarrollador Backend" class="w-full" />
+    </div>
+    <div class="grid-2" style="gap:12px">
+      <div class="field">
+        <label class="label">Fecha inicio</label>
+        <input pInputText type="month" [(ngModel)]="editExp.fecha_inicio" class="w-full" />
+      </div>
+      <div class="field">
+        <label class="label">Fecha fin</label>
+        <input pInputText type="month" [(ngModel)]="editExp.fecha_fin" class="w-full" [disabled]="editExp.trabajo_actual" />
+      </div>
+    </div>
+    <div class="field" style="display:flex;align-items:center;gap:10px">
+      <input type="checkbox" [(ngModel)]="editExp.trabajo_actual" id="trabajoActual" />
+      <label for="trabajoActual" style="cursor:pointer;font-size:13px">Trabajo actual</label>
+    </div>
+    <div class="field">
+      <label class="label">Descripción (Opcional)</label>
+      <textarea pInputText [(ngModel)]="editExp.descripcion" rows="3"
+        placeholder="Responsabilidades y logros principales..." class="w-full" style="resize:vertical"></textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="displayExpModal = false"></button>
+    <button pButton label="Guardar" icon="pi pi-check" (click)="guardarExp()"></button>
   </ng-template>
 </p-dialog>

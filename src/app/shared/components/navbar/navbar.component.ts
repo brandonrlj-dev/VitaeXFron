@@ -12,6 +12,7 @@ const NAV_ITEMS: Record<RolUsuario, MenuItem[]> = {
     { label: 'Evaluaciones',  routerLink: '/egresado/evaluaciones',  icon: 'pi pi-clipboard'  },
     { label: 'Vacantes',      routerLink: '/egresado/vacantes',      icon: 'pi pi-briefcase'  },
     { label: 'Postulaciones', routerLink: '/egresado/postulaciones', icon: 'pi pi-send'       },
+    { label: 'Mensajes',      routerLink: '/egresado/mensajeria',    icon: 'pi pi-envelope'   },
     { label: 'Mi Perfil',     routerLink: '/egresado/perfil',        icon: 'pi pi-user'       },
   ],
   empresa: [

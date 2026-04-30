@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ToastModule } from 'primeng/toast';
@@ -11,6 +12,7 @@ import { ScoreCircleComponent } from '../../../shared/components/score-circle/sc
 import { SpiderChartComponent } from '../../../shared/components/spider-chart/spider-chart.component';
 import { DimensionPillComponent } from '../../../shared/components/dimension-pill/dimension-pill.component';
 import { Vacante, Egresado, DimensionType, DIMENSION_CONFIG } from '../../../core/models';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-vacante-detalle',
@@ -27,8 +29,9 @@ export class VacanteDetalleComponent implements OnInit {
   vacante?: Vacante;
   egresado?: Egresado;
   loading    = true;
-  postulando = false;
-  yaPostulado = false;
+  postulando   = false;
+  yaPostulado  = false;
+  exportingPdf = false;
 
   readonly DIMS: DimensionType[] = ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'];
   readonly DIMENSION_CONFIG = DIMENSION_CONFIG;
@@ -37,6 +40,7 @@ export class VacanteDetalleComponent implements OnInit {
   private vacanteSvc   = inject(VacanteService);
   private egresadoSvc  = inject(EgresadoService);
   private msgSvc       = inject(MessageService);
+  private http         = inject(HttpClient);
 
   get coincidencia(): number {
     if (!this.egresado?.scores || !this.vacante) return 0;
@@ -92,7 +96,25 @@ export class VacanteDetalleComponent implements OnInit {
   }
 
   exportarReporte() {
-    // Cascarón: Aquí irá la lógica de generación de PDF en el futuro
-    console.log('Exportando reporte de idoneidad...');
+    if (!this.egresado || this.exportingPdf) return;
+    this.exportingPdf = true;
+
+    this.http.get(`${environment.apiUrl}/reportes/egresado/${this.egresado.id}/pdf`, { responseType: 'blob' }).subscribe({
+      next: blob => {
+        const url  = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href  = url;
+        link.download = `reporte_idoneidad_${this.egresado!.matricula || this.egresado!.id}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        this.exportingPdf = false;
+      },
+      error: () => {
+        this.exportingPdf = false;
+        this.msgSvc.add({ severity: 'error', summary: 'Error', detail: 'No se pudo generar el reporte PDF. Intenta más tarde.' });
+      }
+    });
   }
 }

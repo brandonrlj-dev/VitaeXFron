@@ -2,10 +2,13 @@ import {
   CompetenciaDemandada,
   DimensionScores,
   DimensionType,
+  Educacion,
   Egresado,
   Empresa,
+  ExperienciaLaboral,
   InsercionCarrera,
   KpiDashboard,
+  Mensaje,
   OpcionRespuesta,
   Postulacion,
   Pregunta,
@@ -78,6 +81,47 @@ export function mapCompleted(row: any): DimensionType[] {
   return DIMS.filter(dim => row?.[`puntaje_${dim}`] !== null && row?.[`puntaje_${dim}`] !== undefined);
 }
 
+export function mapTrayectoria(row: any): Educacion {
+  const inicio = row.fecha_inicio ? String(row.fecha_inicio).slice(0, 7) : '';
+  const fin = row.fecha_fin ? String(row.fecha_fin).slice(0, 7) : 'Actualidad';
+  return {
+    id: id(row.cve_trayectoria_academica ?? row.id),
+    institucion: row.institucion ?? '',
+    programa: row.programa,
+    grado: row.grado ?? '',
+    periodo: inicio ? `${inicio} — ${fin}` : (row.periodo ?? ''),
+    fecha_inicio: row.fecha_inicio,
+    fecha_fin: row.fecha_fin,
+    promedio: row.promedio != null ? Number(row.promedio) : undefined,
+    descripcion: row.descripcion,
+  };
+}
+
+export function mapExperiencia(row: any): ExperienciaLaboral {
+  return {
+    empresa: row.empresa ?? '',
+    puesto: row.puesto ?? row.cargo ?? '',
+    descripcion: row.descripcion,
+    fecha_inicio: row.fecha_inicio ?? '',
+    fecha_fin: row.fecha_fin,
+    trabajo_actual: Boolean(row.trabajo_actual ?? !row.fecha_fin),
+  };
+}
+
+export function mapMensaje(row: any): Mensaje {
+  return {
+    id: id(row.cve_mensaje ?? row.id),
+    postulacion_id: id(row.cve_postulacion ?? row.postulacion_id),
+    tipo_emisor: row.tipo_emisor ?? 'empresa',
+    mensaje: row.mensaje ?? '',
+    leido: Boolean(row.leido),
+    fecha_envio: row.fecha_envio ?? '',
+    vacante: row.vacante,
+    nombre_contacto: [row.nombre, row.primer_apellido, row.segundo_apellido].filter(Boolean).join(' ') || undefined,
+    cve_vacante: row.cve_vacante ? id(row.cve_vacante) : undefined,
+  };
+}
+
 export function mapEgresado(row: any): Egresado {
   const scores = mapScores(row);
   return {
@@ -98,7 +142,8 @@ export function mapEgresado(row: any): Egresado {
     certificados: (row.certificados ?? []).map(mapCertificado),
     datos_confirmados: row.datos_confirmados ?? true,
     foto_url: row.url_foto ?? row.foto_url,
-    trayectoria: row.trayectoria ?? [],
+    trayectoria: (row.trayectoria ?? []).map(mapTrayectoria),
+    experiencia_laboral: (row.experiencia_laboral ?? []).map(mapExperiencia),
   };
 }
 
@@ -159,15 +204,20 @@ export function perfilToApi(scores: DimensionScores): any {
 }
 
 export function mapVacanteNacional(row: any): VacanteNacional {
+  const rawUrl = row.url_original ?? row.url_externa ?? '';
+  const url = rawUrl === '' || rawUrl === '#'
+    ? '#'
+    : rawUrl.startsWith('http') ? rawUrl : 'https://' + rawUrl;
+
   return {
     id: id(row.cve_vacante_api ?? row.id),
     puesto: row.titulo ?? row.puesto ?? '',
     empresa: row.empresa_externa ?? row.empresa ?? '',
     empresa_logo: row.empresa_logo,
-    ubicacion: row.ubicacion_texto ?? row.ubicacion ?? 'Mexico',
+    ubicacion: row.ubicacion_texto ?? row.ubicacion ?? 'México',
     salario: row.salario ?? salario(row.salario_minimo, row.salario_maximo),
     fuente: row.fuente ?? row.fuente_nombre ?? 'Vacante externa',
-    url_externa: row.url_original ?? row.url_externa ?? '#',
+    url_externa: url,
     descripcion: row.descripcion ?? '',
     fecha_publicacion: fecha(row.fecha_publicacion ?? row.fecha_obtencion),
   };

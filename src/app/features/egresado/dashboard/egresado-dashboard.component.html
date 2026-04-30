@@ -157,6 +157,16 @@
           </div>
         </div>
       </section>
+
+      <!-- ─── Histograma de puntajes ───────────────────────────────────── -->
+      <section>
+        <p class="section-title">Histograma de puntajes por dimensión</p>
+        <div class="vtx-card histograma-card">
+          <h3>Distribución de competencias</h3>
+          <p class="caption" style="margin-bottom:20px">Puntaje obtenido (0-100) en cada dimensión de evaluación</p>
+          <p-chart type="bar" [data]="histogramaData" [options]="histogramaOptions" [style]="{height:'220px'}"></p-chart>
+        </div>
+      </section>
     }
 
   }
