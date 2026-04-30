@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Egresado, Vacante, VacanteNacional } from '../models';
 import { environment } from '../../../environments/environment';
@@ -89,4 +89,17 @@ export class VacanteService {
       catchError(error => toApiError(error, 'No se pudo confirmar la contratación'))
     );
   }
+
+  calcularCoincidencia(scores: any, perfilIdeal: any): number {
+    if (!scores || !perfilIdeal) return 0;
+    const dims: (keyof typeof scores)[] = ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'];
+    let total = 0;
+    dims.forEach(d => {
+      const actual = Number(scores[d] || 0);
+      const ideal = Number(perfilIdeal[d] || 70);
+      total += Math.min(actual / ideal, 1);
+    });
+    return Math.round((total / dims.length) * 100);
+  }
 }
+
