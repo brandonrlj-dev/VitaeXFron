@@ -37,6 +37,16 @@ export class EgresadoService {
     puntaje: number
   ): Observable<void> {
     if (environment.useMocks) {
+      const e = EGRESADOS_MOCK.find(x => x.id === egresadoId);
+      if (e) {
+        if (!e.evaluaciones_completadas.includes(dimension)) {
+          e.evaluaciones_completadas.push(dimension);
+        }
+        if (!e.scores) {
+          e.scores = { psicometrica: 0, cognitiva: 0, tecnica: 0, proyectiva: 0 };
+        }
+        e.scores[dimension] = puntaje;
+      }
       return of(undefined).pipe(delay(500));
     }
     return this.http.post<void>(`${environment.apiUrl}/evaluaciones`, {
@@ -72,5 +82,17 @@ export class EgresadoService {
     return this.http.delete<void>(`${environment.apiUrl}/egresado/${egresadoId}/certificado`, {
       body: { url: certificadoUrl }
     });
+  }
+
+  resetEvaluaciones(id: string): Observable<void> {
+    if (environment.useMocks) {
+      const e = EGRESADOS_MOCK.find(x => x.id === id);
+      if (e) {
+        e.evaluaciones_completadas = [];
+        e.scores = { psicometrica: 0, cognitiva: 0, tecnica: 0, proyectiva: 0 };
+      }
+      return of(undefined).pipe(delay(200));
+    }
+    return this.http.post<void>(`${environment.apiUrl}/egresado/${id}/reset-evaluaciones`, {});
   }
 }

@@ -148,7 +148,7 @@
               icon="pi pi-send"
               class="w-full postulate-btn"
               [loading]="postulando"
-              [disabled]="postulando || !egresado?.evaluaciones_completadas?.length"
+              [disabled]="postulando || (egresado?.evaluaciones_completadas?.length ?? 0) < 4"
               (click)="postularme()"
             ></button>
           }

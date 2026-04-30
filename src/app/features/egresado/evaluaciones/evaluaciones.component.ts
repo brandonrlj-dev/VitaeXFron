@@ -5,7 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { FormsModule } from '@angular/forms';
-import { DimensionType, DIMENSION_CONFIG, Pregunta } from '../../../core/models';
+import { DimensionType, DIMENSION_CONFIG, Pregunta, Egresado } from '../../../core/models';
 import { BANCO_PREGUNTAS } from '../../../shared/mocks/evaluaciones.mock';
 import { EgresadoService } from '../../../core/services/egresado.service';
 
@@ -25,6 +25,7 @@ export class EvaluacionesComponent implements OnInit {
   fase: 'seleccion' | 'prueba' | 'resultado' = 'seleccion';
   puntajeObtenido           = 0;
   saving                    = false;
+  egresado?: Egresado;
 
   readonly DIMS: DimensionType[] = ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'];
   readonly DIMENSION_CONFIG      = DIMENSION_CONFIG;
@@ -38,13 +39,25 @@ export class EvaluacionesComponent implements OnInit {
   get config() { return this.dimension ? DIMENSION_CONFIG[this.dimension] : null; }
 
   ngOnInit() {
-    const dim = this.route.snapshot.queryParamMap.get('dimension') as DimensionType | null;
-    if (dim && BANCO_PREGUNTAS[dim]) {
-      this.iniciarDimension(dim);
-    }
+    this.egresadoSvc.getEgresadoActual().subscribe(e => {
+      this.egresado = e;
+      const dim = this.route.snapshot.queryParamMap.get('dimension') as DimensionType | null;
+      if (dim && BANCO_PREGUNTAS[dim] && !this.isCompletada(dim)) {
+        this.iniciarDimension(dim);
+      }
+    });
+  }
+
+  isCompletada(dim: DimensionType): boolean {
+    return !!this.egresado?.evaluaciones_completadas.includes(dim);
+  }
+
+  getPuntaje(dim: DimensionType): number | undefined {
+    return this.egresado?.scores?.[dim];
   }
 
   iniciarDimension(dim: DimensionType) {
+    if (this.isCompletada(dim)) return;
     this.dimension     = dim;
     this.preguntas     = BANCO_PREGUNTAS[dim];
     this.currentIndex  = 0;
@@ -94,4 +107,19 @@ export class EvaluacionesComponent implements OnInit {
 
   irAlDashboard() { this.router.navigate(['/egresado/dashboard']); }
   otraDimension()  { this.fase = 'seleccion'; this.dimension = undefined; }
+
+  cancelarPrueba() {
+    if (confirm('¿Estás seguro de que quieres salir de la evaluación? Perderás tu progreso actual.')) {
+      this.otraDimension();
+    }
+  }
+
+  resetPruebas() {
+    if (!this.egresado) return;
+    this.egresadoSvc.resetEvaluaciones(this.egresado.id).subscribe(() => {
+      // Actualizamos localmente para no recargar la página y perder el estado del Mock
+      this.egresado!.evaluaciones_completadas = [];
+      this.egresado!.scores = { psicometrica: 0, cognitiva: 0, tecnica: 0, proyectiva: 0 };
+    });
+  }
 }

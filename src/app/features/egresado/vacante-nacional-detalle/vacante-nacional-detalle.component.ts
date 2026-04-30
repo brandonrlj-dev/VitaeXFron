@@ -5,7 +5,8 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { VacanteService } from '../../../core/services/vacante.service';
-import { VacanteNacional } from '../../../core/models';
+import { EgresadoService } from '../../../core/services/egresado.service';
+import { VacanteNacional, Egresado } from '../../../core/models';
 
 @Component({
   selector: 'app-vacante-nacional-detalle',
@@ -17,21 +18,26 @@ import { VacanteNacional } from '../../../core/models';
 })
 export class VacanteNacionalDetalleComponent implements OnInit {
   vacante?: VacanteNacional;
+  egresado?: Egresado;
   loading = true;
   postulado = false;
 
   private route = inject(ActivatedRoute);
   private vacanteSvc = inject(VacanteService);
+  private egresadoSvc = inject(EgresadoService);
   private msgSvc = inject(MessageService);
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.vacanteSvc.getVacanteNacionalById(id).subscribe(vn => {
-        this.vacante = vn;
-        this.loading = false;
-      });
-    }
+    this.egresadoSvc.getEgresadoActual().subscribe(e => {
+      this.egresado = e;
+      if (id) {
+        this.vacanteSvc.getVacanteNacionalById(id).subscribe(vn => {
+          this.vacante = vn;
+          this.loading = false;
+        });
+      }
+    });
   }
 
   postular() {

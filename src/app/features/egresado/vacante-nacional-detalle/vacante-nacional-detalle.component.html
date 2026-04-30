@@ -78,7 +78,15 @@
             [label]="postulado ? 'Ir de nuevo a la fuente' : 'Postularme en fuente externa'"
             [icon]="postulado ? 'pi pi-external-link' : 'pi pi-send'"
             class="w-full p-button-lg"
+            [disabled]="(egresado?.evaluaciones_completadas?.length ?? 0) < 4"
           ></button>
+
+          @if (egresado && egresado.evaluaciones_completadas.length < 4) {
+            <div class="notice-warn">
+              <i class="pi pi-info-circle"></i>
+              <span>Completa tus 4 evaluaciones para postularte</span>
+            </div>
+          }
 
           <div class="postulado-badge" *ngIf="postulado">
             <i class="pi pi-check-circle"></i>
