@@ -49,9 +49,6 @@
             </td>
             <td class="text-right">
               <div class="flex gap-2 justify-content-end">
-                @if (s.estatus === 'aprobada') {
-                  <button pButton icon="pi pi-user-plus" class="p-button-text p-button-success p-button-sm" (click)="verDetalle(s)" pTooltip="Generar cuenta"></button>
-                }
                 <button pButton icon="pi pi-eye" class="p-button-text p-button-secondary p-button-sm" (click)="verDetalle(s)" pTooltip="Ver detalle"></button>
               </div>
             </td>
@@ -63,7 +60,6 @@
 
 </div>
 
-<!-- Dialog: Detalle de solicitud -->
 <p-dialog
   [(visible)]="showDetalle"
   [modal]="true"
@@ -91,7 +87,7 @@
           <span class="dato-valor">{{ selectedSolicitud.contacto_email }}</span>
         </div>
         <div class="dato-item">
-          <span class="dato-label">Teléfono</span>
+          <span class="dato-label">Telefono</span>
           <span class="dato-valor">{{ selectedSolicitud.contacto_telefono }}</span>
         </div>
         <div class="dato-item">
@@ -108,22 +104,20 @@
         </div>
         @if (selectedSolicitud.motivo) {
           <div class="dato-item full">
-            <span class="dato-label">Motivo / Resolución</span>
+            <span class="dato-label">Motivo / Resolucion</span>
             <span class="dato-valor">{{ selectedSolicitud.motivo }}</span>
           </div>
         }
       </div>
-
     </div>
   }
 
   <ng-template pTemplate="footer">
     @if (selectedSolicitud) {
       <div class="footer-actions">
-        
         @if (!showRechazarForm) {
           <div class="status-manager">
-            <span class="status-title">Gestión de Estatus</span>
+            <span class="status-title">Gestion de Estatus</span>
             <div class="status-options">
               <button class="status-opt" [class.active]="selectedSolicitud.estatus === 'pendiente'" (click)="cambiarEstatus('pendiente')">
                 <i class="pi pi-clock"></i><span>Pendiente</span>
@@ -142,54 +136,20 @@
         }
 
         @if (selectedSolicitud.estatus === 'aprobada' && !showRechazarForm) {
-          <button pButton label="Generar Cuenta Institucional" icon="pi pi-user-plus" class="vtx-btn-primary w-full mt-8" [loading]="procesando" (click)="crearCuenta()"></button>
+          <button pButton label="Formalizar Convenio" icon="pi pi-check-circle" class="vtx-btn-primary w-full mt-8" [loading]="procesando" (click)="formalizarSolicitud()"></button>
         }
 
         @if (showRechazarForm) {
           <div class="rechazar-confirm animate-fade-in flex-column align-items-center text-center py-8">
             <i class="pi pi-exclamation-triangle text-red-500 mb-8" style="font-size: 2rem; color: #ef4444;"></i>
-            <p class="font-bold mb-12" style="color: var(--color-dark);">¿Estás seguro de que deseas rechazar esta solicitud?</p>
+            <p class="font-bold mb-12" style="color: var(--color-dark);">Estas seguro de que deseas rechazar esta solicitud?</p>
             <div class="flex gap-2 justify-content-center">
               <button pButton label="No, cancelar" class="p-button-text p-button-secondary" (click)="showRechazarForm=false"></button>
-              <button pButton label="Sí, rechazar" class="p-button-danger" icon="pi pi-ban" [loading]="procesando" (click)="rechazar()"></button>
+              <button pButton label="Si, rechazar" class="p-button-danger" icon="pi pi-ban" [loading]="procesando" (click)="rechazar()"></button>
             </div>
           </div>
         }
-
       </div>
     }
-  </ng-template>
-</p-dialog>
-
-<!-- Dialog: Credenciales generadas -->
-<p-dialog
-  [(visible)]="showCredDialog"
-  [modal]="true"
-  header="Cuenta Empresa Creada"
-  [style]="{width:'440px'}"
->
-  @if (credenciales) {
-    <div class="creds-content">
-      <div class="creds-icon">
-        <i class="pi pi-check-circle"></i>
-      </div>
-      <p>Las credenciales han sido enviadas automáticamente al correo de la empresa. Guarda esta información:</p>
-
-      <div class="creds-box">
-        <div class="cred-row">
-          <span class="cred-label">Usuario / Email</span>
-          <span class="cred-val">{{ credenciales.email }}</span>
-        </div>
-        <div class="cred-row">
-          <span class="cred-label">Contraseña temporal</span>
-          <span class="cred-val mono">{{ credenciales.password }}</span>
-        </div>
-      </div>
-
-      <p class="caption">La empresa deberá cambiar su contraseña en el primer inicio de sesión.</p>
-    </div>
-  }
-  <ng-template pTemplate="footer">
-    <button pButton label="Aceptar" (click)="showCredDialog=false"></button>
   </ng-template>
 </p-dialog>

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { DimensionScores, Egresado, Vacante, VacanteNacional } from '../models';
+import { Egresado, Vacante, VacanteNacional } from '../models';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope, toApiError, unwrapData, unwrapItems } from './api-response';
 import { mapEgresado, mapPostulacion, mapVacante, mapVacanteNacional } from './api-mappers';
@@ -45,28 +45,18 @@ export class VacanteService {
         acc[String(row.cve_vacante)] = Number(row.porcentaje_coincidencia ?? 0);
         return acc;
       }, {} as Record<string, number>)),
-      catchError(() => of({}))
+      catchError(error => toApiError(error, 'No se pudo cargar el matching del egresado'))
     );
   }
 
-  getCandidatosVacante(vacanteId: string): Observable<{ egresado: Egresado; coincidencia: number }[]> {
-    return this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/vacantes/${vacanteId}/candidatos?porcentaje_minimo=80`).pipe(
+  getCandidatosVacante(vacanteId: string, porcentajeMinimo = 80): Observable<{ egresado: Egresado; coincidencia: number }[]> {
+    return this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/vacantes/${vacanteId}/candidatos?porcentaje_minimo=${porcentajeMinimo}`).pipe(
       map(response => unwrapData(response).map(row => ({
         egresado: mapEgresado(row),
         coincidencia: Number(row.porcentaje_coincidencia ?? 0),
       }))),
       catchError(error => toApiError(error, 'No se pudieron cargar los candidatos'))
     );
-  }
-
-  calcularCoincidencia(egresadoScores: DimensionScores, perfilIdeal: DimensionScores): number {
-    const dims = ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'] as const;
-    const total = dims.reduce((sum, dim) => {
-      const score = egresadoScores[dim];
-      const ideal = perfilIdeal[dim];
-      return sum + (ideal <= 0 ? 1 : Math.min(score / ideal, 1));
-    }, 0);
-    return Math.round((total / 4) * 100);
   }
 
   postularme(egresadoId: string, vacanteId: string): Observable<void> {

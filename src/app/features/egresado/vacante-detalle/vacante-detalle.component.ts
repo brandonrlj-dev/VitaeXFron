@@ -1,6 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ToastModule } from 'primeng/toast';
@@ -39,8 +41,7 @@ export class VacanteDetalleComponent implements OnInit {
   private msgSvc       = inject(MessageService);
 
   get coincidencia(): number {
-    if (!this.egresado?.scores || !this.vacante) return 0;
-    return this.vacanteSvc.calcularCoincidencia(this.egresado.scores, this.vacante.perfil_ideal);
+    return this.vacante?.coincidencia ?? 0;
   }
 
   get fortalezas(): DimensionType[] {
@@ -59,12 +60,25 @@ export class VacanteDetalleComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
-    this.egresadoSvc.getEgresadoActual().subscribe(e => {
-      this.egresado = e;
-      this.vacanteSvc.getVacanteById(id).subscribe(v => {
-        this.vacante = v;
+    forkJoin({
+      egresado: this.egresadoSvc.getEgresadoActual(),
+      vacante: this.vacanteSvc.getVacanteById(id),
+    }).pipe(
+      switchMap(({ egresado, vacante }) => this.vacanteSvc.getMatchingEgresado(egresado.id).pipe(
+        map(matching => ({
+          egresado,
+          vacante: vacante ? { ...vacante, coincidencia: matching[vacante.id] ?? 0 } : vacante,
+        }))
+      ))
+    ).subscribe({
+      next: ({ egresado, vacante }) => {
+        this.egresado = egresado;
+        this.vacante = vacante;
         this.loading = false;
-      });
+      },
+      error: () => {
+        this.loading = false;
+      }
     });
   }
 
@@ -91,8 +105,5 @@ export class VacanteDetalleComponent implements OnInit {
     return '#f97316';
   }
 
-  exportarReporte() {
-    // Cascarón: Aquí irá la lógica de generación de PDF en el futuro
-    console.log('Exportando reporte de idoneidad...');
-  }
+  exportarReporte() {}
 }

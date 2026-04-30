@@ -31,6 +31,7 @@ import { Egresado, Vacante, DimensionType, egresadoNombreCompleto } from '../../
 })
 export class TalentoComponent implements OnInit {
   egresados: Egresado[] = [];
+  candidatos: { egresado: Egresado; coincidencia: number }[] = [];
   vacantes: Vacante[] = [];
   selectedVacanteId = '';
   filtros = { psicometrica: 0, cognitiva: 0, tecnica: 0, proyectiva: 0, minCoincidencia: 80 };
@@ -57,13 +58,8 @@ export class TalentoComponent implements OnInit {
   }
 
   get egresadosFiltrados() {
-    const perfil = this.vacanteSeleccionada?.perfil_ideal;
-    return this.egresados
-      .filter(eg => eg.scores && eg.evaluaciones_completadas.length === 4)
-      .map(eg => ({
-        egresado: eg,
-        coincidencia: perfil ? this.vacanteSvc.calcularCoincidencia(eg.scores!, perfil) : 0,
-      }))
+    return this.candidatos
+      .filter(c => c.egresado.scores && c.egresado.evaluaciones_completadas.length === 4)
       .filter(c => {
         const s = c.egresado.scores!;
         return (
@@ -80,14 +76,43 @@ export class TalentoComponent implements OnInit {
   ngOnInit() {
     this.egresadoSvc.getEgresados().subscribe(egresados => {
       this.egresados = egresados;
+      this.hidratarCandidatos();
     });
 
     this.empresaSvc.getEmpresaActual().subscribe(empresa => {
       this.empresaSvc.getVacantesEmpresa(empresa.id).subscribe(vacantes => {
         this.vacantes = vacantes.filter(v => v.activa);
         this.selectedVacanteId = this.vacantes[0]?.id ?? '';
+        this.cargarCandidatos();
       });
     });
+  }
+
+  cargarCandidatos() {
+    if (!this.selectedVacanteId) {
+      this.candidatos = [];
+      return;
+    }
+
+    this.vacanteSvc.getCandidatosVacante(this.selectedVacanteId, 80).subscribe({
+      next: candidatos => {
+        this.candidatos = candidatos;
+        this.hidratarCandidatos();
+      },
+      error: (err) => {
+        this.candidatos = [];
+        this.msgSvc.add({ severity: 'error', summary: 'No se pudieron cargar', detail: err.message });
+      }
+    });
+  }
+
+  private hidratarCandidatos() {
+    if (!this.egresados.length || !this.candidatos.length) return;
+    const egresadosById = new Map(this.egresados.map(egresado => [egresado.id, egresado]));
+    this.candidatos = this.candidatos.map(candidato => ({
+      ...candidato,
+      egresado: egresadosById.get(candidato.egresado.id) ?? candidato.egresado,
+    }));
   }
 
   verPerfil(eg: Egresado) {

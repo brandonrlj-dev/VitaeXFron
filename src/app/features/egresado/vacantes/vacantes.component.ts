@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -88,17 +88,25 @@ export class VacantesComponent implements OnInit {
   }
 
   private cargarVacantesLocales() {
+    if (!this.egresado) {
+      this.loading = false;
+      return;
+    }
+
     forkJoin({
       vacs: this.vacanteSvc.getVacantes(),
-      matching: this.egresado ? this.vacanteSvc.getMatchingEgresado(this.egresado.id) : of({} as Record<string, number>),
-    }).subscribe(({ vacs, matching }) => {
-      this.vacantes = vacs.map(v => ({
-        ...v,
-        coincidencia: matching[v.id] ?? (this.egresado?.scores
-          ? this.vacanteSvc.calcularCoincidencia(this.egresado.scores, v.perfil_ideal)
-          : undefined),
-      }));
-      this.loading = false;
+      matching: this.vacanteSvc.getMatchingEgresado(this.egresado.id),
+    }).subscribe({
+      next: ({ vacs, matching }) => {
+        this.vacantes = vacs.map(v => ({
+          ...v,
+          coincidencia: matching[v.id] ?? 0,
+        }));
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
     });
   }
 

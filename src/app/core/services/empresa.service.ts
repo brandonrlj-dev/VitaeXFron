@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { Empresa, Egresado, SolicitudConvenio, Vacante } from '../models';
+import { Empresa, Egresado, EstatusSolicitud, SolicitudConvenio, Vacante } from '../models';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope, toApiError, unwrapData, unwrapItems } from './api-response';
 import {
@@ -109,23 +109,27 @@ export class EmpresaService {
     );
   }
 
-  aprobarSolicitud(id: string): Observable<void> {
+  actualizarSolicitudEstado(
+    id: string,
+    estatus: EstatusSolicitud,
+    observacion?: string
+  ): Observable<SolicitudConvenio> {
+    const estado = estatus === 'en_proceso' ? 'en_revision' : estatus;
     return this.http.put<ApiEnvelope<any>>(`${environment.apiUrl}/solicitudes-convenio/${id}`, {
-      estado: 'aprobada',
+      estado,
+      observacion,
     }).pipe(
-      map(() => undefined),
-      catchError(error => toApiError(error, 'No se pudo aprobar la solicitud'))
+      map(response => mapSolicitud(unwrapData(response))),
+      catchError(error => toApiError(error, 'No se pudo actualizar la solicitud'))
     );
   }
 
-  rechazarSolicitud(id: string, motivo: string): Observable<void> {
-    return this.http.put<ApiEnvelope<any>>(`${environment.apiUrl}/solicitudes-convenio/${id}`, {
-      estado: 'rechazada',
-      observacion: motivo,
-    }).pipe(
-      map(() => undefined),
-      catchError(error => toApiError(error, 'No se pudo rechazar la solicitud'))
-    );
+  aprobarSolicitud(id: string): Observable<SolicitudConvenio> {
+    return this.actualizarSolicitudEstado(id, 'aprobada');
+  }
+
+  rechazarSolicitud(id: string, motivo: string): Observable<SolicitudConvenio> {
+    return this.actualizarSolicitudEstado(id, 'rechazada', motivo);
   }
 
   getDashboardEmpresa(empresaId: string): Observable<{

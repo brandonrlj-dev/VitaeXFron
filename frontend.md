@@ -9,7 +9,7 @@
 
 VitaeX conecta tres actores: **egresados** que buscan empleo, **empresas** con convenio activo, y el **administrador** institucional de la UT de la Costa. Cada actor accede a un espacio propio con navegación, datos y funcionalidades completamente distintos; el router protege cada sección mediante guardias de autenticación y de rol.
 
-La aplicación corre actualmente sobre mocks estáticos. El backend (REST con snake\_case) todavía no existe; cuando se integre, los servicios en `core/services/` son el único punto de cambio.
+La aplicacion consume el backend REST en `environment.apiUrl`. Los servicios en `core/services/` son el unico punto autorizado para hablar con la API y mapear snake_case a los modelos del frontend.
 
 ---
 
@@ -149,7 +149,7 @@ Declaradas como `@keyframes` globales con clases de helper:
    └── rol = admin ─────────────▶  /admin/dashboard
 ```
 
-**`AuthService`** construye un JWT mock firmado con `btoa` y lo persiste en `localStorage`. Al inicializar la app, `restoreSession()` rehidrata el signal de estado sin hacer ningún request.
+**`AuthService`** consume `POST /auth/login`, guarda el JWT real en `localStorage` y rehidrata el signal de estado con la sesion persistida.
 
 **Guardias**:
 - `authGuard`: verifica `isAuthenticated()`. Redirige a `/login` si false.
@@ -207,12 +207,12 @@ DIMENSION_CONFIG = {
 1. El egresado entra a `/egresado/evaluaciones`.
 2. Selecciona una dimensión no completada.
 3. La vista entra en **focus mode** (pantalla completa, sin sidebar) mostrando las preguntas en secuencia.
-4. Al terminar, el `puntaje_obtenido` se persiste en el mock de la sesión y la dimensión se marca como `completada`.
+4. Al terminar, el `puntaje_obtenido` se envia al backend mediante los endpoints de evaluacion y la dimension queda registrada como `completada`.
 5. Los scores acumulados se usan para calcular `coincidencia` con las vacantes.
 
 ### 6.2 Cálculo de coincidencia
 
-La coincidencia egresado–vacante es un porcentaje calculado comparando `egresado.scores` con `vacante.perfil_ideal`. Actualmente se realiza en el frontend sobre mocks; cuando exista backend, este cálculo se delegará al servicio.
+La coincidencia egresado-vacante se consulta al backend mediante `/egresados/{id}/matching` y `/vacantes/{id}/candidatos`.
 
 ---
 
@@ -282,10 +282,10 @@ Componentes de chrome de la aplicación. El sidebar muestra el avatar del usuari
 | Servicio | Responsabilidad |
 |---|---|
 | `AuthService` | Login, 2FA, logout, rehidratación de sesión. Estado en `signal<AuthState>()`. |
-| `EgresadoService` | CRUD mock del perfil y scores del egresado. |
+| `EgresadoService` | Perfil, scores, evaluaciones, CV, foto y certificados via API. |
 | `EmpresaService` | Consulta de candidatos y gestión de vacantes de la empresa. |
 | `AdminService` | KPIs, convenios, solicitudes, reportes. |
-| `VacanteService` | Catálogo de vacantes, filtros, cálculo de coincidencia. |
+| `VacanteService` | Catalogo de vacantes, vacantes nacionales, matching y postulaciones via API. |
 | `ProfilePhotoService` | Foto del egresado y logo del admin. Persiste data-URLs en `localStorage`. Valida tipo (`image/*`) y tamaño (≤ 3 MB). |
 
 ---
@@ -319,18 +319,17 @@ Todos los overrides usan `!important` de forma contenida para ganar especificida
 
 ---
 
-## 12. Mocks (`shared/mocks/`)
+## 12. Integracion API
 
-| Archivo | Contenido |
+No hay carpeta de datos simulados en la aplicacion. Los datos operativos se obtienen desde servicios HTTP:
+
+| Servicio | Endpoints principales |
 |---|---|
-| `egresados.mock.ts` | Array de `Egresado[]` con scores y evaluaciones variadas |
-| `vacantes.mock.ts` | Array de `Vacante[]` con `perfil_ideal` y `coincidencia` precalculada |
-| `empresas.mock.ts` | Array de `Empresa[]` con convenios en distintos estados |
-| `evaluaciones.mock.ts` | `Pregunta[]` por dimensión |
-| `convenios.mock.ts` | `SolicitudConvenio[]` con distintos estatus |
-| `reportes.mock.ts` | `InsercionCarrera[]` y `CompetenciaDemandada[]` para gráficas |
-
-Cuando se integre el backend, los servicios reemplazarán `of(mock)` por `this.http.get<T>(url)`. Los tipos ya están alineados con snake\_case.
+| `AuthService` | `/auth/login`, `/auth/me` |
+| `EgresadoService` | `/egresados`, `/evaluaciones`, `/certificados` |
+| `EmpresaService` | `/empresas`, `/solicitudes-convenio`, `/vacantes` |
+| `AdminService` | `/dashboard/admin/*`, `/reportes/*` |
+| `VacanteService` | `/vacantes`, `/vacantes-nacionales`, `/matching`, `/postulaciones` |
 
 ---
 
@@ -353,4 +352,4 @@ Breakpoints definidos en `styles.scss`:
 - **Áreas de texto con `<textarea>` nativo** — `InputTextareaModule` y `TextareaModule` no existen en PrimeNG 17 standalone; se usa `<textarea pInputText>` o estilos inline.
 - **Nuevos componentes** importan solo lo que necesitan; no existe un módulo compartido.
 - **Colores siempre desde tokens CSS**; no hardcodear hexadecimales en SCSS de componentes.
-- Los mocks viven en `shared/mocks/`; los servicios son el único lugar que los consume.
+- Los servicios HTTP son el unico lugar donde se consumen datos remotos.

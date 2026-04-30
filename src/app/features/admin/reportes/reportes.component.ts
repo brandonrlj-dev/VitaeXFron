@@ -9,7 +9,7 @@ import { AdminService } from '../../../core/services/admin.service';
 import { EmpresaService } from '../../../core/services/empresa.service';
 import { ProfilePhotoService } from '../../../core/services/profile-photo.service';
 import { ZoneHeatmapComponent } from '../../../shared/components/zone-heatmap/zone-heatmap.component';
-import { InsercionCarrera, CompetenciaDemandada, KpiDashboard } from '../../../core/models';
+import { Empresa, InsercionCarrera, CompetenciaDemandada, KpiDashboard } from '../../../core/models';
 
 @Component({
   selector: 'app-reportes',
@@ -28,6 +28,9 @@ export class ReportesComponent implements OnInit {
   competencias: CompetenciaDemandada[] = [];
   loading = true;
 
+  private insercionApi: InsercionCarrera[] = [];
+  private empresasApi: Empresa[] = [];
+
   pieChartData: any    = {};
   pieChartOptions: any = {};
   barChartData2: any   = {};
@@ -40,14 +43,8 @@ export class ReportesComponent implements OnInit {
   filterCareer: string | null = null;
   filterZone:   string | null = null;
 
-  careers = [
+  careers: { label: string; value: string | null }[] = [
     { label: 'Todas las carreras', value: null },
-    { label: 'ITI — Tecnologías de la Información', value: 'ITI' },
-    { label: 'IMI — Mantenimiento Industrial',       value: 'IMI' },
-    { label: 'IGE — Gestión Empresarial',            value: 'IGE' },
-    { label: 'ILT — Logística y Transporte',         value: 'ILT' },
-    { label: 'TM  — Mecatrónica',                    value: 'TM'  },
-    { label: 'IA  — Agronegocios',                   value: 'IA'  },
   ];
 
   zones = [
@@ -66,18 +63,20 @@ export class ReportesComponent implements OnInit {
   ngOnInit() {
     this.adminSvc.getKpis().subscribe(k => this.kpis = k);
     this.empresaSvc.getEmpresas().subscribe(empresas => {
-      this.conveniosPorZona = empresas.reduce((acc, empresa) => {
-        acc[empresa.zona] = (acc[empresa.zona] ?? 0) + 1;
-        return acc;
-      }, { norte: 0, centro: 0, sur: 0 });
-      this.buildPieChart();
+      this.empresasApi = empresas;
+      this.aplicarFiltros();
     });
-    this.adminSvc.getInsercionPorCarrera().subscribe(d => {
-      this.insercion = d;
+    this.adminSvc.getInsercionPorCarrera().subscribe(data => {
+      this.insercionApi = data;
+      this.careers = [
+        { label: 'Todas las carreras', value: null },
+        ...data.map(row => ({ label: `${row.abreviatura} - ${row.carrera}`, value: row.abreviatura })),
+      ];
+      this.aplicarFiltros();
     });
-    this.adminSvc.getCompetenciasDemandadas().subscribe(d => {
-      this.competencias = d;
-      this.buildBarChart2(d);
+    this.adminSvc.getCompetenciasDemandadas().subscribe(data => {
+      this.competencias = data;
+      this.buildBarChart2(data);
       this.loading = false;
     });
   }
@@ -123,11 +122,22 @@ export class ReportesComponent implements OnInit {
   }
 
   aplicarFiltros() {
-    this.loading = true;
-    setTimeout(() => { this.loading = false; }, 500);
+    this.insercion = this.filterCareer
+      ? this.insercionApi.filter(row => row.abreviatura === this.filterCareer)
+      : this.insercionApi;
+
+    const empresas = this.filterZone
+      ? this.empresasApi.filter(empresa => empresa.zona === this.filterZone)
+      : this.empresasApi;
+
+    this.conveniosPorZona = empresas.reduce((acc, empresa) => {
+      acc[empresa.zona] = (acc[empresa.zona] ?? 0) + 1;
+      return acc;
+    }, { norte: 0, centro: 0, sur: 0 });
+    this.buildPieChart();
   }
 
   exportarPDF() {
-    window.print();
+    window.open(this.adminSvc.reporteInsercionPdfUrl(), '_blank');
   }
 }
