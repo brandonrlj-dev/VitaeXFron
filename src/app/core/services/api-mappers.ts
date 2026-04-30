@@ -271,12 +271,11 @@ export function mapInsercion(row: any): InsercionCarrera {
 }
 
 export function mapCompetencia(row: any): CompetenciaDemandada {
-  const label = row.nombre ?? row.label ?? row.tipo ?? '';
   return {
-    dimension: (row.tipo === 'blanda' ? 'psicometrica' : 'tecnica') as DimensionType,
-    label,
-    demanda: num(row.total_vacante_solicita ?? row.demanda),
-    promedio: num(row.promedio_nivel_requerido ?? row.promedio),
+    dimension: (row.dimension ?? row.tipo) as DimensionType,
+    label: row.label ?? row.nombre ?? '',
+    demanda: num(row.demanda ?? row.total_vacante_solicita),
+    promedio: num(row.promedio ?? row.promedio_nivel_requerido),
   };
 }
 
