@@ -183,10 +183,14 @@ export class PerfilComponent implements OnInit {
   }
 
   eliminarCertificado(index: number) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este documento? También se borrará de Google Drive.')) {
+      return;
+    }
+
     const cert = this.egresado!.certificados[index];
     this.svc.eliminarCertificado(this.egresado!.id, cert.id ?? cert.url).subscribe(() => {
       this.egresado!.certificados.splice(index, 1);
-      this.msgSvc.add({ severity: 'info', summary: 'Documento eliminado', detail: 'El archivo ha sido removido.' });
+      this.msgSvc.add({ severity: 'info', summary: 'Documento eliminado', detail: 'El archivo ha sido removido de Drive.' });
     });
   }
 
