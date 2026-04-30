@@ -1,0 +1,15 @@
+.cv-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+
+  @media (max-width: 500px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    ::ng-deep .p-button {
+      width: 100%;
+    }
+  }
+}

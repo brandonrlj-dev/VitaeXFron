@@ -16,6 +16,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ScoreCircleComponent } from '../../../shared/components/score-circle/score-circle.component';
 import { SpiderChartComponent } from '../../../shared/components/spider-chart/spider-chart.component';
 import { DimensionPillComponent } from '../../../shared/components/dimension-pill/dimension-pill.component';
+import { CvPdfActionsComponent } from '../../../shared/components/cv-pdf-actions/cv-pdf-actions.component';
 import { Empresa, Vacante, Egresado, Postulacion, DimensionType, egresadoNombreCompleto } from '../../../core/models';
 
 interface CandidatoCard {
@@ -29,7 +30,7 @@ interface CandidatoCard {
   standalone: true,
   imports: [
     CommonModule, RouterLink, ButtonModule, DialogModule, DropdownModule, FormsModule, ToastModule, SliderModule, InputTextModule,
-    ScoreCircleComponent, SpiderChartComponent, DimensionPillComponent,
+    ScoreCircleComponent, SpiderChartComponent, DimensionPillComponent, CvPdfActionsComponent
   ],
   providers: [MessageService],
   templateUrl: './empresa-dashboard.component.html',

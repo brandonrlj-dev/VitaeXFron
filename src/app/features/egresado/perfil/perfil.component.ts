@@ -12,6 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { EgresadoService } from '../../../core/services/egresado.service';
 import { Educacion, Egresado, ExperienciaLaboral, egresadoNombreCompleto } from '../../../core/models';
 import { buildEgresadoPhotoUrl, usablePhotoUrl } from '../../../core/services/profile-photo.service';
+import { CvPdfActionsComponent } from '../../../shared/components/cv-pdf-actions/cv-pdf-actions.component';
 
 @Component({
   selector: 'app-perfil',
@@ -19,7 +20,7 @@ import { buildEgresadoPhotoUrl, usablePhotoUrl } from '../../../core/services/pr
   imports: [
     CommonModule, FormsModule,
     ButtonModule, DialogModule, InputTextModule,
-    ToastModule, TooltipModule, ConfirmDialogModule,
+    ToastModule, TooltipModule, ConfirmDialogModule, CvPdfActionsComponent
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './perfil.component.html',

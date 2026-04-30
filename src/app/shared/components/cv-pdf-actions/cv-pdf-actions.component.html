@@ -1,0 +1,20 @@
+<div class="cv-actions">
+  <button
+    pButton
+    type="button"
+    [label]="showCompare ? 'Ver CV Comparado' : 'Ver CV PDF'"
+    icon="pi pi-file-pdf"
+    class="p-button-outlined"
+    [loading]="loadingPreview"
+    (click)="previewCv()"
+  ></button>
+
+  <button
+    pButton
+    type="button"
+    [label]="showCompare ? 'Descargar CV Comparado' : 'Descargar CV'"
+    icon="pi pi-download"
+    [loading]="loadingDownload"
+    (click)="downloadCv()"
+  ></button>
+</div>

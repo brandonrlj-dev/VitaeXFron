@@ -139,14 +139,20 @@
         @if (egresado.cv_url) {
         <div class="cv-current">
           <i class="pi pi-check-circle"></i>
-          <span>CV cargado</span>
+          <span>Archivo Original Cargado</span>
           <a [href]="egresado.cv_url" target="_blank" class="cv-link">
-            <i class="pi pi-external-link"></i> Ver CV
+            <i class="pi pi-external-link"></i> Ver archivo
           </a>
         </div>
         }
 
-        <button pButton type="button" [label]="egresado.cv_url ? 'Reemplazar CV' : 'Subir CV'" icon="pi pi-upload"
+        <div style="margin: 16px 0; padding: 16px; border: 1px dashed var(--color-border); border-radius: 8px;">
+          <h4 style="margin: 0 0 8px 0; font-size: 14px;">Currículum Generado Automáticamente</h4>
+          <p class="caption" style="margin-bottom: 12px;">El sistema genera un CV profesional con tu información y resultados de pruebas.</p>
+          <app-cv-pdf-actions [egresadoId]="$any(egresado.id)"></app-cv-pdf-actions>
+        </div>
+
+        <button pButton type="button" [label]="egresado.cv_url ? 'Reemplazar archivo original' : 'Subir archivo original'" icon="pi pi-upload"
           class="save-cv-btn" [loading]="savingCv" (click)="triggerCvUpload()"></button>
         <input #cvInput type="file" accept="application/pdf,.pdf,.doc,.docx" style="display:none"
           (change)="onCvSelected($event)" />

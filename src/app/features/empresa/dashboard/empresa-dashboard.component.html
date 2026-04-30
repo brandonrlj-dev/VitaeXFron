@@ -299,11 +299,19 @@
         </div>
       }
 
-      @if (selectedCandidato.egresado.cv_url) {
-        <a [href]="selectedCandidato.egresado.cv_url" target="_blank" class="cv-btn">
-          <i class="pi pi-file-pdf"></i> Ver CV
-        </a>
-      }
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;">
+        @if (selectedCandidato.egresado.cv_url) {
+          <a [href]="selectedCandidato.egresado.cv_url" target="_blank" class="cv-btn" style="height: 42px;">
+            <i class="pi pi-file-pdf"></i> Archivo Adjunto Original
+          </a>
+        }
+        
+        <app-cv-pdf-actions
+          [egresadoId]="$any(selectedCandidato.egresado.id)"
+          [vacanteId]="$any(selectedCandidato.vacanteId)"
+          [showCompare]="!!selectedCandidato.vacanteId"
+        ></app-cv-pdf-actions>
+      </div>
     </div>
   }
 </p-dialog>
