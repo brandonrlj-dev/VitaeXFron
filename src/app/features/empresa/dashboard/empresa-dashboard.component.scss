@@ -5,6 +5,10 @@
   align-items: center;
   gap: 14px;
   min-width: 0;
+
+  @media (max-width: 520px) {
+    align-items: flex-start;
+  }
 }
 
 .empresa-logo {
@@ -21,6 +25,15 @@
 
   i {
     font-size: 42px;
+  }
+
+  @media (max-width: 520px) {
+    width: 56px;
+    height: 56px;
+
+    i {
+      font-size: 30px;
+    }
   }
 }
 
@@ -90,6 +103,10 @@
   display: flex;
   align-items: center;
   gap: 12px;
+
+  @media (max-width: 520px) {
+    align-items: flex-start;
+  }
 }
 
 .candidato-avatar {
@@ -146,6 +163,15 @@
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
+
+  @media (max-width: 900px) {
+    align-items: stretch;
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 }
 
 .analytics-card {
@@ -196,6 +222,9 @@
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr 1fr;
+    span:nth-child(1) {
+      grid-column: 1 / -1;
+    }
   }
 }
 

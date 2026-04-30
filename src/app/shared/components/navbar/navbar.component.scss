@@ -28,7 +28,7 @@
   background: var(--color-primary);
   display: flex; align-items: center; justify-content: center;
 }
-.brand-icon  { font-weight: 800; font-size: 14px; color: white; letter-spacing: -0.04em; }
+.brand-icon  { font-weight: 800; font-size: 14px; color: white; letter-spacing: 0; }
 .brand-text  { display: flex; flex-direction: column; gap: 1px; }
 .brand-name  { font-size: 13px; font-weight: 700; color: white; line-height: 1; white-space: nowrap; }
 .brand-sub   { font-size: 10px; color: rgba(255,255,255,0.45); line-height: 1; letter-spacing: 0.02em; }
@@ -171,5 +171,16 @@
     i { font-size: 18px; }
     &.active { color: #7ff5ef; }
     &:hover  { color: rgba(255,255,255,0.80); }
+  }
+
+  @media (max-width: 420px) {
+    .mobile-tab {
+      span {
+        max-width: 62px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
   }
 }

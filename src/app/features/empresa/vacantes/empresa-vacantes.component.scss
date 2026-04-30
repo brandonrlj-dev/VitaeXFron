@@ -1,5 +1,11 @@
 .table-card { padding: 0 !important; overflow: hidden; }
 
+@media (max-width: 768px) {
+  .table-card {
+    overflow-x: auto;
+  }
+}
+
 .puesto-text { font-weight: 500; font-size: 14px; }
 
 .dims-cell {
@@ -74,6 +80,10 @@
   gap: 12px;
   align-items: flex-start;
   margin-bottom: 4px;
+
+  @media (max-width: 520px) {
+    flex-direction: column;
+  }
 }
 
 .section-label {
@@ -87,6 +97,10 @@
   display: flex;
   align-items: center;
   gap: 12px;
+
+  @media (max-width: 520px) {
+    align-items: stretch;
+  }
 }
 
 .slider-wrap {
@@ -137,6 +151,10 @@
   border-radius: 8px;
   background: var(--color-bg);
   font-size: 13px;
+
+  @media (max-width: 520px) {
+    align-items: flex-start;
+  }
 }
 
 .baja-dialog {

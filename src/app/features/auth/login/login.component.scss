@@ -66,7 +66,7 @@
   font-weight: 800;
   font-size: 16px;
   color: white;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   box-shadow: 0 4px 16px rgba(3,131,123,0.4);
 }
 
@@ -94,7 +94,7 @@
     font-weight: 800;
     color: white;
     line-height: 1.15;
-    letter-spacing: -0.03em;
+    letter-spacing: 0;
     margin: 0 0 16px;
 
     @media (max-width: 1100px) { font-size: 1.9rem; }
@@ -156,7 +156,7 @@
   font-size: 1.25rem;
   font-weight: 800;
   color: white;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
 }
 

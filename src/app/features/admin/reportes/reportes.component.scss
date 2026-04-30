@@ -61,7 +61,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 24px;
-  h3 { font-size: 1.15rem; font-weight: 800; color: var(--color-dark); margin: 0; letter-spacing: -0.02em; }
+  h3 { font-size: 1.15rem; font-weight: 800; color: var(--color-dark); margin: 0; letter-spacing: 0; }
   .caption { margin-bottom: 4px; color: var(--color-text-muted); line-height: 1.4; }
 }
 
@@ -93,7 +93,7 @@
   font-size: 14px;
   font-weight: 800;
   color: var(--color-dark);
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .ins-nums {
@@ -104,7 +104,7 @@
 
 .ins-bar-track {
   height: 12px;
-  background: #f1f5f9;
+  background: var(--color-border-light);
   border-radius: 6px;
   overflow: hidden;
   position: relative;
@@ -113,13 +113,13 @@
 
 .ins-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #10b981, #059669);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-success));
   border-radius: 6px;
   transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 
-  &.low { background: linear-gradient(90deg, #f87171, #ef4444); }
-  &.med { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+  &.low { background: var(--color-danger); }
+  &.med { background: var(--color-warning); }
 }
 
 .ins-tasa {
@@ -129,7 +129,7 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
 
-  &.high { color: #059669; }
+  &.high { color: var(--color-success); }
 }
 
 .pie-wrap {
@@ -146,7 +146,7 @@
 
 .heatmap-wrap-outer {
   margin-top: 12px;
-  background: #f8fafc;
+  background: var(--color-surface-alt);
   border-radius: 16px;
   padding: 16px;
 }
@@ -163,7 +163,7 @@
   gap: 16px;
   padding-bottom: 20px;
   margin-bottom: 24px;
-  border-bottom: 2px solid #033d3c;
+  border-bottom: 2px solid var(--color-dark);
 }
 
 .print-logo {
@@ -177,19 +177,19 @@
   width: 56px;
   height: 56px;
   border-radius: 12px;
-  background: #03837b;
+  background: var(--color-primary);
   color: white;
   font-weight: 800;
   font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .print-title-block { display: flex; flex-direction: column; gap: 4px; }
-.print-title    { font-size: 16px; font-weight: 700; color: #033d3c; margin: 0; }
-.print-subtitle { font-size: 12px; color: #6b7280; margin: 0; }
+.print-title    { font-size: 16px; font-weight: 700; color: var(--color-dark); margin: 0; }
+.print-subtitle { font-size: 12px; color: var(--color-text-secondary); margin: 0; }
 
 // ─── @media print ────────────────────────────────────────────────────────────
 @media print {

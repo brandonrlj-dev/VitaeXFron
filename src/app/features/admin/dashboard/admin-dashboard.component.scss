@@ -35,9 +35,9 @@
   border-radius: 4px;
   padding: 2px 6px;
 
-  &.up      { color: #047857; background: rgba(3,131,123,0.10); i { font-size: 10px; } }
-  &.down    { color: #b91c1c; background: rgba(239,68,68,0.10); i { font-size: 10px; } }
-  &.neutral { color: #6b7280; background: rgba(107,114,128,0.10); i { font-size: 10px; } }
+  &.up      { color: var(--color-success); background: var(--color-primary-light); i { font-size: 10px; } }
+  &.down    { color: var(--color-danger); background: rgba(239,68,68,0.10); i { font-size: 10px; } }
+  &.neutral { color: var(--color-text-secondary); background: rgba(107,114,128,0.10); i { font-size: 10px; } }
 }
 
 // Charts
@@ -141,7 +141,7 @@
 .tasa-bar-fill {
   height: 100%;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--color-primary), #05b0a5);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-psicometrica));
   transition: width 0.6s ease;
 }
 
@@ -154,5 +154,5 @@
   text-align: right;
 
   &.high { color: var(--color-primary); }
-  &.mid  { color: #2563eb; }
+  &.mid  { color: var(--color-info); }
 }

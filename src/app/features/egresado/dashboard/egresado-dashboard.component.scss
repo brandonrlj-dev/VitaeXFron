@@ -5,12 +5,20 @@
   flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 32px;
+
+  @media (max-width: 600px) {
+    margin-bottom: 20px;
+  }
 }
 
 .welcome-block {
   display: flex;
   align-items: flex-start;
   gap: 20px;
+
+  @media (max-width: 520px) {
+    gap: 12px;
+  }
 }
 
 // ─── Hero avatar ─────────────────���────────────────���──────────────────────────
@@ -93,13 +101,17 @@
   justify-content: space-between;
   margin-bottom: 14px;
   gap: 16px;
+
+  @media (max-width: 520px) {
+    flex-direction: column;
+  }
 }
 
 .completitud-pct {
   font-size: 1.75rem;
   font-weight: 800;
   color: var(--color-primary);
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
   flex-shrink: 0;
 }
 
@@ -235,6 +247,11 @@
   border-radius: 12px;
   border: 1px solid var(--color-border);
   margin-top: 8px;
+
+  @media (max-width: 520px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .score-info {
@@ -270,4 +287,13 @@
   .sk-title { height: 32px; width: 280px; margin-bottom: 32px; }
   .sk-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .sk-card { height: 160px; border-radius: 12px; }
+
+  @media (max-width: 768px) {
+    .sk-title { width: min(280px, 100%); }
+    .sk-row { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 480px) {
+    .sk-row { grid-template-columns: 1fr; }
+  }
 }

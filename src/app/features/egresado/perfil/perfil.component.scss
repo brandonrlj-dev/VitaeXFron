@@ -77,6 +77,11 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 4px;
+
+  @media (max-width: 520px) {
+    flex-direction: column;
+    gap: 8px;
+  }
 }
 
 .tray-title {
@@ -175,6 +180,11 @@
     height: 240px;
     border-radius: 50%;
     margin: 0 auto;
+
+    @media (max-width: 480px) {
+      width: 180px;
+      height: 180px;
+    }
   }
 
   &.error {
@@ -368,6 +378,10 @@
   &:hover {
     border-color: var(--color-primary-medium);
   }
+
+  @media (max-width: 520px) {
+    align-items: flex-start;
+  }
 }
 
 .file-icon {
@@ -397,6 +411,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 250px;
+
+  @media (max-width: 520px) {
+    max-width: 58vw;
+  }
 }
 
 .remove-cert-btn {
@@ -407,6 +425,16 @@
   display: flex;
   align-items: center;
   gap: 12px;
+
+  @media (max-width: 520px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 }
 
 .limit-hint {

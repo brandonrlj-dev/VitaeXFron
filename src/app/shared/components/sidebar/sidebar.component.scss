@@ -21,7 +21,7 @@
   width: 36px; height: 36px; border-radius: 10px;
   background: var(--color-primary);
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  span { font-weight: 800; font-size: 14px; color: white; letter-spacing: -0.04em; }
+  span { font-weight: 800; font-size: 14px; color: white; letter-spacing: 0; }
 }
 
 .brand-text  { display: flex; flex-direction: column; gap: 1px; }
@@ -138,4 +138,63 @@
   flex-shrink: 0;
 
   &:hover { background: rgba(239,68,68,0.15); color: #fca5a5; }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    min-height: 0;
+    height: auto;
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 100;
+    overflow: visible;
+  }
+
+  .sidebar-header {
+    height: 56px;
+    padding: 0 16px;
+    border-bottom-color: rgba(255,255,255,0.08);
+  }
+
+  .brand-text {
+    min-width: 0;
+  }
+
+  .brand-name {
+    max-width: 62vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sidebar-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    flex-direction: row;
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0));
+    gap: 2px;
+    background: var(--color-dark);
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .nav-section-label,
+  .sidebar-footer,
+  .nav-item span {
+    display: none;
+  }
+
+  .nav-item {
+    flex: 1;
+    justify-content: center;
+    padding: 9px 4px;
+    border-radius: 10px;
+
+    i {
+      font-size: 18px;
+    }
+  }
 }

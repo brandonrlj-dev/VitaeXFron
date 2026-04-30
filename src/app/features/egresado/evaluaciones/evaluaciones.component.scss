@@ -103,6 +103,10 @@
   display: flex;
   align-items: center;
   gap: 12px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 }
 
 .back-focus-btn {
@@ -132,6 +136,10 @@
 
   p-progressbar { flex: 1; }
   ::ng-deep .p-progressbar { height: 6px !important; }
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 }
 
 .progress-text {
@@ -240,6 +248,15 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 }
 
 // Result
@@ -273,7 +290,7 @@
 .result-score {
   font-size: 4rem;
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   line-height: 1;
 }
 
@@ -296,4 +313,13 @@
   flex-wrap: wrap;
   justify-content: center;
   margin-top: 8px;
+
+  @media (max-width: 480px) {
+    width: 100%;
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 }

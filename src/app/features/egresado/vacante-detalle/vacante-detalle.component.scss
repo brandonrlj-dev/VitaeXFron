@@ -15,7 +15,7 @@
 
 .detalle-grid {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: minmax(0, 1fr) 300px;
   gap: 24px;
   align-items: start;
 
@@ -31,6 +31,10 @@
   display: flex;
   align-items: flex-start;
   gap: 16px;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+  }
 }
 
 .company-avatar-lg {
@@ -99,6 +103,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+
+  @media (max-width: 520px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .bar-scores {
@@ -151,13 +160,20 @@
   @media (max-width: 600px) { grid-template-columns: 1fr; }
 }
 
-.strength-block .label { color: #047857; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-.gap-block .label      { color: #c2410c; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.strength-block .label { color: var(--color-success); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.gap-block .label      { color: var(--color-proyectiva); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
 
 .pill-list { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 
 // Side col
-.side-col { position: sticky; top: calc(var(--navbar-height) + 16px); }
+.side-col {
+  position: sticky;
+  top: calc(var(--navbar-height) + 16px);
+
+  @media (max-width: 900px) {
+    position: static;
+  }
+}
 
 .action-card {
   display: flex;
@@ -236,8 +252,8 @@
 
 // --- Export Card ---
 .export-card {
-  background: linear-gradient(to right, #ffffff, #fffdfd) !important;
-  border-left: 4px solid #ef4444; // Color PDF (rojo)
+  background: var(--color-surface) !important;
+  border-left: 4px solid var(--color-danger);
 }
 
 .export-content {
@@ -247,7 +263,8 @@
 
   @media (max-width: 600px) {
     flex-direction: column;
-    text-align: center;
+    align-items: stretch;
+    text-align: left;
     gap: 16px;
   }
 }
@@ -264,7 +281,7 @@
 
   i {
     font-size: 24px;
-    color: #ef4444;
+    color: var(--color-danger);
   }
 }
 
@@ -288,4 +305,9 @@
   height: 40px !important;
   font-weight: 600 !important;
   white-space: nowrap;
+
+  @media (max-width: 600px) {
+    width: 100%;
+    justify-content: center;
+  }
 }

@@ -20,6 +20,10 @@
   border-radius: 12px;
   border: 1px solid var(--color-border);
   width: fit-content;
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
 }
 
 .tab-btn {
@@ -37,6 +41,17 @@
   transition: all 0.2s;
 
   i { font-size: 14px; }
+
+  @media (max-width: 600px) {
+    flex: 1;
+    justify-content: center;
+    padding: 9px 10px;
+    min-width: 0;
+
+    span {
+      min-width: 0;
+    }
+  }
 
   &:hover {
     background: var(--color-bg);
@@ -60,10 +75,22 @@
   align-items: flex-end;
   gap: 16px;
   flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    align-items: stretch;
+  }
 }
 
 .filter-item { flex: 1; min-width: 180px; }
 .search-filter { flex: 2; min-width: 220px; }
+
+@media (max-width: 640px) {
+  .filter-item,
+  .search-filter {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+}
 
 .slider-filter {
   display: flex;
@@ -75,7 +102,7 @@
 
 .vacantes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
   gap: 16px;
 
   @media (max-width: 480px) { grid-template-columns: 1fr; }
@@ -127,9 +154,9 @@
   flex-shrink: 0;
 
   &.api {
-    background: #eef2ff;
-    color: #4f46e5;
-    border-color: #c7d2fe;
+    background: rgba(59,130,246,0.10);
+    color: var(--color-info);
+    border-color: rgba(59,130,246,0.25);
   }
 }
 
@@ -164,8 +191,8 @@
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  color: #4f46e5;
-  background: #eef2ff;
+  color: var(--color-info);
+  background: rgba(59,130,246,0.10);
   padding: 2px 8px;
   border-radius: 4px;
   margin-top: 4px;
@@ -205,8 +232,8 @@
   gap: 4px;
   font-size: 11px;
   font-weight: 600;
-  color: #4f46e5;
-  background: #eef2ff;
+  color: var(--color-info);
+  background: rgba(59,130,246,0.10);
   padding: 2px 8px;
   border-radius: 4px;
   i { font-size: 10px; }
@@ -268,7 +295,7 @@
 
 .sk-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
   gap: 16px;
 }
 

@@ -26,6 +26,16 @@ import { ToastModule } from 'primeng/toast';
       min-width: 0;
       background: var(--color-bg);
     }
+    @media (max-width: 768px) {
+      .admin-shell {
+        display: block;
+        min-height: 100vh;
+      }
+      .admin-content {
+        padding-top: 56px;
+        padding-bottom: 72px;
+      }
+    }
   `]
 })
 export class AdminLayoutComponent {}
