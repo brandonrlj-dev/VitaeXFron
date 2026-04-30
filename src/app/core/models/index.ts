@@ -103,6 +103,19 @@ export interface Vacante {
   coincidencia?:      number;
 }
 
+export interface VacanteNacional {
+  id:                 string;
+  puesto:             string;
+  empresa:            string;
+  empresa_logo?:      string;
+  ubicacion:          string;
+  salario?:           string;
+  fuente:             string;
+  url_externa:        string;
+  descripcion:        string;
+  fecha_publicacion:  string;
+}
+
 // ─── Empresa ─────────────────────────────────────────────────────────────────
 export type TipoConvenio   = 'automatico' | 'contratacion' | 'solicitud' | 'ninguno';
 export type EstatusConvenio = 'activo' | 'por_vencer' | 'pendiente' | 'inactivo';

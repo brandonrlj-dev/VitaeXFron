@@ -10,7 +10,7 @@ import { VacanteService } from '../../../core/services/vacante.service';
 import { EgresadoService } from '../../../core/services/egresado.service';
 import { ScoreCircleComponent } from '../../../shared/components/score-circle/score-circle.component';
 import { DimensionPillComponent } from '../../../shared/components/dimension-pill/dimension-pill.component';
-import { Vacante, Egresado, DimensionType } from '../../../core/models';
+import { Vacante, VacanteNacional, Egresado, DimensionType } from '../../../core/models';
 
 @Component({
   selector: 'app-vacantes',
@@ -24,12 +24,14 @@ import { Vacante, Egresado, DimensionType } from '../../../core/models';
   styleUrls: ['./vacantes.component.scss'],
 })
 export class VacantesComponent implements OnInit {
-  vacantes: Vacante[]       = [];
+  vacantes: Vacante[]               = [];
+  vacantesNacionales: VacanteNacional[] = [];
   egresado?: Egresado;
   loading = true;
   busqueda   = '';
   areaFiltro = '';
   minCoincidencia = 0;
+  modo: 'bolsa' | 'nacional' = 'bolsa';
 
   readonly DIMS: DimensionType[] = ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'];
 
@@ -45,6 +47,17 @@ export class VacantesComponent implements OnInit {
   private vacanteSvc  = inject(VacanteService);
   private egresadoSvc = inject(EgresadoService);
 
+  setModo(nuevoModo: 'bolsa' | 'nacional') {
+    if (this.modo === nuevoModo) return;
+    this.modo = nuevoModo;
+    this.loading = true;
+    if (this.modo === 'bolsa') {
+      this.cargarVacantesLocales();
+    } else {
+      this.cargarVacantesNacionales();
+    }
+  }
+
   get vacantesFiltradas(): Vacante[] {
     return this.vacantes
       .filter(v => {
@@ -59,18 +72,36 @@ export class VacantesComponent implements OnInit {
       .sort((a, b) => (b.coincidencia ?? 0) - (a.coincidencia ?? 0));
   }
 
+  get vacantesNacionalesFiltradas(): VacanteNacional[] {
+    return this.vacantesNacionales.filter(v => {
+      const texto = `${v.puesto} ${v.empresa} ${v.ubicacion} ${v.fuente}`.toLowerCase();
+      return !this.busqueda || texto.includes(this.busqueda.toLowerCase());
+    });
+  }
+
   ngOnInit() {
     this.egresadoSvc.getEgresadoActual().subscribe(e => {
       this.egresado = e;
-      this.vacanteSvc.getVacantes().subscribe(vacs => {
-        this.vacantes = vacs.map(v => ({
-          ...v,
-          coincidencia: e.scores
-            ? this.vacanteSvc.calcularCoincidencia(e.scores, v.perfil_ideal)
-            : undefined,
-        }));
-        this.loading = false;
-      });
+      this.cargarVacantesLocales();
+    });
+  }
+
+  private cargarVacantesLocales() {
+    this.vacanteSvc.getVacantes().subscribe(vacs => {
+      this.vacantes = vacs.map(v => ({
+        ...v,
+        coincidencia: this.egresado?.scores
+          ? this.vacanteSvc.calcularCoincidencia(this.egresado.scores, v.perfil_ideal)
+          : undefined,
+      }));
+      this.loading = false;
+    });
+  }
+
+  private cargarVacantesNacionales() {
+    this.vacanteSvc.getVacantesNacionales().subscribe(vacs => {
+      this.vacantesNacionales = vacs;
+      this.loading = false;
     });
   }
 

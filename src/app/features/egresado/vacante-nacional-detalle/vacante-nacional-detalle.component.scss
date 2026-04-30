@@ -1,0 +1,238 @@
+.back-nav {
+  margin-bottom: 20px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--color-primary);
+  }
+}
+
+.detalle-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// ─── Header Card ─────────────────────────────────────────────────────────────
+.header-card {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.company-logo {
+  width: 100px;
+  height: 100px;
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 10px;
+  }
+}
+
+.logo-placeholder {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vac-titles {
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .empresa-name {
+    font-size: 16px;
+    color: var(--color-text-secondary);
+    margin-bottom: 12px;
+  }
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+// ─── Description Card ────────────────────────────────────────────────────────
+.description-card {
+  h3 {
+    margin-bottom: 16px;
+    font-size: 18px;
+  }
+
+  .description-content {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--color-text-secondary);
+    white-space: pre-line;
+  }
+}
+
+// ─── Source Card ─────────────────────────────────────────────────────────────
+.source-card {
+  background: #f8fafc;
+  border-left: 4px solid #64748b;
+}
+
+.source-info {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+
+  i {
+    font-size: 24px;
+    color: #64748b;
+  }
+
+  h4 {
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+}
+
+// ─── Action Card ─────────────────────────────────────────────────────────────
+.action-card {
+  h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+}
+
+.salario-box {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 20px;
+
+  .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+}
+
+.notice {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.postulado-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 8px;
+  background: #ecfdf5;
+  color: #047857;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+// ─── Help Card ───────────────────────────────────────────────────────────────
+.help-card {
+  h4 {
+    margin-bottom: 8px;
+  }
+  p {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    margin-bottom: 12px;
+  }
+}
+
+// ─── Skeleton ────────────────────────────────────────────────────────────────
+.sk-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sk {
+  background: linear-gradient(90deg, var(--color-border) 25%, var(--color-bg) 50%, var(--color-border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 12px;
+}
+
+.sk-header { height: 140px; }
+.sk-body { height: 300px; }
