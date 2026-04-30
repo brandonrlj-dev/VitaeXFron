@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
-import { CompetenciaDemandada, InsercionCarrera, KpiDashboard } from '../models';
+import { Observable, forkJoin } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { CompetenciaDemandada, InsercionCarrera, KpiDashboard, SolicitudConvenio } from '../models';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope, toApiError, unwrapData } from './api-response';
-import { buildKpis, mapCompetencia, mapInsercion } from './api-mappers';
+import { buildKpis, mapCompetencia, mapInsercion, mapSolicitud } from './api-mappers';
 import { EgresadoService } from './egresado.service';
 import { EmpresaService } from './empresa.service';
 import { VacanteService } from './vacante.service';
@@ -45,16 +45,16 @@ export class AdminService {
     );
   }
 
-  crearCuentaEmpresa(solicitudId: string): Observable<{ email: string; password: string }> {
+  reporteInsercionPdfUrl(): string {
+    return `${environment.apiUrl}/reportes/insercion/pdf`;
+  }
+
+  formalizarSolicitud(solicitudId: string): Observable<SolicitudConvenio> {
     return this.http.put<ApiEnvelope<any>>(`${environment.apiUrl}/solicitudes-convenio/${solicitudId}`, {
-      estado: 'aprobada',
+      estado: 'formalizada',
     }).pipe(
-      map(response => unwrapData(response)),
-      switchMap(solicitud => of({
-        email: solicitud.contacto_email ?? 'contacto@empresa.com',
-        password: `Temp-${solicitudId}-UTC`,
-      })),
-      catchError(error => toApiError(error, 'No se pudo aprobar la solicitud'))
+      map(response => mapSolicitud(unwrapData(response))),
+      catchError(error => toApiError(error, 'No se pudo formalizar la solicitud'))
     );
   }
 }

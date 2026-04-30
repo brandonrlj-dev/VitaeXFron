@@ -2,6 +2,7 @@
 export interface SiestTokenPayload {
   sub?: string;
   usuario: string;
+  cve_rol?: string | number;
   tipo?: 'egresado' | 'empresa' | 'admin';
   rol?: 'egresado' | 'empresa' | 'admin';
   perfil_id?: string | number | null;
@@ -145,10 +146,15 @@ export interface Vacante {
   zona_norte:         boolean;
   perfil_ideal:       DimensionScores;
   fecha_publicacion:  string;
+  fecha_cierre?:      string;
   activa:             boolean;
   salario_rango?:     string;
   modalidad:          'presencial' | 'remoto' | 'hibrido';
   coincidencia?:      number;
+  postulaciones_count?: number;
+  contratados_count?: number;
+  cobertura_dias?:    number;
+  preguntas_tecnicas?: string[];
 }
 
 export interface VacanteNacional {
@@ -202,7 +208,7 @@ export interface Postulacion {
 }
 
 // ─── Solicitud de Convenio ───────────────────────────────────────────────────
-export type EstatusSolicitud = 'pendiente' | 'en_proceso' | 'aprobada' | 'rechazada';
+export type EstatusSolicitud = 'pendiente' | 'en_proceso' | 'aprobada' | 'rechazada' | 'formalizada';
 
 export interface SolicitudConvenio {
   id:                 string;
@@ -213,6 +219,10 @@ export interface SolicitudConvenio {
   contacto_telefono:  string;
   zona:               string;
   giro:               string;
+  sector?:            string;
+  municipio?:         string;
+  estado?:            string;
+  mensaje?:           string;
   fecha_solicitud:    string;
   estatus:            EstatusSolicitud;
   motivo?:            string;

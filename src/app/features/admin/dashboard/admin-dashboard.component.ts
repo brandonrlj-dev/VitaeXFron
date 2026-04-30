@@ -90,43 +90,34 @@ export class AdminDashboardComponent implements OnInit {
         {
           label: 'Demanda empresarial',
           data: data.map(d => d.demanda),
-          fill: true,
-          backgroundColor: 'rgba(3,131,123,0.15)',
-          borderColor: '#03837b',
-          borderWidth: 2.5,
-          pointBackgroundColor: '#03837b',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-          pointRadius: 4,
+          backgroundColor: 'rgba(3,131,123,0.85)',
+          borderRadius: 4,
         },
         {
           label: 'Promedio egresados',
           data: data.map(d => d.promedio),
-          fill: true,
-          backgroundColor: 'rgba(3,61,60,0.08)',
-          borderColor: '#033d3c',
-          borderWidth: 2,
-          borderDash: [5, 4],
-          pointBackgroundColor: '#033d3c',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-          pointRadius: 3,
+          backgroundColor: 'rgba(3,61,60,0.4)',
+          borderRadius: 4,
         }
       ]
     };
     this.radarChartOptions = {
       responsive: true,
+      indexAxis: 'y', // Horizontal bars for better readability of labels
       animation: { duration: 600 },
       plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12 }, color: '#6b7280', boxWidth: 12, padding: 16 } }
+        legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12 }, color: '#6b7280', boxWidth: 12, padding: 16 } },
+        tooltip: { callbacks: { label: (ctx: any) => ` ${ctx.dataset.label}: ${ctx.raw}%` } }
       },
       scales: {
-        r: {
+        x: {
           min: 0, max: 100,
-          ticks: { stepSize: 25, font: { family: 'Inter', size: 9 }, color: '#9ca3af', backdropColor: 'transparent' },
-          pointLabels: { font: { family: 'Inter', size: 12, weight: '600' }, color: '#374151' },
-          grid: { color: '#e5e7eb' },
-          angleLines: { color: '#e5e7eb' },
+          ticks: { stepSize: 25, font: { family: 'Inter', size: 10 }, color: '#9ca3af' },
+          grid: { color: '#f3f4f6' }
+        },
+        y: {
+          ticks: { font: { family: 'Inter', size: 11, weight: '500' }, color: '#374151' },
+          grid: { display: false }
         }
       }
     };

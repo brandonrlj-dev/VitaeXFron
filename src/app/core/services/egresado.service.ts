@@ -18,6 +18,10 @@ export class EgresadoService {
     if (this.cache$) return this.cache$;
 
     const id = this.currentEgresadoId();
+    if (!id) {
+      return throwError(() => new Error('No se pudo identificar el egresado actual en la sesión'));
+    }
+
     const source$ = id ? this.fetchById(id) : this.fetchFirst();
     this.cache$ = source$.pipe(shareReplay(1));
     return this.cache$;

@@ -26,8 +26,8 @@ import { CommonModule } from '@angular/common';
         />
       </svg>
       <div class="score-label">
-        <span class="value" [style.color]="color">{{ score }}</span>
-        <span class="pct">%</span>
+        <span class="value" [style.color]="color" [style.font-size]="fontSize">{{ roundedScore }}</span>
+        <span class="pct" [style.font-size]="'calc(' + fontSize + ' * 0.65)'">%</span>
       </div>
     </div>
   `,
@@ -82,11 +82,17 @@ export class ScoreCircleComponent implements OnChanges {
   circumference = 0;
   dashOffset    = 0;
 
+  roundedScore = 0;
+  fontSize     = '1rem';
+
   ngOnChanges() {
-    this.numSize      = parseInt(this.size, 10);
-    this.center       = this.numSize / 2;
-    this.radius       = this.center - this.strokeWidth - 1;
+    this.numSize       = parseInt(this.size, 10);
+    this.center        = this.numSize / 2;
+    this.radius        = this.center - this.strokeWidth - 1;
     this.circumference = 2 * Math.PI * this.radius;
     this.dashOffset    = this.circumference * (1 - this.score / 100);
+    this.roundedScore  = Math.round(this.score);
+    // Scale font so number never clips the circle
+    this.fontSize      = `${Math.max(10, this.numSize * 0.28)}px`;
   }
 }

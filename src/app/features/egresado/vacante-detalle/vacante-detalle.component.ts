@@ -1,7 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
+
 import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ToastModule } from 'primeng/toast';
@@ -43,8 +46,7 @@ export class VacanteDetalleComponent implements OnInit {
   private http         = inject(HttpClient);
 
   get coincidencia(): number {
-    if (!this.egresado?.scores || !this.vacante) return 0;
-    return this.vacanteSvc.calcularCoincidencia(this.egresado.scores, this.vacante.perfil_ideal);
+    return this.vacante?.coincidencia ?? 0;
   }
 
   get fortalezas(): DimensionType[] {
@@ -67,16 +69,31 @@ export class VacanteDetalleComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
-    this.egresadoSvc.getEgresadoActual().subscribe(e => {
-      this.egresado = e;
-      if (!this.evaluacionesCompletas) {
+    forkJoin({
+      egresado: this.egresadoSvc.getEgresadoActual(),
+      vacante: this.vacanteSvc.getVacanteById(id),
+    }).pipe(
+      switchMap(({ egresado, vacante }) => this.vacanteSvc.getMatchingEgresado(egresado.id).pipe(
+        map(matching => ({
+          egresado,
+          vacante: vacante ? { ...vacante, coincidencia: matching[vacante.id] ?? 0 } : vacante,
+        }))
+      ))
+    ).subscribe({
+      next: ({ egresado, vacante }) => {
+        this.egresado = egresado;
+        this.vacante = vacante;
+        
+        if (this.egresado && !this.evaluacionesCompletas) {
+          // Si no tiene las evaluaciones, no mostramos el matching real
+          // pero dejamos que vea la vacante.
+        }
+
         this.loading = false;
-        return;
+      },
+      error: () => {
+        this.loading = false;
       }
-      this.vacanteSvc.getVacanteById(id).subscribe(v => {
-        this.vacante = v;
-        this.loading = false;
-      });
     });
   }
 
@@ -125,4 +142,5 @@ export class VacanteDetalleComponent implements OnInit {
       }
     });
   }
+
 }

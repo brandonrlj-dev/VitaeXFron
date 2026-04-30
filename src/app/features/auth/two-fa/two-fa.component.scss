@@ -41,6 +41,7 @@
 
   h2 { font-size: 1.25rem; margin-bottom: 8px; }
   p  { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+  .email-highlight { color: var(--color-primary); font-weight: 600; }
 }
 
 .error-banner {
@@ -101,4 +102,22 @@
   padding: 0;
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.resend-container {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+
+  p {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    margin-bottom: 4px;
+  }
+
+  .resend-btn {
+    font-size: 13px !important;
+    padding: 0 12px !important;
+    height: 32px !important;
+  }
 }

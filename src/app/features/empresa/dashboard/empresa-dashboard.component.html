@@ -5,27 +5,12 @@
   <!-- KPIs -->
   <div class="page-header">
     <div class="empresa-heading">
-      <div class="empresa-logo" (click)="triggerLogoUpload()">
-        @if (empresa?.logo_url) {
-          <img [src]="empresa?.logo_url" [alt]="nombreEmpresa" />
-          <span class="empresa-logo-overlay"><i class="pi pi-camera"></i></span>
-        } @else {
-          <span>{{ empresaInicial }}</span>
-        }
+      <div class="empresa-logo">
+        <i class="pi pi-building"></i>
       </div>
       <div>
         <p class="greeting">Panel de empresa</p>
         <h1>{{ nombreEmpresa }}</h1>
-        <button
-          pButton
-          type="button"
-          [label]="empresa?.logo_url ? 'Cambiar logo' : 'Subir logo'"
-          icon="pi pi-upload"
-          class="p-button-text p-button-sm logo-upload-btn"
-          [loading]="subiendoLogo"
-          (click)="triggerLogoUpload()"
-        ></button>
-        <input #logoInput type="file" accept="image/*" style="display:none" (change)="onLogoSelected($event)" />
       </div>
     </div>
     <div class="header-actions">
@@ -68,22 +53,11 @@
         <i class="pi pi-check-circle" style="color:#8b5cf6"></i>
       </div>
       <div>
-        <div class="metric">{{ analiticaVacante.contratados }}</div>
+        <div class="metric">{{ totalContratados }}</div>
         <p class="caption">Contratados</p>
       </div>
     </div>
 
-    <div class="kpi-card vtx-card" [class.activo]="empresa?.estatus_convenio === 'activo'">
-      <div class="kpi-icon" style="background:rgba(3,131,123,0.12)">
-        <i class="pi pi-building" style="color:#03837b"></i>
-      </div>
-      <div>
-        <span [class]="'badge-' + (empresa?.estatus_convenio ?? '')">
-          {{ empresa?.estatus_convenio | titlecase }}
-        </span>
-        <p class="caption">Estatus Convenio</p>
-      </div>
-    </div>
   </div>
 
   <!-- Candidatos idóneos -->
@@ -173,8 +147,9 @@
     <div class="section-heading">
       <div>
         <p class="section-title">Analítica de postulaciones por vacante</p>
-        <p class="caption">Seguimiento de candidatos para cada posición publicada.</p>
+        <p class="caption">Postulaciones por puesto y tiempo promedio de cobertura.</p>
       </div>
+      <button pButton type="button" label="Exportar PDF" icon="pi pi-file-pdf" class="p-button-outlined p-button-sm" (click)="exportarAnaliticaPDF()"></button>
     </div>
 
     <div class="analytics-card vtx-card">
@@ -204,6 +179,7 @@
           <span>Revisión</span>
           <span>Entrevistas</span>
           <span>Contratados</span>
+          <span>Cobertura</span>
           <span>Match</span>
         </div>
         @for (row of analiticaPorVacante; track row.vacante.id) {
@@ -216,6 +192,7 @@
             <span>{{ row.revision }}</span>
             <span>{{ row.entrevistas }}</span>
             <span>{{ row.aceptadas }}</span>
+            <span>{{ row.coberturaDias }} días</span>
             <span>{{ row.promedio }}%</span>
           </div>
         }
@@ -226,9 +203,10 @@
   <section class="mt-32">
     <div class="section-heading">
       <div>
-        <p class="section-title">Reporte de egresados UT que laboran en la empresa</p>
+        <p class="section-title">Reporte de plantilla UT</p>
         <p class="caption">Egresados con postulación aceptada por la empresa.</p>
       </div>
+      <button pButton type="button" label="Exportar PDF" icon="pi pi-file-pdf" class="p-button-outlined p-button-sm" (click)="exportarPlantillaPDF()"></button>
     </div>
 
     @if (egresadosLaborando.length === 0) {
@@ -262,6 +240,14 @@
               <span class="label">Contacto</span>
               <p>{{ row.egresado.email }}</p>
             </div>
+            <button
+              pButton
+              type="button"
+              label="Evaluar desempeño"
+              icon="pi pi-star"
+              class="p-button-outlined p-button-sm"
+              (click)="abrirEvaluacionDesempeno(row)"
+            ></button>
           </div>
         }
       </div>
@@ -320,4 +306,46 @@
       }
     </div>
   }
+</p-dialog>
+
+<p-dialog
+  [(visible)]="showDesempenoDialog"
+  [modal]="true"
+  header="Evaluar desempeño"
+  [style]="{ width: '520px', maxWidth: '95vw' }"
+>
+  @if (selectedLaborando) {
+    <div class="desempeno-form">
+      <div class="dp-header compact">
+        <div class="dp-avatar">
+          {{ selectedLaborando.egresado.nombre[0] }}{{ selectedLaborando.egresado.apellido_paterno[0] }}
+        </div>
+        <div>
+          <h2>{{ nombreCompleto(selectedLaborando.egresado) }}</h2>
+          <p class="caption">{{ selectedLaborando.postulacion.puesto }}</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Calificación: {{ evaluacionDesempeno.calificacion }}/10</label>
+        <p-slider [(ngModel)]="evaluacionDesempeno.calificacion" [min]="1" [max]="10" [step]="1"></p-slider>
+      </div>
+
+      <div class="field">
+        <label>Comentario *</label>
+        <textarea
+          pInputText
+          [(ngModel)]="evaluacionDesempeno.comentario"
+          rows="4"
+          placeholder="Describe el desempeño observado..."
+          class="w-full comentario-textarea"
+        ></textarea>
+      </div>
+    </div>
+  }
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancelar" class="p-button-outlined" (click)="showDesempenoDialog=false" [disabled]="evaluandoDesempeno"></button>
+    <button pButton type="button" label="Guardar evaluación" icon="pi pi-check" [loading]="evaluandoDesempeno" (click)="enviarEvaluacionDesempeno()"></button>
+  </ng-template>
 </p-dialog>

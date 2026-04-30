@@ -19,26 +19,104 @@ export class AuthService {
     usuario: null,
     isAuthenticated: false
   });
+  
+  private tempSession: any = null;
+  readonly maskedEmail = signal<string | null>(null);
 
   constructor(private http: HttpClient, private router: Router) {
     this.restoreSession();
   }
 
-  login(usuario: string, contrasena: string): Observable<{ token: string }> {
-    return this.http.post<ApiEnvelope<{ token: string; user: SiestTokenPayload }>>(
+  login(usuario: string, contrasena: string): Observable<{ token?: string; requires_2fa?: boolean }> {
+    return this.http.post<ApiEnvelope<any>>(
       `${environment.apiUrl}/auth/login`,
       { usuario, contrasena }
     ).pipe(
       map(response => unwrapData(response)),
-      tap(response => this.saveSession(response.token, response.user)),
-      map(response => ({ token: response.token })),
+      tap(response => {
+        if (response.requires_2fa) {
+          this.tempSession = response.temp_session;
+          this.maskedEmail.set(response.email_masked || null);
+        } else {
+          this.saveSession(response.token, response.user);
+          this.maskedEmail.set(null);
+        }
+      }),
+      map(response => ({ 
+        token: response.token, 
+        requires_2fa: response.requires_2fa 
+      })),
       catchError(error => toApiError(error, 'Usuario o contrasena incorrectos'))
     );
   }
 
   verify2FA(code: string): Observable<boolean> {
-    if (/^\d{6}$/.test(code)) return of(true);
-    return throwError(() => new Error('El código debe ser de 6 dígitos numéricos.'));
+    if (!this.tempSession) {
+      return throwError(() => new Error('No hay una sesión pendiente de verificación.'));
+    }
+
+    return this.http.post<ApiEnvelope<any>>(
+      `${environment.apiUrl}/auth/2fa/verify`,
+      { code, session: this.tempSession }
+    ).pipe(
+      map(response => unwrapData(response)),
+      tap(response => {
+        this.saveSession(response.token, response.user);
+        this.tempSession = null;
+      }),
+      map(() => true),
+      catchError(error => toApiError(error, 'Código de seguridad incorrecto'))
+    );
+  }
+
+  resend2FA(): Observable<any> {
+    if (!this.tempSession) {
+      return throwError(() => new Error('No hay una sesión activa.'));
+    }
+
+    return this.http.post<ApiEnvelope<any>>(
+      `${environment.apiUrl}/auth/resend-code`,
+      { session: this.tempSession }
+    ).pipe(
+      map(response => unwrapData(response)),
+      tap(response => {
+        if (response.temp_session) {
+          this.tempSession = response.temp_session;
+        }
+      }),
+      catchError(error => toApiError(error, 'Error al reenviar el código'))
+    );
+  }
+
+  forgotPassword(usuario: string): Observable<any> {
+    return this.http.post<ApiEnvelope<any>>(
+      `${environment.apiUrl}/auth/forgot-password`,
+      { usuario }
+    ).pipe(
+      map(response => unwrapData(response)),
+      catchError(error => toApiError(error, 'Error al procesar la solicitud'))
+    );
+  }
+
+  verifyResetCode(code: string, session: string): Observable<any> {
+    return this.http.post<ApiEnvelope<any>>(
+      `${environment.apiUrl}/auth/verify-reset-code`,
+      { code, session }
+    ).pipe(
+      map(response => unwrapData(response)),
+      catchError(error => toApiError(error, 'Código incorrecto o expirado'))
+    );
+  }
+
+  resetPassword(password: string, token: string): Observable<any> {
+    return this.http.post<ApiEnvelope<any>>(
+      `${environment.apiUrl}/auth/reset-password`,
+      { password, token }
+    ).pipe(
+      map(response => unwrapData(response)),
+      catchError(error => toApiError(error, 'Error al restablecer la contraseña'))
+    );
+
   }
 
   logout(): void {
@@ -104,6 +182,10 @@ export class AuthService {
   }
 
   private roleFromRaw(payload: SiestTokenPayload | null): RolUsuario {
+    const cveRol = String(payload?.cve_rol ?? payload?.perfil_id ?? '');
+    if (cveRol === '41') return 'empresa';
+    if (['22', '1'].includes(cveRol)) return 'admin';
+
     const rawRoles = payload?.roles_originales ?? payload?.roles ?? [];
     const roleIds = rawRoles.map(role => String(role.id));
     if (roleIds.includes('22') || roleIds.includes('1')) return 'admin';

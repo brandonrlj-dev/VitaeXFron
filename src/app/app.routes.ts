@@ -13,7 +13,8 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
   },
   {
-    path: 'login/2fa',
+    path: 'auth/2fa',
+
     loadComponent: () => import('./features/auth/two-fa/two-fa.component').then(m => m.TwoFaComponent)
   },
   {

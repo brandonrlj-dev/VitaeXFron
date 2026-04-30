@@ -10,7 +10,6 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { VacanteService } from '../../../core/services/vacante.service';
 import { EmpresaService } from '../../../core/services/empresa.service';
-import { EgresadoService } from '../../../core/services/egresado.service';
 import { MensajeService as BolsaMensajeService } from '../../../core/services/mensaje.service';
 import { ScoreCircleComponent } from '../../../shared/components/score-circle/score-circle.component';
 import { DimensionPillComponent } from '../../../shared/components/dimension-pill/dimension-pill.component';
@@ -30,9 +29,11 @@ import { Egresado, Vacante, DimensionType, egresadoNombreCompleto } from '../../
   styleUrls: ['./talento.component.scss'],
 })
 export class TalentoComponent implements OnInit {
-  egresados: Egresado[] = [];
+
+  candidatos: { egresado: Egresado; coincidencia: number }[] = [];
   vacantes: Vacante[] = [];
   selectedVacanteId = '';
+  loading = true;
   filtros = { psicometrica: 0, cognitiva: 0, tecnica: 0, proyectiva: 0, minCoincidencia: 80 };
 
   selectedEgresado?: Egresado;
@@ -44,7 +45,6 @@ export class TalentoComponent implements OnInit {
   readonly DIMS: DimensionType[] = ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'];
   private vacanteSvc = inject(VacanteService);
   private empresaSvc = inject(EmpresaService);
-  private egresadoSvc = inject(EgresadoService);
   private mensajeSvc = inject(BolsaMensajeService);
   private msgSvc = inject(MessageService);
 
@@ -57,13 +57,8 @@ export class TalentoComponent implements OnInit {
   }
 
   get egresadosFiltrados() {
-    const perfil = this.vacanteSeleccionada?.perfil_ideal;
-    return this.egresados
-      .filter(eg => eg.scores && eg.evaluaciones_completadas.length === 4)
-      .map(eg => ({
-        egresado: eg,
-        coincidencia: perfil ? this.vacanteSvc.calcularCoincidencia(eg.scores!, perfil) : 0,
-      }))
+    return this.candidatos
+      .filter(c => c.egresado.scores && c.egresado.evaluaciones_completadas.length === 4)
       .filter(c => {
         const s = c.egresado.scores!;
         return (
@@ -78,17 +73,39 @@ export class TalentoComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.egresadoSvc.getEgresados().subscribe(egresados => {
-      this.egresados = egresados;
-    });
 
     this.empresaSvc.getEmpresaActual().subscribe(empresa => {
       this.empresaSvc.getVacantesEmpresa(empresa.id).subscribe(vacantes => {
         this.vacantes = vacantes.filter(v => v.activa);
         this.selectedVacanteId = this.vacantes[0]?.id ?? '';
+        this.cargarCandidatos();
       });
     });
   }
+
+  cargarCandidatos() {
+    if (!this.selectedVacanteId) {
+      this.candidatos = [];
+      this.loading = false;
+      return;
+    }
+
+    this.loading = true;
+    this.vacanteSvc.getCandidatosVacante(this.selectedVacanteId).subscribe({
+      next: candidatos => {
+        this.candidatos = candidatos
+          .filter(c => c.coincidencia >= 80)
+          .sort((a, b) => b.coincidencia - a.coincidencia);
+        this.loading = false;
+      },
+      error: err => {
+        this.candidatos = [];
+        this.loading = false;
+        this.msgSvc.add({ severity: 'error', summary: 'No se pudieron cargar candidatos', detail: err.message });
+      }
+    });
+  }
+
 
   verPerfil(eg: Egresado) {
     this.selectedEgresado = eg;

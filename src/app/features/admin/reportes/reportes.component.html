@@ -19,7 +19,15 @@
       <h1>Reportes Institucionales</h1>
       <p class="caption">Indicadores de vinculación laboral exportables</p>
     </div>
-    <button pButton label="Exportar PDF" icon="pi pi-file-pdf" class="p-button-outlined" (click)="exportarPDF()"></button>
+    <button
+      pButton
+      [label]="exportando ? 'Generando...' : 'Exportar PDF'"
+      icon="pi pi-file-pdf"
+      class="p-button-outlined"
+      [loading]="exportando"
+      [disabled]="exportando"
+      (click)="exportarPDF()"
+    ></button>
   </div>
 
   <!-- Filtros -->
@@ -123,7 +131,7 @@
           <h3>Mapa de calor — Empresas por zona</h3>
           <p class="caption">Distribución geográfica de empresas con convenio activo en Nayarit</p>
           <div class="heatmap-wrap-outer">
-            <app-zone-heatmap></app-zone-heatmap>
+            <app-zone-heatmap [zones]="mapaCalorData"></app-zone-heatmap>
           </div>
         </div>
 
@@ -136,7 +144,7 @@
               type="bar"
               [data]="barChartData2"
               [options]="barChartOptions2"
-              [style]="{width:'100%',height:'180px'}"
+              height="200px"
             ></p-chart>
           </div>
         </div>
