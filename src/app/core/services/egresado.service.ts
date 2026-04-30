@@ -54,4 +54,23 @@ export class EgresadoService {
       cv_url: driveUrl
     });
   }
+
+  subirCertificado(egresadoId: string, file: File): Observable<any> {
+    if (environment.useMocks) {
+      return of({ url: 'mock_certificate_url.pdf' }).pipe(delay(1000));
+    }
+    const formData = new FormData();
+    formData.append('certificado', file);
+    
+    return this.http.post(`${environment.apiUrl}/egresado/${egresadoId}/certificado`, formData);
+  }
+
+  eliminarCertificado(egresadoId: string, certificadoUrl: string): Observable<void> {
+    if (environment.useMocks) {
+      return of(undefined).pipe(delay(300));
+    }
+    return this.http.delete<void>(`${environment.apiUrl}/egresado/${egresadoId}/certificado`, {
+      body: { url: certificadoUrl }
+    });
+  }
 }

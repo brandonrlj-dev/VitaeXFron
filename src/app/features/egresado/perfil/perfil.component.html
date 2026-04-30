@@ -53,7 +53,7 @@
             <div class="dz-empty">
               <div class="dz-icon"><i class="pi pi-user"></i></div>
               <span class="dz-title">Haz clic o arrastra una imagen aquí</span>
-              <span class="dz-hint">JPG, PNG o WEBP · máx. 3 MB</span>
+              <span class="dz-hint">JPG, PNG o WEBP · máx. 15 MB</span>
             </div>
           }
         </div>
@@ -169,6 +169,55 @@
           <div>
             <p class="tray-title">{{ egresado.carrera }}</p>
             <p class="caption">Universidad Tecnológica de la Costa · Egreso {{ egresado.periodo_egreso }}</p>
+          </div>
+        </div>
+
+        <div class="certificado-section">
+          <div class="section-divider"></div>
+          <p class="caption" style="margin-bottom: 12px;">
+            <i class="pi pi-file-pdf"></i>
+            Sube tu <strong>Certificado de Estudios</strong>, <strong>Título</strong> o <strong>Certificaciones</strong> (PDF o imagen, máx. 15 MB).
+          </p>
+
+          <div class="cert-list">
+            @for (cert of egresado.certificados; track cert.url; let i = $index) {
+              <div class="cert-file-info animate-scale-in">
+                <div class="file-icon"><i class="pi pi-file-pdf"></i></div>
+                <div class="file-details">
+                  <span class="file-name">{{ cert.nombre }}</span>
+                  <a [href]="cert.url" target="_blank" class="cv-link">
+                    <i class="pi pi-external-link"></i> Ver documento
+                  </a>
+                </div>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-times"
+                  class="p-button-rounded p-button-text p-button-danger p-button-sm remove-cert-btn"
+                  (click)="eliminarCertificado(i)"
+                  pTooltip="Eliminar documento"
+                ></button>
+              </div>
+            }
+          </div>
+
+          <div class="cert-actions">
+            <button
+              pButton
+              type="button"
+              [label]="egresado.certificados.length > 0 ? 'Agregar otro documento' : 'Subir Certificado'"
+              icon="pi pi-plus"
+              class="p-button-sm p-button-outlined"
+              [loading]="savingCertificado"
+              [disabled]="egresado.certificados.length >= 5"
+              (click)="triggerCertificadoUpload()"
+            ></button>
+
+            @if (egresado.certificados.length >= 5) {
+              <span class="limit-hint"><i class="pi pi-info-circle"></i> Límite de 5 archivos alcanzado</span>
+            }
+
+            <input #certInput type="file" accept="application/pdf,image/*" style="display:none" (change)="onCertificadoSelected($event)" />
           </div>
         </div>
       </div>

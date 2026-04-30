@@ -29,13 +29,18 @@ export class ProfilePhotoService {
   }
 
   readFile(file: File): Promise<string> {
+    return this.readDocument(file);
+  }
+
+  readDocument(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
-      if (!file.type.startsWith('image/')) {
-        reject(new Error('El archivo debe ser una imagen (JPG, PNG, WEBP).'));
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        reject(new Error('El archivo debe ser un PDF o una imagen (JPG, PNG, WEBP).'));
         return;
       }
-      if (file.size > 3 * 1024 * 1024) {
-        reject(new Error('La imagen no debe superar 3 MB.'));
+      if (file.size > 15 * 1024 * 1024) {
+        reject(new Error('El archivo no debe superar los 15 MB.'));
         return;
       }
       const reader = new FileReader();

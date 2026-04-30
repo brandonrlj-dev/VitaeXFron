@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { EgresadoService } from '../../../core/services/egresado.service';
 import { ProfilePhotoService } from '../../../core/services/profile-photo.service';
@@ -12,18 +13,20 @@ import { Egresado, egresadoNombreCompleto } from '../../../core/models';
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, ToastModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, ToastModule, TooltipModule],
   providers: [MessageService],
   templateUrl: './perfil.component.html',
   styleUrls: ['./perfil.component.scss'],
 })
 export class PerfilComponent implements OnInit {
   @ViewChild('fotoInput') fotoInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('certInput') certInput!: ElementRef<HTMLInputElement>;
 
   egresado?: Egresado;
   loading     = true;
   cvUrl       = '';
   savingCv    = false;
+  savingCertificado = false;
   uploadingFoto = false;
   fotoError   = '';
   dragOver    = false;
@@ -98,6 +101,48 @@ export class PerfilComponent implements OnInit {
     this.svc.subirCV(this.egresado!.id, this.cvUrl).subscribe(() => {
       this.savingCv = false;
       this.msgSvc.add({ severity: 'success', summary: 'CV actualizado', detail: 'Tu CV ha sido guardado correctamente.' });
+    });
+  }
+
+  // ─── Certificados ─────────────────────────────────────────────────────────
+  triggerCertificadoUpload() { this.certInput.nativeElement.click(); }
+
+  async onCertificadoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file  = input.files?.[0];
+    if (!file) return;
+
+    if (this.egresado && this.egresado.certificados.length >= 5) {
+      this.msgSvc.add({ severity: 'warn', summary: 'Límite alcanzado', detail: 'Solo puedes subir un máximo de 5 documentos.' });
+      input.value = '';
+      return;
+    }
+
+    this.savingCertificado = true;
+    this.svc.subirCertificado(this.egresado!.id, file).subscribe({
+      next: (res: any) => {
+        this.savingCertificado = false;
+        if (this.egresado) {
+          this.egresado.certificados.push({
+            nombre: file.name,
+            url: res.url || 'mock_url.pdf'
+          });
+        }
+        this.msgSvc.add({ severity: 'success', summary: 'Documento añadido', detail: 'El archivo se ha cargado correctamente.' });
+      },
+      error: () => {
+        this.savingCertificado = false;
+        this.msgSvc.add({ severity: 'error', summary: 'Error', detail: 'No se pudo subir el archivo.' });
+      }
+    });
+    input.value = '';
+  }
+
+  eliminarCertificado(index: number) {
+    const cert = this.egresado!.certificados[index];
+    this.svc.eliminarCertificado(this.egresado!.id, cert.url).subscribe(() => {
+      this.egresado!.certificados.splice(index, 1);
+      this.msgSvc.add({ severity: 'info', summary: 'Documento eliminado', detail: 'El archivo ha sido removido.' });
     });
   }
 }

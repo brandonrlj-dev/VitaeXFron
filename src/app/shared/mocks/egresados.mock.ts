@@ -16,6 +16,7 @@ export const EGRESADOS_MOCK: Egresado[] = [
     scores: { psicometrica: 78, cognitiva: 85, tecnica: 91, proyectiva: 67 },
     evaluaciones_completadas: ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'],
     cv_url: 'https://drive.google.com/file/d/mock1',
+    certificados: [],
     datos_confirmados: true,
   },
   {
@@ -32,6 +33,7 @@ export const EGRESADOS_MOCK: Egresado[] = [
     telefono: '311-987-6543',
     scores: { psicometrica: 88, cognitiva: 74, tecnica: 69, proyectiva: 92 },
     evaluaciones_completadas: ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'],
+    certificados: [],
     datos_confirmados: true,
   },
   {
@@ -47,6 +49,7 @@ export const EGRESADOS_MOCK: Egresado[] = [
     email: 'javier.torres@utdelacosta.edu.mx',
     scores: { psicometrica: 71, cognitiva: 80, tecnica: 88, proyectiva: 63 },
     evaluaciones_completadas: ['psicometrica', 'cognitiva', 'tecnica'],
+    certificados: [],
     datos_confirmados: true,
   },
   {
@@ -63,6 +66,7 @@ export const EGRESADOS_MOCK: Egresado[] = [
     scores: { psicometrica: 83, cognitiva: 77, tecnica: 72, proyectiva: 89 },
     evaluaciones_completadas: ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'],
     cv_url: 'https://drive.google.com/file/d/mock4',
+    certificados: [],
     datos_confirmados: true,
   },
   {
@@ -78,6 +82,7 @@ export const EGRESADOS_MOCK: Egresado[] = [
     email: 'luis.morales@utdelacosta.edu.mx',
     scores: { psicometrica: 65, cognitiva: 90, tecnica: 95, proyectiva: 58 },
     evaluaciones_completadas: ['psicometrica', 'cognitiva'],
+    certificados: [],
     datos_confirmados: false,
   },
   {
@@ -93,6 +98,7 @@ export const EGRESADOS_MOCK: Egresado[] = [
     email: 'ana.reyes@utdelacosta.edu.mx',
     scores: { psicometrica: 76, cognitiva: 68, tecnica: 82, proyectiva: 74 },
     evaluaciones_completadas: ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'],
+    certificados: [],
     datos_confirmados: true,
   },
 ];

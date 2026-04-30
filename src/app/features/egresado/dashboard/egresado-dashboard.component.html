@@ -93,6 +93,10 @@
           <i [class]="egresado.cv_url ? 'pi pi-check-circle' : 'pi pi-circle'"></i>
           <span>CV subido</span>
         </div>
+        <div class="step" [class.done]="egresado.certificados.length > 0">
+          <i [class]="egresado.certificados.length > 0 ? 'pi pi-check-circle' : 'pi pi-circle'"></i>
+          <span>Certificado subido</span>
+        </div>
       </div>
     </div>
 

@@ -75,6 +75,7 @@ export interface Egresado {
   scores?:                  DimensionScores;
   evaluaciones_completadas: DimensionType[];
   cv_url?:                  string;
+  certificados:             { nombre: string, url: string }[];
   datos_confirmados:        boolean;
   foto_url?:                string;
 }

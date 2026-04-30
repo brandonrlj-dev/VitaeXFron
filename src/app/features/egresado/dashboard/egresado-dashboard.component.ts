@@ -46,14 +46,15 @@ export class EgresadoDashboardComponent implements OnInit {
   get fotoUrl(): string | null { return this.photoService.fotoEgresado(); }
   get tieneFoto(): boolean     { return !!this.photoService.fotoEgresado(); }
 
-  // 10% datos + 20% foto + 50% evaluaciones + 20% CV = 100%
+  // 10% datos + 15% foto + 40% evaluaciones + 15% CV + 20% Certificado = 100%
   get completitud(): number {
     if (!this.egresado) return 0;
     let pts = 0;
     if (this.egresado.datos_confirmados) pts += 10;
-    if (this.tieneFoto)                  pts += 20;
-    pts += (this.egresado.evaluaciones_completadas.length / 4) * 50;
-    if (this.egresado.cv_url)            pts += 20;
+    if (this.tieneFoto)                  pts += 15;
+    pts += (this.egresado.evaluaciones_completadas.length / 4) * 40;
+    if (this.egresado.cv_url)            pts += 15;
+    if (this.egresado.certificados.length > 0) pts += 20;
     return Math.round(pts);
   }
 
