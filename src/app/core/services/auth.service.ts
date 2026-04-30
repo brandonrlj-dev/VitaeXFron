@@ -19,25 +19,51 @@ export class AuthService {
     usuario: null,
     isAuthenticated: false
   });
+  
+  private tempSession: any = null;
 
   constructor(private http: HttpClient, private router: Router) {
     this.restoreSession();
   }
 
-  login(usuario: string, contrasena: string): Observable<{ token: string }> {
-    return this.http.post<ApiEnvelope<{ token: string; user: SiestTokenPayload }>>(
+  login(usuario: string, contrasena: string): Observable<{ token?: string; requires_2fa?: boolean }> {
+    return this.http.post<ApiEnvelope<any>>(
       `${environment.apiUrl}/auth/login`,
       { usuario, contrasena }
     ).pipe(
       map(response => unwrapData(response)),
-      tap(response => this.saveSession(response.token, response.user)),
-      map(response => ({ token: response.token })),
+      tap(response => {
+        if (response.requires_2fa) {
+          this.tempSession = response.temp_session;
+        } else {
+          this.saveSession(response.token, response.user);
+        }
+      }),
+      map(response => ({ 
+        token: response.token, 
+        requires_2fa: response.requires_2fa 
+      })),
       catchError(error => toApiError(error, 'Usuario o contrasena incorrectos'))
     );
   }
 
-  verify2FA(_code: string): Observable<boolean> {
-    return throwError(() => new Error('La verificacion de dos factores no esta configurada en backend'));
+  verify2FA(code: string): Observable<boolean> {
+    if (!this.tempSession) {
+      return throwError(() => new Error('No hay una sesión pendiente de verificación.'));
+    }
+
+    return this.http.post<ApiEnvelope<any>>(
+      `${environment.apiUrl}/auth/2fa/verify`,
+      { code, session: this.tempSession }
+    ).pipe(
+      map(response => unwrapData(response)),
+      tap(response => {
+        this.saveSession(response.token, response.user);
+        this.tempSession = null;
+      }),
+      map(() => true),
+      catchError(error => toApiError(error, 'Código de seguridad incorrecto'))
+    );
   }
 
   logout(): void {

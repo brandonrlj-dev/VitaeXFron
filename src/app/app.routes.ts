@@ -13,6 +13,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
   },
   {
+    path: 'auth/2fa',
+    loadComponent: () => import('./features/auth/two-fa/two-fa.component').then(m => m.TwoFaComponent)
+  },
+  {
     path: 'login/confirmar-datos',
     canActivate: [authGuard, roleGuard(['egresado'])],
     loadComponent: () => import('./features/auth/confirmar-datos/confirmar-datos.component').then(m => m.ConfirmarDatosComponent)

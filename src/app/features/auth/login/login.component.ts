@@ -71,9 +71,13 @@ export class LoginComponent {
 
     const { usuario, contrasena } = this.form.value;
     this.auth.login(usuario, contrasena).subscribe({
-      next: () => {
+      next: (res) => {
         this.loading = false;
-        this.redirectByRole();
+        if (res.requires_2fa) {
+          this.router.navigate(['/auth/2fa']);
+        } else {
+          this.redirectByRole();
+        }
       },
       error: (err) => {
         this.loading = false;
