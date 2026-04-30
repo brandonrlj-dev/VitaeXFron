@@ -5,18 +5,19 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { EgresadoService } from '../../../core/services/egresado.service';
+import { ProfilePhotoService } from '../../../core/services/profile-photo.service';
 import { ScoreCircleComponent } from '../../../shared/components/score-circle/score-circle.component';
 import { SpiderChartComponent } from '../../../shared/components/spider-chart/spider-chart.component';
 import { DimensionPillComponent } from '../../../shared/components/dimension-pill/dimension-pill.component';
 import { Egresado, DimensionType, DIMENSION_CONFIG, egresadoNombreCompleto } from '../../../core/models';
 
 interface EvalCard {
-  dimension: DimensionType;
-  label:      string;
-  icon:       string;
-  color:      string;
-  completada: boolean;
-  puntaje?:   number;
+  dimension:   DimensionType;
+  label:       string;
+  icon:        string;
+  color:       string;
+  completada:  boolean;
+  puntaje?:    number;
   descripcion: string;
 }
 
@@ -33,26 +34,42 @@ interface EvalCard {
 })
 export class EgresadoDashboardComponent implements OnInit {
   egresado?: Egresado;
-  loading = true;
+  loading    = true;
   evalCards: EvalCard[] = [];
 
   readonly DIMS: DimensionType[] = ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'];
 
-  private svc = inject(EgresadoService);
+  private svc          = inject(EgresadoService);
+  private photoService = inject(ProfilePhotoService);
 
   get nombreCompleto() { return this.egresado ? egresadoNombreCompleto(this.egresado) : ''; }
+  get fotoUrl(): string | null { return this.photoService.fotoEgresado(); }
+  get tieneFoto(): boolean     { return !!this.photoService.fotoEgresado(); }
 
+  // 10% datos + 20% foto + 50% evaluaciones + 20% CV = 100%
   get completitud(): number {
     if (!this.egresado) return 0;
     let pts = 0;
-    if (this.egresado.datos_confirmados) pts += 20;
-    pts += (this.egresado.evaluaciones_completadas.length / 4) * 60;
-    if (this.egresado.cv_url) pts += 20;
+    if (this.egresado.datos_confirmados) pts += 10;
+    if (this.tieneFoto)                  pts += 20;
+    pts += (this.egresado.evaluaciones_completadas.length / 4) * 50;
+    if (this.egresado.cv_url)            pts += 20;
     return Math.round(pts);
   }
 
   get puedePostular(): boolean {
-    return !!this.egresado && this.egresado.evaluaciones_completadas.length === 4;
+    return !!this.egresado
+      && this.egresado.evaluaciones_completadas.length === 4
+      && this.tieneFoto;
+  }
+
+  get tooltipVacantes(): string {
+    if (!this.egresado) return '';
+    const falta: string[] = [];
+    if (!this.tieneFoto) falta.push('foto de perfil');
+    if (this.egresado.evaluaciones_completadas.length < 4)
+      falta.push(`${4 - this.egresado.evaluaciones_completadas.length} evaluación(es)`);
+    return falta.length ? `Falta: ${falta.join(' y ')}` : '';
   }
 
   get pendientes(): number {

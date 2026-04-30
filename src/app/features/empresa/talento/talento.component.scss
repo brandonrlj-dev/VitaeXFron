@@ -1,0 +1,65 @@
+.results-count { font-size: 13px; color: var(--color-text-secondary); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 20px; padding: 4px 12px; white-space: nowrap; align-self: flex-start; margin-top: 8px; }
+
+.talento-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 24px;
+  align-items: start;
+
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+.filtros-panel {
+  position: sticky;
+  top: calc(var(--navbar-height) + 16px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @media (max-width: 900px) { position: static; }
+}
+
+.section-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-secondary); margin: 0; }
+
+.filtro-item { display: flex; flex-direction: column; gap: 6px; }
+.filtro-label { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); }
+.filtro-val { font-size: 13px; font-weight: 700; color: var(--color-primary); }
+
+.talento-list { display: flex; flex-direction: column; gap: 14px; }
+
+.talento-card {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 20px;
+  align-items: center;
+
+  @media (max-width: 700px) { grid-template-columns: 1fr; }
+}
+
+.tc-main { display: flex; align-items: center; gap: 12px; }
+
+.tc-avatar {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: var(--color-primary-light); border: 2px solid rgba(3,131,123,0.18);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 16px; color: var(--color-primary); flex-shrink: 0;
+
+  &.large { width: 56px; height: 56px; font-size: 20px; }
+}
+
+.tc-info {
+  h3 { font-size: 0.9375rem; margin-bottom: 3px; }
+  .caption { display: flex; align-items: center; gap: 4px; i { font-size: 11px; } }
+}
+
+.tc-dims { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; align-content: flex-start; }
+
+.tc-actions { display: flex; flex-direction: column; align-items: center; gap: 10px; flex-shrink: 0; }
+
+.empty-state { text-align: center; padding: 60px 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; i { font-size: 40px; color: var(--color-text-muted); } }
+
+// Dialog
+.dialog-content { display: flex; flex-direction: column; gap: 16px; }
+.dp-header { display: flex; align-items: center; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--color-border); }
+.dp-header > div:nth-child(2) { flex: 1; h2 { font-size: 1.125rem; } }
+.dp-dims { display: flex; flex-wrap: wrap; gap: 8px; }

@@ -1,0 +1,75 @@
+<div class="page-container animate-fade-slide">
+
+  <div class="page-header">
+    <div>
+      <h1>Reportes Institucionales</h1>
+      <p class="caption">Indicadores de vinculación laboral exportables</p>
+    </div>
+    <button pButton label="Exportar PDF" icon="pi pi-file-pdf" class="p-button-outlined" (click)="exportarPDF()"></button>
+  </div>
+
+  @if (!kpis || loading) {
+    <div class="sk-grid">
+      @for (_ of [1,2,3,4]; track $index) { <div class="sk sk-kpi"></div> }
+    </div>
+  } @else {
+
+    <!-- Resumen ejecutivo -->
+    <div class="resumen-grid">
+      <div class="vtx-card resumen-card">
+        <span class="label">Egresados registrados</span>
+        <div class="metric">{{ kpis.egresados_registrados | number }}</div>
+      </div>
+      <div class="vtx-card resumen-card highlight">
+        <span class="label">Tasa de inserción</span>
+        <div class="metric tasa">{{ kpis.tasa_insercion }}%</div>
+      </div>
+      <div class="vtx-card resumen-card">
+        <span class="label">Empresas con convenio</span>
+        <div class="metric">{{ kpis.empresas_convenio }}</div>
+      </div>
+      <div class="vtx-card resumen-card">
+        <span class="label">Vacantes activas</span>
+        <div class="metric">{{ kpis.vacantes_activas }}</div>
+      </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="charts-row mt-32">
+
+      <div class="vtx-card chart-card">
+        <h3>Inserción laboral por carrera</h3>
+        <p class="caption">Porcentaje de egresados insertados en cada programa educativo</p>
+        <div class="insercion-list">
+          @for (row of insercion; track row.abreviatura) {
+            <div class="ins-row">
+              <span class="ins-abbr">{{ row.abreviatura }}</span>
+              <div class="ins-bar-track">
+                <div class="ins-bar-fill" [style.width]="row.tasa + '%'"></div>
+              </div>
+              <span class="ins-tasa" [class.high]="row.tasa >= 75">{{ row.tasa }}%</span>
+              <span class="ins-nums">{{ row.insertados }}/{{ row.total_egresados }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="side-charts">
+        <div class="vtx-card chart-card">
+          <h3>Convenios por zona</h3>
+          <p class="caption">Distribución geográfica de empresas con convenio</p>
+          <div class="pie-wrap">
+            <p-chart type="doughnut" [data]="pieChartData" [options]="pieChartOptions" [style]="{width:'100%',maxWidth:'260px'}"></p-chart>
+          </div>
+        </div>
+
+        <div class="vtx-card chart-card">
+          <h3>Competencias más demandadas</h3>
+          <p class="caption">Nivel que solicitan las empresas por dimensión</p>
+          <p-chart type="bar" [data]="barChartData2" [options]="barChartOptions2" [style]="{width:'100%',height:'200px'}"></p-chart>
+        </div>
+      </div>
+    </div>
+
+  }
+</div>

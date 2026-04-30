@@ -1,0 +1,95 @@
+<div class="page-container animate-fade-slide">
+
+  <div class="page-header">
+    <div>
+      <h1>Búsqueda de Talento</h1>
+      <p class="caption">Egresados con perfil evaluado. Solo se muestran candidatos con ≥ 80% de coincidencia por defecto.</p>
+    </div>
+    <span class="results-count">{{ egresadosFiltrados.length }} candidato{{ egresadosFiltrados.length !== 1 ? 's' : '' }}</span>
+  </div>
+
+  <div class="talento-layout">
+
+    <!-- Filtros laterales -->
+    <aside class="filtros-panel vtx-card">
+      <p class="section-label">Filtros</p>
+
+      <div class="filtro-item">
+        <p class="filtro-label">Coincidencia mínima</p>
+        <div class="filtro-val">{{ filtros.minCoincidencia }}%</div>
+        <p-slider [(ngModel)]="filtros.minCoincidencia" [min]="0" [max]="100" [step]="5"></p-slider>
+      </div>
+
+      @for (dim of DIMS; track dim) {
+        <div class="filtro-item">
+          <app-dimension-pill [dimension]="dim"></app-dimension-pill>
+          <div class="filtro-val">≥ {{ filtros[dim] }}%</div>
+          <p-slider [(ngModel)]="filtros[dim]" [min]="0" [max]="100" [step]="5"></p-slider>
+        </div>
+      }
+
+      <button pButton label="Restablecer" class="p-button-outlined p-button-sm w-full"
+        (click)="filtros = { psicometrica: 0, cognitiva: 0, tecnica: 0, proyectiva: 0, minCoincidencia: 80 }"></button>
+    </aside>
+
+    <!-- Lista de egresados -->
+    <div class="talento-list">
+      @if (egresadosFiltrados.length === 0) {
+        <div class="empty-state vtx-card">
+          <i class="pi pi-filter-slash"></i>
+          <h3>Sin resultados</h3>
+          <p>Ajusta los filtros para encontrar candidatos.</p>
+        </div>
+      } @else {
+        @for (c of egresadosFiltrados; track c.egresado.id) {
+          <div class="talento-card vtx-card animate-fade-slide">
+            <div class="tc-main">
+              <div class="tc-avatar">{{ c.egresado.nombre[0] }}{{ c.egresado.apellido_paterno[0] }}</div>
+              <div class="tc-info">
+                <h3>{{ nombreCompleto(c.egresado) }}</h3>
+                <p class="caption">{{ c.egresado.carrera }}</p>
+                <p class="caption"><i class="pi pi-calendar"></i> Egreso {{ c.egresado.periodo_egreso }}</p>
+              </div>
+            </div>
+
+            <div class="tc-dims">
+              @for (dim of DIMS; track dim) {
+                @if (c.egresado.scores) {
+                  <app-dimension-pill [dimension]="dim" [score]="c.egresado.scores[dim]"></app-dimension-pill>
+                }
+              }
+            </div>
+
+            <div class="tc-actions">
+              <app-score-circle [score]="c.coincidencia" color="#03837b" size="60px" [strokeWidth]="6"></app-score-circle>
+              <button pButton type="button" label="Ver perfil" icon="pi pi-eye" class="p-button-outlined p-button-sm"
+                (click)="verPerfil(c.egresado)"></button>
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+  </div>
+</div>
+
+<p-dialog [(visible)]="showDialog" [modal]="true" header="Perfil del Egresado" [style]="{width:'580px',maxWidth:'95vw'}">
+  @if (selectedEgresado?.scores) {
+    <div class="dialog-content">
+      <div class="dp-header">
+        <div class="tc-avatar large">{{ selectedEgresado!.nombre[0] }}{{ selectedEgresado!.apellido_paterno[0] }}</div>
+        <div>
+          <h2>{{ nombreCompleto(selectedEgresado!) }}</h2>
+          <p class="caption">{{ selectedEgresado!.carrera }}</p>
+          <p class="caption">Egreso {{ selectedEgresado!.periodo_egreso }}</p>
+        </div>
+      </div>
+      <app-spider-chart [egresadoScores]="selectedEgresado!.scores!" maxWidth="100%" [showLegend]="false"></app-spider-chart>
+      <div class="dp-dims">
+        @for (dim of DIMS; track dim) {
+          <app-dimension-pill [dimension]="dim" [score]="selectedEgresado!.scores![dim]"></app-dimension-pill>
+        }
+      </div>
+    </div>
+  }
+</p-dialog>

@@ -12,161 +12,130 @@
 }
 
 .sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: flex; align-items: center; gap: 10px;
   padding: 20px 16px;
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .brand-mark {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 36px; height: 36px; border-radius: 10px;
   background: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  span {
-    font-weight: 800;
-    font-size: 14px;
-    color: white;
-    letter-spacing: -0.04em;
-  }
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  span { font-weight: 800; font-size: 14px; color: white; letter-spacing: -0.04em; }
 }
 
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.brand-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: white;
-  line-height: 1;
-}
-
-.brand-sub {
-  font-size: 10px;
-  color: rgba(255,255,255,0.40);
-  line-height: 1;
-}
+.brand-text  { display: flex; flex-direction: column; gap: 1px; }
+.brand-name  { font-size: 13px; font-weight: 700; color: white; line-height: 1; }
+.brand-sub   { font-size: 10px; color: rgba(255,255,255,0.40); line-height: 1; }
 
 .sidebar-nav {
   flex: 1;
   padding: 16px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  display: flex; flex-direction: column; gap: 2px;
 }
 
 .nav-section-label {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
   color: rgba(255,255,255,0.30);
-  padding: 0 6px;
-  margin: 0 0 8px;
+  padding: 0 6px; margin: 0 0 8px;
 }
 
 .nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 9px;
-  color: rgba(255,255,255,0.65);
-  font-size: 13px;
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 9px;
+  color: rgba(255,255,255,0.65); font-size: 13px; font-weight: 500;
+  text-decoration: none; cursor: pointer;
   transition: background 0.15s, color 0.15s;
-
   i { font-size: 15px; flex-shrink: 0; }
 
-  &:hover {
-    background: rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.90);
-  }
-
-  &.active {
-    background: var(--color-primary);
-    color: white;
-    box-shadow: 0 2px 8px rgba(3,131,123,0.35);
-  }
+  &:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.90); }
+  &.active { background: var(--color-primary); color: white; box-shadow: 0 2px 8px rgba(3,131,123,0.35); }
 }
 
+// ─── Footer ─────────────────────────────────────────────────────────────────
 .sidebar-footer {
-  padding: 12px 10px;
+  padding: 12px 12px 14px;
   border-top: 1px solid rgba(255,255,255,0.06);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
+// Logo / Avatar zone
+.logo-zone {
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+  border-radius: 50%;
+
+  &:hover .logo-overlay { opacity: 1; }
 }
 
 .user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 36px; height: 36px; border-radius: 50%;
   background: var(--color-primary);
-  color: white;
-  font-weight: 700;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  overflow: hidden;
+
+  span { font-weight: 700; font-size: 13px; color: white; }
 }
 
+.user-logo-img {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.20);
+  display: block;
+}
+
+.logo-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  i { color: white; font-size: 13px; }
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 .user-data {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  gap: 3px;
 }
 
 .user-name {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 12px; font-weight: 600;
   color: rgba(255,255,255,0.85);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-.user-role {
-  font-size: 10px;
-  color: rgba(255,255,255,0.38);
+.logo-hint-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: none; border: none; padding: 0;
+  color: rgba(255,255,255,0.35);
+  font-size: 10px; font-family: inherit; cursor: pointer;
+  transition: color 0.15s;
+  i { font-size: 9px; }
+
+  &:hover { color: rgba(255,255,255,0.70); }
 }
 
 .logout-btn {
-  background: transparent;
-  border: none;
-  color: rgba(255,255,255,0.40);
-  cursor: pointer;
-  width: 30px;
-  height: 30px;
+  background: transparent; border: none;
+  color: rgba(255,255,255,0.40); cursor: pointer;
+  width: 30px; height: 30px;
   border-radius: 7px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   font-size: 13px;
   transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
 
-  &:hover {
-    background: rgba(239,68,68,0.15);
-    color: #fca5a5;
-  }
+  &:hover { background: rgba(239,68,68,0.15); color: #fca5a5; }
 }

@@ -10,7 +10,74 @@
   } @else if (egresado) {
     <div class="perfil-grid">
 
-      <!-- Datos personales -->
+      <!-- ─── FOTO DE PERFIL (obligatoria) ─────────────────────────────── -->
+      <div class="vtx-card foto-card">
+        <div class="section-head">
+          <div class="section-icon"><i class="pi pi-camera"></i></div>
+          <div>
+            <h3>Foto de perfil</h3>
+            <span class="required-badge"><i class="pi pi-asterisk"></i> Obligatoria</span>
+          </div>
+        </div>
+
+        @if (!tieneFoto) {
+          <p class="caption" style="margin-bottom:20px">
+            Sube una foto clara de tu rostro en fondo blanco o neutro.
+            Se mostrará en tu perfil y en las postulaciones a empresas.
+          </p>
+        }
+
+        <!-- Drop zone -->
+        <div
+          class="foto-dropzone"
+          [class.has-foto]="tieneFoto"
+          [class.drag-active]="dragOver"
+          [class.error]="!!fotoError"
+          (click)="triggerFotoUpload()"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop($event)"
+        >
+          @if (uploadingFoto) {
+            <div class="dz-uploading">
+              <div class="dz-spinner"></div>
+              <span>Procesando imagen...</span>
+            </div>
+          } @else if (tieneFoto && fotoUrl) {
+            <img [src]="fotoUrl" class="foto-preview" alt="Foto de perfil" />
+            <div class="foto-overlay">
+              <i class="pi pi-camera"></i>
+              <span>Cambiar foto</span>
+            </div>
+          } @else {
+            <div class="dz-empty">
+              <div class="dz-icon"><i class="pi pi-user"></i></div>
+              <span class="dz-title">Haz clic o arrastra una imagen aquí</span>
+              <span class="dz-hint">JPG, PNG o WEBP · máx. 3 MB</span>
+            </div>
+          }
+        </div>
+
+        @if (fotoError) {
+          <p class="foto-error-msg"><i class="pi pi-exclamation-circle"></i> {{ fotoError }}</p>
+        }
+
+        @if (!tieneFoto) {
+          <div class="foto-required-notice">
+            <i class="pi pi-info-circle"></i>
+            <p>Necesitas subir tu foto para poder postularte a vacantes.</p>
+          </div>
+        } @else {
+          <div class="foto-actions">
+            <button pButton type="button" label="Cambiar foto" icon="pi pi-camera" class="p-button-outlined p-button-sm" (click)="triggerFotoUpload()"></button>
+            <button pButton type="button" label="Eliminar" icon="pi pi-trash" class="p-button-outlined p-button-sm btn-danger-outlined" (click)="eliminarFoto()"></button>
+          </div>
+        }
+
+        <input #fotoInput type="file" accept="image/*" style="display:none" (change)="onFotoSelected($event)" />
+      </div>
+
+      <!-- ─── DATOS PERSONALES ──────────────────────────────────────────── -->
       <div class="vtx-card">
         <div class="section-head">
           <div class="section-icon"><i class="pi pi-user"></i></div>
@@ -57,11 +124,11 @@
 
         <div class="siesta-notice">
           <i class="pi pi-info-circle"></i>
-          <p>Para actualizar estos datos, comunícate con la Unidad de Control Escolar UTC: <strong>controlescolar&#64;utdelacosta.edu.mx</strong></p>
+          <p>Para actualizar estos datos contacta a Control Escolar: <strong>controlescolar&#64;utdelacosta.edu.mx</strong></p>
         </div>
       </div>
 
-      <!-- CV y documentos -->
+      <!-- ─── CV ────────────────────────────────────────────────────────── -->
       <div class="vtx-card">
         <div class="section-head">
           <div class="section-icon"><i class="pi pi-file-pdf"></i></div>
@@ -69,16 +136,11 @@
         </div>
 
         <div class="cv-section">
-          <p class="caption">Agrega el enlace de tu CV en Google Drive. Asegúrate de que sea visible para cualquier persona con el enlace.</p>
+          <p class="caption">Pega el enlace de tu CV en Google Drive. Asegúrate de que cualquier persona con el enlace pueda verlo.</p>
 
           <div class="cv-input-group">
             <label class="label">Enlace de Google Drive</label>
-            <input
-              pInputText
-              [(ngModel)]="cvUrl"
-              placeholder="https://drive.google.com/file/d/..."
-              class="w-full"
-            />
+            <input pInputText [(ngModel)]="cvUrl" placeholder="https://drive.google.com/file/d/..." class="w-full" />
           </div>
 
           @if (egresado.cv_url) {
@@ -91,19 +153,11 @@
             </div>
           }
 
-          <button
-            pButton
-            type="button"
-            label="Guardar CV"
-            icon="pi pi-save"
-            class="save-cv-btn"
-            [loading]="savingCv"
-            (click)="guardarCV()"
-          ></button>
+          <button pButton type="button" label="Guardar CV" icon="pi pi-save" class="save-cv-btn" [loading]="savingCv" (click)="guardarCV()"></button>
         </div>
       </div>
 
-      <!-- Trayectoria académica -->
+      <!-- ─── TRAYECTORIA ───────────────────────────────────────────────── -->
       <div class="vtx-card">
         <div class="section-head">
           <div class="section-icon"><i class="pi pi-graduation-cap"></i></div>
@@ -116,19 +170,6 @@
             <p class="tray-title">{{ egresado.carrera }}</p>
             <p class="caption">Universidad Tecnológica de la Costa · Egreso {{ egresado.periodo_egreso }}</p>
           </div>
-        </div>
-      </div>
-
-      <!-- Certificados -->
-      <div class="vtx-card">
-        <div class="section-head">
-          <div class="section-icon"><i class="pi pi-verified"></i></div>
-          <h3>Certificados y Logros</h3>
-        </div>
-
-        <div class="certs-empty">
-          <i class="pi pi-plus-circle"></i>
-          <p>Aún no has agregado certificados. Próximamente disponible.</p>
         </div>
       </div>
 

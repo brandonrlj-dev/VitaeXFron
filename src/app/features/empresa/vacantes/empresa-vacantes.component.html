@@ -1,0 +1,148 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="page-container animate-fade-slide">
+
+  <div class="page-header">
+    <div>
+      <h1>Gestión de Vacantes</h1>
+      <p class="caption">Administra las posiciones abiertas y define los perfiles ideales</p>
+    </div>
+    <button pButton label="Nueva Vacante" icon="pi pi-plus" (click)="abrirDialogo()"></button>
+  </div>
+
+  @if (loading) {
+    <div class="sk sk-table"></div>
+  } @else {
+    <div class="vtx-card table-card">
+      <p-table [value]="vacantes" styleClass="p-datatable-sm" [rows]="10" [paginator]="vacantes.length > 10">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Puesto</th>
+            <th>Área</th>
+            <th>Ubicación</th>
+            <th>Modalidad</th>
+            <th>Perfil ideal</th>
+            <th>Estatus</th>
+            <th>Publicado</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-v>
+          <tr>
+            <td>
+              <span class="puesto-text">{{ v.puesto }}</span>
+            </td>
+            <td>
+              <span class="caption">{{ v.area }}</span>
+            </td>
+            <td>
+              <span class="caption">
+                <i class="pi pi-map-marker"></i> {{ v.ubicacion }}
+              </span>
+            </td>
+            <td>
+              <span class="caption">{{ v.modalidad | titlecase }}</span>
+            </td>
+            <td>
+              <div class="dims-cell">
+                @for (dim of DIMS; track dim) {
+                  <app-dimension-pill [dimension]="dim" [score]="v.perfil_ideal[dim]"></app-dimension-pill>
+                }
+              </div>
+            </td>
+            <td>
+              <span [class]="v.activa ? 'badge-activo' : 'badge-inactivo'">
+                {{ v.activa ? 'Activa' : 'Inactiva' }}
+              </span>
+            </td>
+            <td>
+              <span class="caption">{{ v.fecha_publicacion }}</span>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="empty-row">No tienes vacantes publicadas aún.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+
+</div>
+
+<!-- Dialog: Nueva Vacante -->
+<p-dialog
+  [(visible)]="showDialog"
+  [modal]="true"
+  header="Nueva Vacante"
+  [style]="{ width: '680px', maxWidth: '95vw' }"
+  [closable]="!saving"
+>
+  <form [formGroup]="form" class="vacante-form">
+    <div class="form-row">
+      <div class="field">
+        <label>Puesto *</label>
+        <input pInputText formControlName="puesto" placeholder="ej. Desarrollador Full Stack" class="w-full" />
+      </div>
+      <div class="field">
+        <label>Área *</label>
+        <input pInputText formControlName="area" placeholder="ej. Tecnologías de la Información" class="w-full" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Descripción *</label>
+      <textarea
+        pInputText
+        formControlName="descripcion"
+        rows="3"
+        placeholder="Describe las responsabilidades y requisitos del puesto..."
+        class="w-full"
+        style="resize:vertical; min-height:80px; border-radius:8px; border:1.5px solid var(--color-border); padding:10px 12px; font-family:inherit; font-size:14px;"
+      ></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <label>Ubicación *</label>
+        <input pInputText formControlName="ubicacion" placeholder="ej. Tepic, Nayarit" class="w-full" />
+      </div>
+      <div class="field">
+        <label>Modalidad *</label>
+        <p-dropdown
+          formControlName="modalidad"
+          [options]="modalidadOpciones"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="w-full"
+        ></p-dropdown>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Rango salarial (opcional)</label>
+      <input pInputText formControlName="salario_rango" placeholder="ej. $12,000 – $16,000 MXN" class="w-full" />
+    </div>
+
+    <!-- Perfil ideal por dimensión -->
+    <div class="perfil-ideal-section">
+      <p class="section-label">Perfil Ideal — Puntaje mínimo por dimensión</p>
+      <p class="caption" style="margin-bottom: 16px">Define el nivel mínimo esperado en cada dimensión. El sistema calculará la coincidencia con los egresados.</p>
+
+      @for (dim of DIMS; track dim) {
+        <div class="slider-row">
+          <app-dimension-pill [dimension]="dim"></app-dimension-pill>
+          <div class="slider-wrap">
+            <p-slider [(ngModel)]="perfilIdeal[dim]" [ngModelOptions]="{standalone:true}" [min]="0" [max]="100" [step]="5"></p-slider>
+          </div>
+          <span class="slider-val">{{ perfilIdeal[dim] }}%</span>
+        </div>
+      }
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancelar" class="p-button-outlined" (click)="showDialog=false" [disabled]="saving"></button>
+    <button pButton label="Publicar Vacante" icon="pi pi-check" [loading]="saving" (click)="guardarVacante()"></button>
+  </ng-template>
+</p-dialog>

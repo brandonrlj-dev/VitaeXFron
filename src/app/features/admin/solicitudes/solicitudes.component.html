@@ -1,0 +1,175 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="page-container animate-fade-slide">
+
+  <div class="page-header">
+    <div>
+      <h1>Solicitudes de Convenio</h1>
+      <p class="caption">Empresas que han solicitado convenio con la UTC</p>
+    </div>
+    <span class="badge-pendiente">
+      <i class="pi pi-clock"></i>
+      {{ pendientesCount }} pendiente{{ pendientesCount !== 1 ? 's' : '' }}
+    </span>
+  </div>
+
+  @if (loading) {
+    <div class="sk sk-table"></div>
+  } @else {
+    <div class="vtx-card table-card">
+      <p-table [value]="solicitudes" styleClass="p-datatable-sm" [rows]="10" [paginator]="solicitudes.length > 10">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Empresa</th>
+            <th>RFC</th>
+            <th>Zona</th>
+            <th>Giro</th>
+            <th>Fecha solicitud</th>
+            <th>Estatus</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-s>
+          <tr>
+            <td>
+              <div class="empresa-cell">
+                <div class="emp-avatar">{{ s.empresa_nombre[0] }}</div>
+                <span class="emp-nombre">{{ s.empresa_nombre }}</span>
+              </div>
+            </td>
+            <td><span class="caption mono">{{ s.rfc }}</span></td>
+            <td><span class="caption">{{ s.zona }}</span></td>
+            <td><span class="caption">{{ s.giro }}</span></td>
+            <td><span class="caption">{{ s.fecha_solicitud }}</span></td>
+            <td>
+              <p-tag
+                [value]="estatusLabel(s.estatus)"
+                [severity]="estatusSeverity(s.estatus)"
+              ></p-tag>
+            </td>
+            <td>
+              <button pButton icon="pi pi-eye" class="p-button-text p-button-sm" (click)="verDetalle(s)" pTooltip="Ver detalles"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+
+</div>
+
+<!-- Dialog: Detalle de solicitud -->
+<p-dialog
+  [(visible)]="showDetalle"
+  [modal]="true"
+  header="Detalle de Solicitud"
+  [style]="{width:'580px', maxWidth:'95vw'}"
+>
+  @if (selectedSolicitud) {
+    <div class="detalle-content">
+      <div class="detalle-header">
+        <div class="emp-avatar lg">{{ selectedSolicitud.empresa_nombre[0] }}</div>
+        <div>
+          <h3>{{ selectedSolicitud.empresa_nombre }}</h3>
+          <p class="caption">RFC: {{ selectedSolicitud.rfc }}</p>
+          <p-tag [value]="estatusLabel(selectedSolicitud.estatus)" [severity]="estatusSeverity(selectedSolicitud.estatus)"></p-tag>
+        </div>
+      </div>
+
+      <div class="detalle-grid">
+        <div class="dato-item">
+          <span class="dato-label">Contacto</span>
+          <span class="dato-valor">{{ selectedSolicitud.contacto_nombre }}</span>
+        </div>
+        <div class="dato-item">
+          <span class="dato-label">Correo</span>
+          <span class="dato-valor">{{ selectedSolicitud.contacto_email }}</span>
+        </div>
+        <div class="dato-item">
+          <span class="dato-label">Teléfono</span>
+          <span class="dato-valor">{{ selectedSolicitud.contacto_telefono }}</span>
+        </div>
+        <div class="dato-item">
+          <span class="dato-label">Zona</span>
+          <span class="dato-valor">{{ selectedSolicitud.zona }}</span>
+        </div>
+        <div class="dato-item full">
+          <span class="dato-label">Giro empresarial</span>
+          <span class="dato-valor">{{ selectedSolicitud.giro }}</span>
+        </div>
+        <div class="dato-item">
+          <span class="dato-label">Fecha de solicitud</span>
+          <span class="dato-valor">{{ selectedSolicitud.fecha_solicitud }}</span>
+        </div>
+        @if (selectedSolicitud.motivo) {
+          <div class="dato-item full">
+            <span class="dato-label">Motivo / Resolución</span>
+            <span class="dato-valor">{{ selectedSolicitud.motivo }}</span>
+          </div>
+        }
+      </div>
+
+      @if (showRechazarForm) {
+        <div class="rechazar-form">
+          <label class="label">Motivo del rechazo *</label>
+          <textarea
+            pInputText
+            [(ngModel)]="motivoRechazo"
+            rows="3"
+            placeholder="Explica el motivo del rechazo para notificar a la empresa..."
+            class="w-full"
+            style="resize:vertical; min-height:80px; border-radius:8px; border:1.5px solid var(--color-border); padding:10px 12px; font-family:inherit; font-size:14px;"
+          ></textarea>
+        </div>
+      }
+    </div>
+
+    <ng-template pTemplate="footer">
+      @if (selectedSolicitud.estatus === 'pendiente' || selectedSolicitud.estatus === 'en_proceso') {
+        @if (!showRechazarForm) {
+          <button pButton label="Rechazar" icon="pi pi-times" class="p-button-outlined p-button-danger" (click)="showRechazarForm=true"></button>
+          <button pButton label="Aprobar" icon="pi pi-check" [loading]="procesando" (click)="aprobar()"></button>
+        } @else {
+          <button pButton label="Cancelar" class="p-button-outlined" (click)="showRechazarForm=false"></button>
+          <button pButton label="Confirmar rechazo" class="p-button-danger" icon="pi pi-ban" [loading]="procesando" [disabled]="!motivoRechazo.trim()" (click)="rechazar()"></button>
+        }
+      }
+      @if (selectedSolicitud.estatus === 'aprobada') {
+        <button pButton label="Crear Cuenta Empresa" icon="pi pi-user-plus" [loading]="procesando" (click)="crearCuenta()"></button>
+      }
+    </ng-template>
+  }
+</p-dialog>
+
+<!-- Dialog: Credenciales generadas -->
+<p-dialog
+  [(visible)]="showCredDialog"
+  [modal]="true"
+  header="Cuenta Empresa Creada"
+  [style]="{width:'440px'}"
+>
+  @if (credenciales) {
+    <div class="creds-content">
+      <div class="creds-icon">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <p>Las credenciales han sido enviadas automáticamente al correo de la empresa. Guarda esta información:</p>
+
+      <div class="creds-box">
+        <div class="cred-row">
+          <span class="cred-label">Usuario / Email</span>
+          <span class="cred-val">{{ credenciales.email }}</span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-label">Contraseña temporal</span>
+          <span class="cred-val mono">{{ credenciales.password }}</span>
+        </div>
+      </div>
+
+      <p class="caption">La empresa deberá cambiar su contraseña en el primer inicio de sesión.</p>
+    </div>
+  }
+  <ng-template pTemplate="footer">
+    <button pButton label="Aceptar" (click)="showCredDialog=false"></button>
+  </ng-template>
+</p-dialog>

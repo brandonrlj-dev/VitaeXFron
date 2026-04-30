@@ -1,0 +1,177 @@
+<div class="page-container animate-fade-slide">
+
+  <!-- KPIs -->
+  <div class="page-header">
+    <div>
+      <p class="greeting">Panel de empresa</p>
+      <h1>{{ nombreEmpresa }}</h1>
+    </div>
+    <a pButton routerLink="/empresa/vacantes" label="Nueva Vacante" icon="pi pi-plus"></a>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card vtx-card">
+      <div class="kpi-icon" style="background:rgba(3,131,123,0.12)">
+        <i class="pi pi-briefcase" style="color:#03837b"></i>
+      </div>
+      <div>
+        <div class="metric">{{ vacantesActivas }}</div>
+        <p class="caption">Vacantes Activas</p>
+      </div>
+    </div>
+
+    <div class="kpi-card vtx-card">
+      <div class="kpi-icon" style="background:rgba(59,130,246,0.12)">
+        <i class="pi pi-users" style="color:#3b82f6"></i>
+      </div>
+      <div>
+        <div class="metric">{{ totalCandidatos }}</div>
+        <p class="caption">Candidatos Idóneos</p>
+      </div>
+    </div>
+
+    <div class="kpi-card vtx-card">
+      <div class="kpi-icon" style="background:rgba(139,92,246,0.12)">
+        <i class="pi pi-check-circle" style="color:#8b5cf6"></i>
+      </div>
+      <div>
+        <div class="metric">3</div>
+        <p class="caption">Contratados</p>
+      </div>
+    </div>
+
+    <div class="kpi-card vtx-card" [class.activo]="empresa?.estatus_convenio === 'activo'">
+      <div class="kpi-icon" style="background:rgba(3,131,123,0.12)">
+        <i class="pi pi-building" style="color:#03837b"></i>
+      </div>
+      <div>
+        <span [class]="'badge-' + (empresa?.estatus_convenio ?? '')">
+          {{ empresa?.estatus_convenio | titlecase }}
+        </span>
+        <p class="caption">Estatus Convenio</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Candidatos idóneos -->
+  <section class="mt-32">
+    <p class="section-title">Candidatos idóneos para tus vacantes</p>
+
+    @if (loading) {
+      <div class="sk-list">
+        @for (_ of [1,2,3]; track $index) { <div class="sk sk-candidato"></div> }
+      </div>
+    } @else if (candidatos.length === 0) {
+      <div class="empty-state vtx-card">
+        <i class="pi pi-users"></i>
+        <h3>Sin candidatos aún</h3>
+        <p>Publica vacantes con perfiles definidos para ver candidatos coincidentes.</p>
+      </div>
+    } @else {
+      <div class="candidatos-list">
+        @for (c of candidatos; track c.egresado.id) {
+          <div class="candidato-card vtx-card animate-fade-slide">
+            <div class="candidato-main">
+              <div class="candidato-avatar">
+                {{ c.egresado.nombre[0] }}{{ c.egresado.apellido_paterno[0] }}
+              </div>
+              <div class="candidato-info">
+                <h3>{{ nombreCompleto(c.egresado) }}</h3>
+                <p class="caption">{{ c.egresado.carrera }}</p>
+                <p class="caption"><i class="pi pi-calendar"></i> Egreso {{ c.egresado.periodo_egreso }}</p>
+              </div>
+            </div>
+
+            @if (c.egresado.scores) {
+              <div class="candidato-chart">
+                <app-spider-chart
+                  [egresadoScores]="c.egresado.scores"
+                  maxWidth="180px"
+                  [showLegend]="false"
+                ></app-spider-chart>
+              </div>
+            }
+
+            <div class="candidato-dims">
+              @for (dim of DIMS; track dim) {
+                @if (c.egresado.scores) {
+                  <app-dimension-pill [dimension]="dim" [score]="c.egresado.scores[dim]"></app-dimension-pill>
+                }
+              }
+            </div>
+
+            <div class="candidato-actions">
+              <app-score-circle
+                [score]="c.coincidencia"
+                color="#03837b"
+                size="64px"
+                [strokeWidth]="6"
+              ></app-score-circle>
+              <button
+                pButton
+                type="button"
+                label="Ver Perfil Completo"
+                icon="pi pi-eye"
+                class="p-button-outlined p-button-sm"
+                (click)="verPerfilCompleto(c)"
+              ></button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+</div>
+
+<!-- Dialog: Perfil completo -->
+<p-dialog
+  [(visible)]="showPerfilDialog"
+  [modal]="true"
+  [closable]="true"
+  header="Perfil del Candidato"
+  [style]="{ width: '620px', maxWidth: '95vw' }"
+>
+  @if (selectedCandidato) {
+    <div class="dialog-perfil">
+      <div class="dp-header">
+        <div class="dp-avatar">
+          {{ selectedCandidato.egresado.nombre[0] }}{{ selectedCandidato.egresado.apellido_paterno[0] }}
+        </div>
+        <div>
+          <h2>{{ nombreCompleto(selectedCandidato.egresado) }}</h2>
+          <p class="caption">{{ selectedCandidato.egresado.carrera }} · {{ selectedCandidato.egresado.periodo_egreso }}</p>
+        </div>
+        <app-score-circle
+          [score]="selectedCandidato.coincidencia"
+          color="#03837b"
+          size="72px"
+          [strokeWidth]="7"
+        ></app-score-circle>
+      </div>
+
+      @if (selectedCandidato.egresado.scores) {
+        <app-spider-chart
+          [egresadoScores]="selectedCandidato.egresado.scores"
+          maxWidth="100%"
+          [showLegend]="false"
+        ></app-spider-chart>
+
+        <div class="dp-dims">
+          @for (dim of DIMS; track dim) {
+            <app-dimension-pill
+              [dimension]="dim"
+              [score]="selectedCandidato.egresado.scores[dim]"
+            ></app-dimension-pill>
+          }
+        </div>
+      }
+
+      @if (selectedCandidato.egresado.cv_url) {
+        <a [href]="selectedCandidato.egresado.cv_url" target="_blank" class="cv-btn">
+          <i class="pi pi-file-pdf"></i> Ver CV
+        </a>
+      }
+    </div>
+  }
+</p-dialog>

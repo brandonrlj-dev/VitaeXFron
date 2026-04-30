@@ -53,7 +53,6 @@ export const routes: Routes = [
       }
     ]
   },
-/*
   {
     path: 'empresa',
     canActivate: [authGuard, roleGuard(['empresa'])],
@@ -102,6 +101,5 @@ export const routes: Routes = [
       }
     ]
   },
-*/
   { path: '**', redirectTo: '/login' }
 ];

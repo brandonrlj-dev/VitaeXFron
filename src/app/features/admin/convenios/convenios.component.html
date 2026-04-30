@@ -1,0 +1,79 @@
+<div class="page-container animate-fade-slide">
+
+  <div class="page-header">
+    <div>
+      <h1>Gestión de Convenios</h1>
+      <p class="caption">Empresas registradas y estatus de sus convenios con la UTC</p>
+    </div>
+    <a pButton routerLink="/admin/solicitudes" label="Ver Solicitudes" icon="pi pi-file-edit" class="p-button-outlined"></a>
+  </div>
+
+  <!-- Filtros rápidos -->
+  <div class="filtros-row">
+    @for (f of [{label:'Todos', value:''},{label:'Activos',value:'activo'},{label:'Por vencer',value:'por_vencer'},{label:'Pendientes',value:'pendiente'},{label:'Inactivos',value:'inactivo'}]; track f.value) {
+      <button
+        class="filtro-btn"
+        [class.active]="filtroEstatus === f.value"
+        (click)="filtroEstatus = f.value"
+      >{{ f.label }}</button>
+    }
+  </div>
+
+  @if (loading) {
+    <div class="sk sk-table"></div>
+  } @else {
+    <div class="vtx-card table-card">
+      <p-table [value]="empresasFiltradas" styleClass="p-datatable-sm" [rows]="10" [paginator]="empresasFiltradas.length > 10">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Empresa</th>
+            <th>Zona</th>
+            <th>Giro</th>
+            <th>Tipo de convenio</th>
+            <th>Estatus</th>
+            <th>Fecha convenio</th>
+            <th>Contacto</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-e>
+          <tr>
+            <td>
+              <div class="empresa-cell">
+                <div class="emp-avatar">{{ e.nombre[0] }}</div>
+                <div>
+                  <span class="emp-nombre">{{ e.nombre }}</span>
+                  <span class="caption">{{ e.rfc }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span [class]="'badge-' + e.zona">{{ e.zona | titlecase }}</span>
+            </td>
+            <td>
+              <span class="caption">{{ e.giro }}</span>
+            </td>
+            <td>
+              <span class="caption">{{ tipoLabel(e.tipo_convenio) }}</span>
+            </td>
+            <td>
+              <p-tag
+                [value]="estatusLabel(e.estatus_convenio)"
+                [severity]="estatusSeverity(e.estatus_convenio)"
+              ></p-tag>
+            </td>
+            <td>
+              <span class="caption">{{ e.fecha_convenio ?? '—' }}</span>
+            </td>
+            <td>
+              <div>
+                <span class="caption emp-contacto">{{ e.contacto_nombre }}</span>
+                <span class="caption">{{ e.contacto_email }}</span>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+
+</div>

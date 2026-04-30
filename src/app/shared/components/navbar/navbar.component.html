@@ -1,8 +1,6 @@
 <nav class="navbar">
   <div class="navbar-brand" [routerLink]="'/' + rol">
-    <div class="brand-mark">
-      <span class="brand-icon">VX</span>
-    </div>
+    <div class="brand-mark"><span class="brand-icon">VX</span></div>
     <div class="brand-text">
       <span class="brand-name">Bolsa de Trabajo</span>
       <span class="brand-sub">UT de la Costa</span>
@@ -12,11 +10,7 @@
   <ul class="nav-links">
     @for (item of navItems; track item.label) {
       <li>
-        <a
-          class="nav-link"
-          [routerLink]="item.routerLink"
-          routerLinkActive="active"
-        >
+        <a class="nav-link" [routerLink]="item.routerLink" routerLinkActive="active">
           <i [class]="item.icon"></i>
           <span>{{ item.label }}</span>
         </a>
@@ -25,8 +19,12 @@
   </ul>
 
   <div class="navbar-end">
-    <div class="user-chip">
-      <div class="user-avatar">{{ initialsUsuario }}</div>
+    <div class="user-chip" [routerLink]="rol === 'egresado' ? '/egresado/perfil' : null" [class.clickable]="rol === 'egresado'">
+      @if (fotoUrl) {
+        <img [src]="fotoUrl" class="user-avatar-img" alt="Foto de perfil" />
+      } @else {
+        <div class="user-avatar">{{ initialsUsuario }}</div>
+      }
       <span class="user-name">{{ nombreUsuario }}</span>
     </div>
     <button class="logout-btn" (click)="logout()" title="Cerrar sesión">
@@ -35,14 +33,23 @@
   </div>
 </nav>
 
+<!-- Mobile top bar -->
 <div class="navbar-mobile">
   <div class="navbar-brand" [routerLink]="'/' + rol">
     <div class="brand-mark"><span class="brand-icon">VX</span></div>
     <span class="brand-name">Bolsa de Trabajo UTC</span>
   </div>
-  <button class="logout-btn" (click)="logout()"><i class="pi pi-sign-out"></i></button>
+  <div class="mobile-end">
+    @if (fotoUrl) {
+      <img [src]="fotoUrl" class="user-avatar-img sm" [routerLink]="'/egresado/perfil'" alt="Foto" />
+    } @else {
+      <div class="user-avatar sm">{{ initialsUsuario }}</div>
+    }
+    <button class="logout-btn" (click)="logout()"><i class="pi pi-sign-out"></i></button>
+  </div>
 </div>
 
+<!-- Mobile bottom tabs -->
 <div class="mobile-tabs">
   @for (item of navItems.slice(0, 5); track item.label) {
     <a class="mobile-tab" [routerLink]="item.routerLink" routerLinkActive="active">

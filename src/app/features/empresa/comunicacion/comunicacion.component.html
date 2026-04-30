@@ -1,0 +1,87 @@
+<div class="page-container animate-fade-slide">
+
+  <div class="page-header">
+    <div>
+      <h1>Comunicación</h1>
+      <p class="caption">Mensajes con candidatos y notificaciones del sistema</p>
+    </div>
+    @if (noLeidos > 0) {
+      <span class="badge-en_revision">
+        <i class="pi pi-envelope"></i> {{ noLeidos }} no leído{{ noLeidos > 1 ? 's' : '' }}
+      </span>
+    }
+  </div>
+
+  <div class="mensajes-layout">
+
+    <!-- Lista de mensajes -->
+    <div class="mensajes-list vtx-card">
+      <div class="list-header">
+        <span class="section-label">Bandeja</span>
+        <button pButton icon="pi pi-plus" class="p-button-text p-button-sm" pTooltip="Nuevo mensaje" (click)="nuevo()"></button>
+      </div>
+
+      @for (m of mensajes; track m.id) {
+        <div
+          class="mensaje-item"
+          [class.active]="selectedMensaje?.id === m.id"
+          [class.unread]="!m.leido"
+          (click)="seleccionar(m)"
+        >
+          <div class="msg-avatar">{{ m.initials }}</div>
+          <div class="msg-content">
+            <div class="msg-header-row">
+              <span class="msg-candidato">{{ m.candidato }}</span>
+              <span class="msg-fecha">{{ m.fecha }}</span>
+            </div>
+            <p class="msg-asunto">{{ m.asunto }}</p>
+            <p class="msg-preview">{{ m.preview }}</p>
+          </div>
+          @if (!m.leido) {
+            <span class="unread-dot"></span>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Panel de mensaje -->
+    <div class="mensaje-panel vtx-card">
+      @if (selectedMensaje) {
+        <div class="msg-detail">
+          <div class="msg-detail-header">
+            <div class="msg-avatar lg">{{ selectedMensaje.initials }}</div>
+            <div>
+              <h3>{{ selectedMensaje.candidato }}</h3>
+              <p class="caption">{{ selectedMensaje.asunto }}</p>
+              <p class="caption"><i class="pi pi-calendar"></i> {{ selectedMensaje.fecha }}</p>
+            </div>
+            <span [class]="selectedMensaje.tipo === 'enviado' ? 'badge-activo' : 'badge-en_revision'" style="margin-left:auto">
+              {{ selectedMensaje.tipo === 'enviado' ? 'Enviado' : 'Recibido' }}
+            </span>
+          </div>
+
+          <div class="msg-body">
+            <p>{{ selectedMensaje.preview }}</p>
+            <p style="margin-top:12px; color: var(--color-text-secondary)">
+              Este mensaje fue {{ selectedMensaje.tipo === 'enviado' ? 'enviado por tu empresa' : 'recibido del candidato' }}
+              el {{ selectedMensaje.fecha }}. La funcionalidad completa de mensajería estará disponible
+              cuando el backend esté integrado.
+            </p>
+          </div>
+
+          <div class="msg-reply">
+            <input pInputText [(ngModel)]="nuevoMensaje" placeholder="Escribe una respuesta..." class="w-full" />
+            <button pButton icon="pi pi-send" (click)="enviarRespuesta()" [disabled]="!nuevoMensaje.trim()"></button>
+          </div>
+        </div>
+      } @else {
+        <div class="panel-empty">
+          <i class="pi pi-envelope-open"></i>
+          <h3>Selecciona un mensaje</h3>
+          <p>Elige un mensaje de la bandeja para leerlo o responderlo.</p>
+        </div>
+      }
+    </div>
+
+  </div>
+</div>

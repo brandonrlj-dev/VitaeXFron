@@ -1,3 +1,5 @@
+<p-toast position="bottom-right"></p-toast>
+
 <aside class="sidebar">
   <div class="sidebar-header">
     <div class="brand-mark"><span>VX</span></div>
@@ -10,11 +12,7 @@
   <nav class="sidebar-nav">
     <p class="nav-section-label">Administración</p>
     @for (item of items; track item.route) {
-      <a
-        class="nav-item"
-        [routerLink]="item.route"
-        routerLinkActive="active"
-      >
+      <a class="nav-item" [routerLink]="item.route" routerLinkActive="active">
         <i [class]="item.icon"></i>
         <span>{{ item.label }}</span>
       </a>
@@ -22,15 +20,44 @@
   </nav>
 
   <div class="sidebar-footer">
-    <div class="user-info">
-      <div class="user-avatar">AD</div>
-      <div class="user-data">
-        <span class="user-name">Admin UTC</span>
-        <span class="user-role">Administrador</span>
-      </div>
+    <div class="logo-zone" (click)="triggerLogoUpload()" title="Cambiar logo (opcional)">
+      @if (logoAdmin) {
+        <img [src]="logoAdmin" class="user-logo-img" alt="Logo" />
+        <div class="logo-overlay">
+          <i class="pi pi-camera"></i>
+        </div>
+      } @else {
+        <div class="user-avatar">
+          <span>AD</span>
+          <div class="logo-overlay">
+            <i class="pi pi-camera"></i>
+          </div>
+        </div>
+      }
     </div>
+
+    <div class="user-data">
+      <span class="user-name">Admin UTC</span>
+      <button
+        class="logo-hint-btn"
+        (click)="logoAdmin ? removeLogo() : triggerLogoUpload()"
+        [title]="logoAdmin ? 'Eliminar logo' : 'Agregar logo (opcional)'"
+      >
+        <i [class]="logoAdmin ? 'pi pi-trash' : 'pi pi-upload'"></i>
+        {{ logoAdmin ? 'Quitar logo' : 'Agregar logo' }}
+      </button>
+    </div>
+
     <button class="logout-btn" (click)="logout()" title="Cerrar sesión">
       <i class="pi pi-sign-out"></i>
     </button>
+
+    <input
+      #logoInput
+      type="file"
+      accept="image/*"
+      style="display:none"
+      (change)="onLogoSelected($event)"
+    />
   </div>
 </aside>
