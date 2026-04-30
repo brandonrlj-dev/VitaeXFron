@@ -61,10 +61,18 @@ export class VacanteDetalleComponent implements OnInit {
     );
   }
 
+  get evaluacionesCompletas(): boolean {
+    return this.DIMS.every(dim => this.egresado?.evaluaciones_completadas.includes(dim));
+  }
+
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
     this.egresadoSvc.getEgresadoActual().subscribe(e => {
       this.egresado = e;
+      if (!this.evaluacionesCompletas) {
+        this.loading = false;
+        return;
+      }
       this.vacanteSvc.getVacanteById(id).subscribe(v => {
         this.vacante = v;
         this.loading = false;

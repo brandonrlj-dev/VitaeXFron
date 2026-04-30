@@ -301,9 +301,10 @@ export function mapPregunta(row: any, dimension: DimensionType): Pregunta {
     opciones: opcionesRaw.map((opcion: any): OpcionRespuesta => ({
       id: id(opcion.cve_opcion_respuesta ?? opcion.id),
       texto: opcion.texto ?? '',
-      valor: num(opcion.valor),
+      valor: opcion.valor !== undefined && opcion.valor !== null ? num(opcion.valor) : undefined,
     })),
     carrera: row.carrera,
+    prueba_id: row.cve_prueba ? id(row.cve_prueba) : undefined,
   };
 }
 

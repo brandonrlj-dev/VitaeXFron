@@ -48,9 +48,14 @@ export class VacantesComponent implements OnInit {
   private vacanteSvc  = inject(VacanteService);
   private egresadoSvc = inject(EgresadoService);
 
+  get evaluacionesCompletas(): boolean {
+    return this.DIMS.every(dim => this.egresado?.evaluaciones_completadas.includes(dim));
+  }
+
   setModo(nuevoModo: 'bolsa' | 'nacional') {
     if (this.modo === nuevoModo) return;
     this.modo = nuevoModo;
+    if (!this.evaluacionesCompletas) return;
     this.loading = true;
     if (this.modo === 'bolsa') {
       this.cargarVacantesLocales();
@@ -89,6 +94,10 @@ export class VacantesComponent implements OnInit {
   ngOnInit() {
     this.egresadoSvc.getEgresadoActual().subscribe(e => {
       this.egresado = e;
+      if (!this.evaluacionesCompletas) {
+        this.loading = false;
+        return;
+      }
       this.cargarVacantesLocales();
     });
   }

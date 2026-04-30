@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
-import { DimensionType, Educacion, Egresado, Mensaje, Pregunta } from '../models';
+import { DimensionType, Educacion, Egresado, Mensaje, Pregunta, ResultadoEvaluacion } from '../models';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope, toApiError, unwrapData, unwrapItems } from './api-response';
 import { mapCertificado, mapEgresado, mapMensaje, mapPregunta, mapTrayectoria } from './api-mappers';
@@ -133,9 +133,18 @@ export class EgresadoService {
     };
   }
 
-  getPreguntasPorDimension(dimension: DimensionType): Observable<Pregunta[]> {
+  getPreguntasPorDimension(dimension: DimensionType, egresadoId?: string): Observable<Pregunta[]> {
     return this.tipoPruebaPorDimension(dimension).pipe(
-      switchMap(tipo => this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/evaluaciones/preguntas/${tipo.cve_tipo_prueba}`)),
+      switchMap(tipo => {
+        const params = egresadoId
+          ? new HttpParams().set('cve_egresado', egresadoId)
+          : undefined;
+
+        return this.http.get<ApiEnvelope<any[]>>(
+          `${environment.apiUrl}/evaluaciones/preguntas/${tipo.cve_tipo_prueba}`,
+          { params }
+        );
+      }),
       map(response => unwrapData(response).map(row => mapPregunta(row, dimension))),
       catchError(error => toApiError(error, 'No se pudieron cargar las preguntas'))
     );
@@ -144,13 +153,12 @@ export class EgresadoService {
   guardarResultadoEvaluacion(
     egresadoId: string,
     dimension: DimensionType,
-    puntaje: number
-  ): Observable<void> {
+    preguntas: Pregunta[],
+    respuestas: Record<string, string>
+  ): Observable<ResultadoEvaluacion> {
     return this.tipoPruebaPorDimension(dimension).pipe(
-      switchMap(tipo => this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/evaluaciones/preguntas/${tipo.cve_tipo_prueba}`)),
-      map(response => unwrapData(response)),
-      switchMap(preguntas => {
-        const cvePrueba = preguntas[0]?.cve_prueba;
+      switchMap(tipo => {
+        const cvePrueba = preguntas.find(pregunta => pregunta.prueba_id)?.prueba_id ?? tipo.cve_prueba;
         if (!cvePrueba) return throwError(() => new Error('La dimension no tiene prueba activa'));
         return this.http.post<ApiEnvelope<any>>(`${environment.apiUrl}/evaluaciones/iniciar`, {
           cve_egresado: egresadoId,
@@ -160,11 +168,26 @@ export class EgresadoService {
       map(response => unwrapData(response)),
       switchMap(evaluacion => this.http.post<ApiEnvelope<any>>(
         `${environment.apiUrl}/evaluaciones/${evaluacion.cve_evaluacion}/finalizar`,
-        { puntaje_obtenido: puntaje, observacion: 'Resultado registrado desde frontend' }
+        {
+          respuestas: Object.entries(respuestas).map(([cve_pregunta, cve_opcion_respuesta]) => ({
+            cve_pregunta,
+            cve_opcion_respuesta,
+          })),
+          observacion: 'Resultado calculado por backend',
+        }
       )),
-      map(() => undefined),
+      map(response => this.mapResultadoEvaluacion(unwrapData(response))),
       catchError(error => toApiError(error, 'No se pudo guardar la evaluacion'))
     );
+  }
+
+  private mapResultadoEvaluacion(row: any): ResultadoEvaluacion {
+    const data = row?.resultado ?? row ?? {};
+    return {
+      puntaje_obtenido: Number(data.puntaje_obtenido ?? data.puntaje ?? data.score ?? 0),
+      puntaje_global: data.puntaje_global !== undefined ? Number(data.puntaje_global) : undefined,
+      observacion: data.observacion,
+    };
   }
 
   subirFoto(egresadoId: string, file: File): Observable<Egresado> {

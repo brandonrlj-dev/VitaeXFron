@@ -34,7 +34,7 @@ export class EvaluacionesComponent implements OnInit {
   private egresadoSvc = inject(EgresadoService);
 
   get preguntaActual(): Pregunta | undefined { return this.preguntas[this.currentIndex]; }
-  get progreso(): number { return ((this.currentIndex + 1) / this.preguntas.length) * 100; }
+  get progreso(): number { return this.preguntas.length ? ((this.currentIndex + 1) / this.preguntas.length) * 100 : 0; }
   get config() { return this.dimension ? DIMENSION_CONFIG[this.dimension] : null; }
 
   ngOnInit() {
@@ -56,8 +56,8 @@ export class EvaluacionesComponent implements OnInit {
   }
 
   iniciarDimension(dim: DimensionType) {
-    if (this.isCompletada(dim)) return;
-    this.egresadoSvc.getPreguntasPorDimension(dim).subscribe({
+    if (this.isCompletada(dim) || !this.egresado) return;
+    this.egresadoSvc.getPreguntasPorDimension(dim, this.egresado.id).subscribe({
       next: preguntas => {
         if (!preguntas.length) {
           alert('No hay preguntas registradas para esta dimension.');
@@ -88,7 +88,7 @@ export class EvaluacionesComponent implements OnInit {
     if (this.currentIndex < this.preguntas.length - 1) {
       this.currentIndex++;
     } else {
-      this.calcularResultado();
+      this.finalizarEvaluacion();
     }
   }
 
@@ -99,23 +99,23 @@ export class EvaluacionesComponent implements OnInit {
     }
   }
 
-  private calcularResultado() {
-    const total = this.preguntas.reduce((sum, p) => {
-      const respId  = this.respuestas[p.id];
-      const opcion  = p.opciones.find(o => o.id === respId);
-      return sum + (opcion?.valor ?? 0);
-    }, 0);
+  private finalizarEvaluacion() {
+    if (!this.egresado || !this.dimension) return;
 
-    const maxPts  = this.preguntas.reduce((sum, p) => {
-      const max = Math.max(...p.opciones.map(o => o.valor), 0);
-      return sum + max;
-    }, 0);
-    this.puntajeObtenido = maxPts > 0 ? Math.round((total / maxPts) * 100) : 0;
-    this.fase     = 'resultado';
-    this.saving   = true;
-
-    this.egresadoSvc.guardarResultadoEvaluacion(this.egresado!.id, this.dimension!, this.puntajeObtenido)
-      .subscribe(() => { this.saving = false; });
+    this.saving = true;
+    this.egresadoSvc.guardarResultadoEvaluacion(this.egresado.id, this.dimension, this.preguntas, this.respuestas)
+      .subscribe({
+        next: resultado => {
+          this.puntajeObtenido = resultado.puntaje_obtenido;
+          this.fase = 'resultado';
+          this.saving = false;
+          this.egresadoSvc.invalidarCache();
+        },
+        error: error => {
+          this.saving = false;
+          alert(error.message ?? 'No se pudo finalizar la evaluacion.');
+        }
+      });
   }
 
   irAlDashboard() { this.router.navigate(['/egresado/dashboard']); }

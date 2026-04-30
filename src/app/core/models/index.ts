@@ -222,7 +222,7 @@ export interface SolicitudConvenio {
 export interface OpcionRespuesta {
   id:    string;
   texto: string;
-  valor: number;
+  valor?: number;
 }
 
 export interface Pregunta {
@@ -231,6 +231,18 @@ export interface Pregunta {
   texto:     string;
   opciones:  OpcionRespuesta[];
   carrera?:  string;
+  prueba_id?: string;
+}
+
+export interface RespuestaEvaluacion {
+  cve_pregunta: string;
+  cve_opcion_respuesta: string;
+}
+
+export interface ResultadoEvaluacion {
+  puntaje_obtenido: number;
+  puntaje_global?: number;
+  observacion?: string;
 }
 
 export interface SesionEvaluacion {

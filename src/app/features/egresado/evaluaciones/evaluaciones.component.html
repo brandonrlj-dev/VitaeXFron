@@ -41,7 +41,7 @@
           <p class="caption">{{ DIMENSION_CONFIG[dim].description }}</p>
 
           <div class="card-footer">
-            <p class="question-count"><i class="pi pi-list"></i> 10 preguntas</p>
+            <p class="question-count"><i class="pi pi-list"></i> Preguntas dinamicas</p>
             @if (isCompletada(dim)) {
               <div class="score-pct" [style.color]="DIMENSION_CONFIG[dim].color">
                 <strong>{{ getPuntaje(dim) }}%</strong>
@@ -117,7 +117,7 @@
             [label]="currentIndex === preguntas.length - 1 ? 'Finalizar' : 'Siguiente'"
             [icon]="currentIndex === preguntas.length - 1 ? 'pi pi-check' : 'pi pi-arrow-right'"
             iconPos="right"
-            [disabled]="!respuestaActual"
+            [disabled]="!respuestaActual || saving"
             (click)="siguiente()"
           ></button>
         </div>

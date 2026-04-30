@@ -58,10 +58,18 @@ export class VacanteNacionalDetalleComponent implements OnInit {
     return this.DIMS.filter(d => this.egresado!.scores![d] < this.perfilIdeal![d]);
   }
 
+  get evaluacionesCompletas(): boolean {
+    return this.DIMS.every(dim => this.egresado?.evaluaciones_completadas.includes(dim));
+  }
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     this.egresadoSvc.getEgresadoActual().subscribe(e => {
       this.egresado = e;
+      if (!this.evaluacionesCompletas) {
+        this.loading = false;
+        return;
+      }
       if (id) {
         this.vacanteSvc.getVacanteNacionalById(id).subscribe(vn => {
           this.vacante     = vn;

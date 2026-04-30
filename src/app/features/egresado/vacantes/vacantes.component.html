@@ -5,7 +5,7 @@
       <h1>Vacantes disponibles</h1>
       <p class="caption">Encuentra tu próximo reto profesional</p>
     </div>
-    <span class="results-count" *ngIf="!loading">
+    <span class="results-count" *ngIf="!loading && evaluacionesCompletas">
       {{ modo === 'bolsa' ? vacantesFiltradas.length : vacantesNacionalesFiltradas.length }} vacante{{ (modo === 'bolsa' ? vacantesFiltradas.length : vacantesNacionalesFiltradas.length) !== 1 ? 's' : '' }}
     </span>
   </div>
@@ -30,8 +30,22 @@
     </button>
   </div>
 
+  @if (!loading && !evaluacionesCompletas) {
+    <div class="empty-state vtx-card locked-state">
+      <i class="pi pi-lock"></i>
+      <h3>Vacantes bloqueadas</h3>
+      <p>No puedes ver las vacantes disponibles hasta que contestes todas tus encuestas.</p>
+      <a
+        pButton
+        routerLink="/egresado/evaluaciones"
+        label="Ir a evaluaciones"
+        icon="pi pi-list-check"
+      ></a>
+    </div>
+  }
+
   <!-- Filtros -->
-  <div class="vtx-card filters-card">
+  <div class="vtx-card filters-card" *ngIf="evaluacionesCompletas">
     <div class="filters-row">
       <div class="filter-item search-filter">
         <span class="p-input-icon-left">
@@ -70,7 +84,7 @@
         <div class="sk sk-vac-card"></div>
       }
     </div>
-  } @else {
+  } @else if (evaluacionesCompletas) {
     
     <!-- MODO BOLSA LOCAL -->
     <div class="vacantes-grid" *ngIf="modo === 'bolsa'">

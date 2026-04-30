@@ -13,6 +13,18 @@
       <div class="sk sk-header"></div>
       <div class="sk sk-body"></div>
     </div>
+  } @else if (!evaluacionesCompletas) {
+    <div class="vtx-card empty-state">
+      <i class="pi pi-lock"></i>
+      <h3>Vacante bloqueada</h3>
+      <p>No puedes ver las vacantes disponibles hasta que contestes todas tus encuestas.</p>
+      <a
+        pButton
+        routerLink="/egresado/evaluaciones"
+        label="Ir a evaluaciones"
+        icon="pi pi-list-check"
+      ></a>
+    </div>
   } @else if (vacante) {
 
     <div class="detalle-grid">
