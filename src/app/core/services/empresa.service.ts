@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, of } from 'rxjs';
+import { Observable, forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Empresa, Egresado, EstatusSolicitud, SolicitudConvenio, Vacante } from '../models';
 import { environment } from '../../../environments/environment';
@@ -37,12 +37,7 @@ export class EmpresaService {
       );
     }
 
-    return this.getEmpresas().pipe(
-      map(empresas => {
-        if (!empresas.length) throw new Error('No hay empresas registradas');
-        return empresas[0];
-      })
-    );
+    return throwError(() => new Error('No se pudo identificar la empresa actual en la sesión'));
   }
 
   subirFoto(empresaId: string, file: File): Observable<Empresa> {
@@ -95,6 +90,24 @@ export class EmpresaService {
     );
   }
 
+  evaluarDesempeno(payload: {
+    empresa_id: string;
+    egresado_id: string;
+    postulacion_id?: string;
+    calificacion: number;
+    comentario: string;
+  }): Observable<void> {
+    return this.http.post<ApiEnvelope<any>>(`${environment.apiUrl}/empresas/${payload.empresa_id}/evaluaciones-desempeno`, {
+      cve_egresado: payload.egresado_id,
+      cve_postulacion: payload.postulacion_id,
+      calificacion: payload.calificacion,
+      comentario: payload.comentario,
+    }).pipe(
+      map(() => undefined),
+      catchError(error => toApiError(error, 'No se pudo registrar la evaluacion de desempeno'))
+    );
+  }
+
   getSolicitudes(): Observable<SolicitudConvenio[]> {
     return this.http.get<ApiEnvelope<any[]>>(`${environment.apiUrl}/solicitudes-convenio`).pipe(
       map(response => unwrapData(response).map(mapSolicitud)),
@@ -135,20 +148,35 @@ export class EmpresaService {
   getDashboardEmpresa(empresaId: string): Observable<{
     vacantes: Vacante[];
     postulaciones: any[];
-    candidatos: { egresado: Egresado; coincidencia: number }[];
+    candidatos: { egresado: Egresado; coincidencia: number; vacanteId?: string }[];
   }> {
     return forkJoin({
       dashboard: this.http.get<ApiEnvelope<any>>(`${environment.apiUrl}/dashboard/empresa/${empresaId}`).pipe(map(unwrapData)),
       vacantes: this.getVacantesEmpresa(empresaId),
     }).pipe(
-      map(({ dashboard, vacantes }) => ({
-        vacantes,
-        postulaciones: (dashboard?.candidatos ?? []).map(mapPostulacion),
-        candidatos: (dashboard?.candidatos ?? []).map((row: any) => ({
-          egresado: mapEgresado(row),
-          coincidencia: Number(row.porcentaje_coincidencia ?? 0),
-        })),
-      })),
+      map(({ dashboard, vacantes }) => {
+        const analiticaById = new Map((dashboard?.analitica_vacantes ?? []).map((row: any) => [String(row.cve_vacante), row]));
+        const vacantesConAnalitica = vacantes.map(vacante => {
+          const row: any = analiticaById.get(vacante.id);
+          if (!row) return vacante;
+          return {
+            ...vacante,
+            postulaciones_count: this.numberFrom(row.total_postulacion ?? row.total_postulaciones),
+            contratados_count: this.numberFrom(row.total_contratado ?? row.total_contratados),
+            cobertura_dias: this.numberFrom(row.dias_promedio_cobertura ?? row.tiempo_promedio_cobertura_dias),
+          };
+        });
+
+        return {
+          vacantes: vacantesConAnalitica,
+          postulaciones: (dashboard?.candidatos ?? []).map(mapPostulacion),
+          candidatos: (dashboard?.candidatos ?? []).map((row: any) => ({
+            egresado: mapEgresado(row),
+            coincidencia: Number(row.porcentaje_coincidencia ?? 0),
+            vacanteId: String(row.cve_vacante ?? row.vacante_id ?? ''),
+          })),
+        };
+      }),
       catchError(error => toApiError(error, 'No se pudo cargar el dashboard de empresa'))
     );
   }
@@ -159,7 +187,10 @@ export class EmpresaService {
       titulo: row.titulo ?? source.puesto,
       descripcion: row.descripcion ?? source.descripcion,
       area: row.area ?? source.area,
+      ubicacion: row.ubicacion ?? source.ubicacion,
       modalidad: row.modalidad ?? source.modalidad,
+      salario_rango: row.salario_rango ?? source.salario_rango,
+      fecha_cierre: row.fecha_cierre ?? source.fecha_cierre,
       razon_social: source.empresa_nombre,
       cve_empresa: row.cve_empresa ?? source.empresa_id,
       estado: row.estado ?? (source.activa === false ? 'cancelada' : 'publicada'),
@@ -167,6 +198,12 @@ export class EmpresaService {
       puntaje_cognitiva: source.perfil_ideal?.cognitiva,
       puntaje_tecnica: source.perfil_ideal?.tecnica,
       puntaje_proyectiva: source.perfil_ideal?.proyectiva,
+      preguntas_tecnicas: row.preguntas_tecnicas ?? source.preguntas_tecnicas,
     });
+  }
+
+  private numberFrom(value: unknown): number {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
   }
 }

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -18,7 +18,7 @@ import { EmpresaService } from '../../../core/services/empresa.service';
   selector: 'app-login',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, RouterLink,
+    CommonModule, ReactiveFormsModule,
     ButtonModule, InputTextModule, PasswordModule,
     MessageModule, ProgressSpinnerModule,
     DialogModule, DropdownModule, ToastModule,
@@ -34,6 +34,7 @@ export class LoginComponent {
   error    = '';
   showSolicitudDialog = false;
   enviandoSolicitud   = false;
+
 
   readonly zonaOpciones = [
     { label: 'Norte',  value: 'norte' },
@@ -56,11 +57,15 @@ export class LoginComponent {
     this.solicitudForm = this.fb.group({
       empresa_nombre:    ['', Validators.required],
       rfc:               ['', [Validators.required, Validators.minLength(12)]],
+      giro:              ['', Validators.required],
+      sector:            ['', Validators.required],
+      municipio:         ['', Validators.required],
+      estado:            ['Nayarit', Validators.required],
       contacto_nombre:   ['', Validators.required],
       contacto_email:    ['', [Validators.required, Validators.email]],
       contacto_telefono: ['', Validators.required],
       zona:              ['norte', Validators.required],
-      giro:              ['', Validators.required],
+      mensaje:           [''],
     });
   }
 
@@ -90,6 +95,7 @@ export class LoginComponent {
     this.showSolicitudDialog = true;
   }
 
+
   enviarSolicitudConvenio() {
     if (this.solicitudForm.invalid) {
       this.solicitudForm.markAllAsTouched();
@@ -97,11 +103,25 @@ export class LoginComponent {
     }
 
     this.enviandoSolicitud = true;
-    this.empresaSvc.crearSolicitudConvenio(this.solicitudForm.value).subscribe({
+    const solicitud = {
+      ...this.solicitudForm.value,
+      empresa_nombre: this.solicitudForm.value.empresa_nombre?.trim(),
+      rfc: this.solicitudForm.value.rfc?.trim().toUpperCase(),
+      giro: this.solicitudForm.value.giro?.trim(),
+      sector: this.solicitudForm.value.sector?.trim(),
+      municipio: this.solicitudForm.value.municipio?.trim(),
+      estado: this.solicitudForm.value.estado?.trim(),
+      contacto_nombre: this.solicitudForm.value.contacto_nombre?.trim(),
+      contacto_email: this.solicitudForm.value.contacto_email?.trim(),
+      contacto_telefono: this.solicitudForm.value.contacto_telefono?.trim(),
+      mensaje: this.solicitudForm.value.mensaje?.trim(),
+    };
+
+    this.empresaSvc.crearSolicitudConvenio(solicitud).subscribe({
       next: (solicitud) => {
         this.enviandoSolicitud = false;
         this.showSolicitudDialog = false;
-        this.solicitudForm.reset({ zona: 'norte' });
+        this.solicitudForm.reset({ zona: 'norte', estado: 'Nayarit' });
         this.msgSvc.add({
           severity: 'success',
           summary: 'Solicitud enviada',

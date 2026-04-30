@@ -10,7 +10,6 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { VacanteService } from '../../../core/services/vacante.service';
 import { EmpresaService } from '../../../core/services/empresa.service';
-import { EgresadoService } from '../../../core/services/egresado.service';
 import { MensajeService as BolsaMensajeService } from '../../../core/services/mensaje.service';
 import { ScoreCircleComponent } from '../../../shared/components/score-circle/score-circle.component';
 import { DimensionPillComponent } from '../../../shared/components/dimension-pill/dimension-pill.component';
@@ -30,10 +29,11 @@ import { Egresado, Vacante, DimensionType, egresadoNombreCompleto } from '../../
   styleUrls: ['./talento.component.scss'],
 })
 export class TalentoComponent implements OnInit {
-  egresados: Egresado[] = [];
+
   candidatos: { egresado: Egresado; coincidencia: number }[] = [];
   vacantes: Vacante[] = [];
   selectedVacanteId = '';
+  loading = true;
   filtros = { psicometrica: 0, cognitiva: 0, tecnica: 0, proyectiva: 0, minCoincidencia: 80 };
 
   selectedEgresado?: Egresado;
@@ -45,7 +45,6 @@ export class TalentoComponent implements OnInit {
   readonly DIMS: DimensionType[] = ['psicometrica', 'cognitiva', 'tecnica', 'proyectiva'];
   private vacanteSvc = inject(VacanteService);
   private empresaSvc = inject(EmpresaService);
-  private egresadoSvc = inject(EgresadoService);
   private mensajeSvc = inject(BolsaMensajeService);
   private msgSvc = inject(MessageService);
 
@@ -74,10 +73,6 @@ export class TalentoComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.egresadoSvc.getEgresados().subscribe(egresados => {
-      this.egresados = egresados;
-      this.hidratarCandidatos();
-    });
 
     this.empresaSvc.getEmpresaActual().subscribe(empresa => {
       this.empresaSvc.getVacantesEmpresa(empresa.id).subscribe(vacantes => {
@@ -91,29 +86,26 @@ export class TalentoComponent implements OnInit {
   cargarCandidatos() {
     if (!this.selectedVacanteId) {
       this.candidatos = [];
+      this.loading = false;
       return;
     }
 
-    this.vacanteSvc.getCandidatosVacante(this.selectedVacanteId, 80).subscribe({
+    this.loading = true;
+    this.vacanteSvc.getCandidatosVacante(this.selectedVacanteId).subscribe({
       next: candidatos => {
-        this.candidatos = candidatos;
-        this.hidratarCandidatos();
+        this.candidatos = candidatos
+          .filter(c => c.coincidencia >= 80)
+          .sort((a, b) => b.coincidencia - a.coincidencia);
+        this.loading = false;
       },
-      error: (err) => {
+      error: err => {
         this.candidatos = [];
-        this.msgSvc.add({ severity: 'error', summary: 'No se pudieron cargar', detail: err.message });
+        this.loading = false;
+        this.msgSvc.add({ severity: 'error', summary: 'No se pudieron cargar candidatos', detail: err.message });
       }
     });
   }
 
-  private hidratarCandidatos() {
-    if (!this.egresados.length || !this.candidatos.length) return;
-    const egresadosById = new Map(this.egresados.map(egresado => [egresado.id, egresado]));
-    this.candidatos = this.candidatos.map(candidato => ({
-      ...candidato,
-      egresado: egresadosById.get(candidato.egresado.id) ?? candidato.egresado,
-    }));
-  }
 
   verPerfil(eg: Egresado) {
     this.selectedEgresado = eg;

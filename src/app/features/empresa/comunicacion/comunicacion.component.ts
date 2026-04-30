@@ -42,9 +42,15 @@ export class ComunicacionComponent implements OnInit {
 
   ngOnInit() {
     this.empresaSvc.getEmpresaActual().subscribe(empresa => {
-      this.mensajeSvc.porEmpresa(empresa.id).subscribe(mensajes => {
-        this.mensajes = mensajes;
-        this.selectedMensaje = mensajes[0];
+      this.mensajeSvc.porEmpresa(empresa.id).subscribe({
+        next: mensajes => {
+          this.mensajes = mensajes;
+          this.selectedMensaje = mensajes[0];
+        },
+        error: err => {
+          this.mensajes = [];
+          this.msgSvc.add({ severity: 'error', summary: 'No se pudieron cargar mensajes', detail: err.message });
+        }
       });
     });
 

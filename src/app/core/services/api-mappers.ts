@@ -124,16 +124,21 @@ export function mapVacante(row: any): Vacante {
     ubicacion: [row.localidad, row.municipio, row.estado_ubicacion].filter(Boolean).join(', ') || row.ubicacion || 'Mexico',
     zona_norte: zonaBackend(row.zona),
     perfil_ideal: {
-      psicometrica: num(row.puntaje_psicometrica, 70),
-      cognitiva: num(row.puntaje_cognitiva, 70),
-      tecnica: num(row.puntaje_tecnica, 70),
-      proyectiva: num(row.puntaje_proyectiva, 70),
+      psicometrica: num(row.peso_psicometrica ?? row.puntaje_psicometrica, 25),
+      cognitiva: num(row.peso_cognitiva ?? row.puntaje_cognitiva, 25),
+      tecnica: num(row.peso_tecnica ?? row.puntaje_tecnica, 25),
+      proyectiva: num(row.peso_proyectiva ?? row.puntaje_proyectiva, 25),
     },
     fecha_publicacion: fecha(row.fecha_publicacion),
+    fecha_cierre: fecha(row.fecha_cierre),
     activa: row.activa ?? row.estado === 'publicada',
     salario_rango: row.salario_rango ?? salario(row.salario_minimo, row.salario_maximo),
     modalidad: row.modalidad ?? 'presencial',
     coincidencia: row.porcentaje_coincidencia !== undefined ? num(row.porcentaje_coincidencia) : undefined,
+    postulaciones_count: num(row.postulaciones_count ?? row.total_postulaciones ?? row.total_postulacion),
+    contratados_count: num(row.contratados_count ?? row.total_contratados ?? row.total_contratado),
+    cobertura_dias: num(row.cobertura_dias ?? row.tiempo_promedio_cobertura_dias ?? row.dias_promedio_cobertura),
+    preguntas_tecnicas: row.preguntas_tecnicas ?? row.preguntas ?? [],
   };
 }
 
@@ -143,9 +148,13 @@ export function vacanteToApi(vacante: Partial<Vacante>): any {
     titulo: vacante.puesto,
     descripcion: vacante.descripcion,
     area: vacante.area,
+    ubicacion: vacante.ubicacion,
     modalidad: vacante.modalidad,
+    salario_rango: vacante.salario_rango,
+    fecha_cierre: vacante.fecha_cierre,
     estado: vacante.activa === false ? 'cancelada' : 'publicada',
     perfil_idoneo: vacante.perfil_ideal ? perfilToApi(vacante.perfil_ideal) : undefined,
+    preguntas_tecnicas: vacante.preguntas_tecnicas,
   };
 }
 
@@ -155,6 +164,10 @@ export function perfilToApi(scores: DimensionScores): any {
     puntaje_cognitiva: scores.cognitiva,
     puntaje_tecnica: scores.tecnica,
     puntaje_proyectiva: scores.proyectiva,
+    peso_psicometrica: scores.psicometrica,
+    peso_cognitiva: scores.cognitiva,
+    peso_tecnica: scores.tecnica,
+    peso_proyectiva: scores.proyectiva,
   };
 }
 
@@ -208,6 +221,10 @@ export function mapSolicitud(row: any): SolicitudConvenio {
     contacto_telefono: row.contacto_telefono ?? '',
     zona: zonaFrontend(row.zona),
     giro: row.giro ?? row.sector ?? '',
+    sector: row.sector,
+    municipio: row.municipio,
+    estado: row.estado_ubicacion ?? row.estado_entidad ?? row.estado,
+    mensaje: row.mensaje,
     fecha_solicitud: fecha(row.fecha_solicitud),
     estatus: estatus as any,
     motivo: row.motivo ?? row.observacion,
@@ -218,7 +235,11 @@ export function solicitudToApi(solicitud: Partial<SolicitudConvenio>): any {
   return {
     ...solicitud,
     zona: solicitud.zona === 'norte' ? 'norte_nayarit' : 'nacional',
-    estado: solicitud.estatus === 'en_proceso' ? 'en_revision' : solicitud.estatus,
+    estado: solicitud.estatus === 'en_proceso' ? 'en_revision' : (solicitud.estatus ?? 'pendiente'),
+    sector: solicitud.sector,
+    municipio: solicitud.municipio,
+    estado_ubicacion: solicitud.estado,
+    mensaje: solicitud.mensaje,
   };
 }
 

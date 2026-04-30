@@ -129,6 +129,10 @@ export class AuthService {
   }
 
   private roleFromRaw(payload: SiestTokenPayload | null): RolUsuario {
+    const cveRol = String(payload?.cve_rol ?? payload?.perfil_id ?? '');
+    if (cveRol === '41') return 'empresa';
+    if (['22', '1'].includes(cveRol)) return 'admin';
+
     const rawRoles = payload?.roles_originales ?? payload?.roles ?? [];
     const roleIds = rawRoles.map(role => String(role.id));
     if (roleIds.includes('22') || roleIds.includes('1')) return 'admin';

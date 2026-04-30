@@ -52,7 +52,10 @@ export class MensajeService {
   }
 
   private mapMensaje(row: any, emisorActual: string): MensajeView {
-    const candidato = [row.nombre, row.primer_apellido, row.segundo_apellido].filter(Boolean).join(' ') || 'Candidato';
+    const nombreCompleto = [row.nombre, row.primer_apellido, row.segundo_apellido]
+      .filter(Boolean)
+      .join(' ');
+    const candidato = row.egresado_nombre ?? (nombreCompleto || 'Candidato');
     const contenido = row.mensaje ?? row.contenido ?? '';
     const tipoEmisor = row.tipo_emisor ?? row.remitente;
     return {
@@ -61,7 +64,7 @@ export class MensajeService {
       egresadoId: row.cve_egresado ? String(row.cve_egresado) : undefined,
       vacanteId: row.cve_vacante ? String(row.cve_vacante) : undefined,
       postulacionId: row.cve_postulacion ? String(row.cve_postulacion) : undefined,
-      initials: candidato.split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase(),
+      initials: candidato.split(/\s+/).slice(0, 2).map((part: string) => part[0]).join('').toUpperCase(),
       asunto: row.vacante ? `Vacante: ${row.vacante}` : 'Mensaje de seguimiento',
       preview: contenido,
       contenido,
