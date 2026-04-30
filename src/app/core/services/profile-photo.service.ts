@@ -1,4 +1,28 @@
 import { Injectable, signal } from '@angular/core';
+import { environment } from '../../../environments/environment';
+
+const PLACEHOLDER_MARKER = '_placeholder';
+
+export function usablePhotoUrl(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+
+  const url = value.trim();
+  return url && !url.includes(PLACEHOLDER_MARKER) ? url : null;
+}
+
+export function buildEgresadoPhotoUrl(egresadoId: unknown, storedUrl: unknown): string | null {
+  const url = usablePhotoUrl(storedUrl);
+  if (!egresadoId || !url) return null;
+
+  const version = googleDriveFileId(url) ?? url;
+  return `${environment.apiUrl}/egresados/${encodeURIComponent(String(egresadoId))}/foto?v=${encodeURIComponent(version)}`;
+}
+
+function googleDriveFileId(url: string): string | null {
+  return url.match(/[?&]id=([^&]+)/)?.[1]
+    ?? url.match(/\/d\/([^/?]+)/)?.[1]
+    ?? null;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ProfilePhotoService {

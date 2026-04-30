@@ -119,6 +119,13 @@ export class EgresadoService {
       catchError(error => toApiError(error, 'No se pudo eliminar el certificado'))
     );
   }
+  
+  eliminarFoto(egresadoId: string): Observable<void> {
+    return this.http.delete<ApiEnvelope<any>>(`${environment.apiUrl}/egresados/${egresadoId}/foto`).pipe(
+      map(() => undefined),
+      catchError(error => toApiError(error, 'No se pudo eliminar la foto de perfil'))
+    );
+  }
 
   resetEvaluaciones(id: string): Observable<void> {
     return this.http.delete<ApiEnvelope<any>>(`${environment.apiUrl}/egresados/${id}/evaluaciones`).pipe(
