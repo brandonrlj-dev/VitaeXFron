@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -18,7 +18,7 @@ import { EmpresaService } from '../../../core/services/empresa.service';
   selector: 'app-login',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, RouterLink,
+    CommonModule, ReactiveFormsModule,
     ButtonModule, InputTextModule, PasswordModule,
     MessageModule, ProgressSpinnerModule,
     DialogModule, DropdownModule, ToastModule,
